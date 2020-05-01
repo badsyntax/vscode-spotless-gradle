@@ -1,32 +1,40 @@
-import * as vscode from "vscode";
-
-function fullDocumentRange(document: vscode.TextDocument): vscode.Range {
-  const lastLineId = document.lineCount - 1;
-  return new vscode.Range(
-    0,
-    0,
-    lastLineId,
-    document.lineAt(lastLineId).text.length
-  );
-}
+import * as vscode from 'vscode';
 
 export function activate(context: vscode.ExtensionContext): void {
-  console.log(
-    'Congratulations, your extension "vscode-spotless-gradle" is now active!'
+  const gradleTasksExtension = vscode.extensions.getExtension(
+    'richardwillis.vscode-gradle'
   );
-
+  if (!gradleTasksExtension) {
+    return;
+  }
   const disposable = vscode.languages.registerDocumentFormattingEditProvider(
-    "java",
+    'java',
     {
-      provideDocumentFormattingEdits(
+      async provideDocumentFormattingEdits(
         document: vscode.TextDocument
-      ): vscode.TextEdit[] {
-        return [
-          vscode.TextEdit.replace(
-            fullDocumentRange(document),
-            "FORMATTED CODE TO GO HERE"
-          ),
-        ];
+      ): Promise<vscode.TextEdit[] | null> {
+        const workspaceFolder = vscode.workspace.getWorkspaceFolder(
+          document.uri
+        );
+        if (!workspaceFolder) {
+          return null;
+        }
+        try {
+          const saved = await document.save();
+          if (!saved) {
+            throw new Error('Unable to save file');
+          }
+          const args = [`-PspotlessFiles=${document.uri.fsPath}`];
+          const gradleApi = gradleTasksExtension.exports;
+          await gradleApi.runTask(
+            workspaceFolder.uri.fsPath,
+            'spotlessApply',
+            args
+          );
+        } catch (e) {
+          console.log('Error running spotless formatter', e.message);
+        }
+        return null;
       },
     }
   );
