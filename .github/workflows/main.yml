@@ -1,4 +1,4 @@
-name: Build
+name: Build & Publish
 on:
   push:
   release:
@@ -18,15 +18,24 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node-version }}
+      - name: Install packages
+        run: |
+          npm install
       - name: Lint extension
         run: |
           npm run lint
       - name: Build extension
         run: |
           npm run build
+      - name: Start Xvfb
+        run: |
+          Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
+        if: matrix.os == 'ubuntu-latest'
       - name: Test extension
         run: |
           npm run test
+        env:
+          DISPLAY: ':99.0'
 
   publish:
     name: Publish extension
