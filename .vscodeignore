@@ -9,3 +9,8 @@ vsc-extension-quickstart.md
 **/*.map
 **/*.ts
 test-fixtures/**
+.prettierignore
+.prettierrc.json
+.nvmrc
+.github/**
+.gradle/**
