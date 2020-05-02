@@ -1,28 +1,24 @@
 {
   "name": "vscode-spotless-gradle",
-  "displayName": "vscode-spotless-gradle",
-  "description": "Format your source files using spotless",
+  "displayName": "Spotless Gradle",
+  "description": "Format your source files using Spotless via Gradle",
   "version": "0.0.1",
   "engines": {
     "vscode": "^1.44.0"
   },
   "preview": true,
-  "extensionDependencies": ["richardwillis.vscode-gradle"],
+  "extensionDependencies": [
+    "richardwillis.vscode-gradle"
+  ],
   "categories": [
-    "Other"
+    "Formatters"
   ],
   "activationEvents": [
-    "*"
+    "workspaceContains:gradlew",
+    "workspaceContains:gradlew.bat"
   ],
   "main": "./out/extension.js",
-  "contributes": {
-    "commands": [
-      {
-        "command": "vscode-spotless-gradle.helloWorld",
-        "title": "Hello World"
-      }
-    ]
-  },
+  "contributes": {},
   "scripts": {
     "vscode:prepublish": "npm run compile",
     "compile": "tsc -p ./",
