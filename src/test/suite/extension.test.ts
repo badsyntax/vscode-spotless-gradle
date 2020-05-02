@@ -1,15 +1,61 @@
+import * as vscode from 'vscode';
+import * as path from 'path';
+import * as fs from 'fs';
 import * as assert from 'assert';
 
-// You can import and use all API from the 'vscode' module
-// as well as import your extension to test it
-import * as vscode from 'vscode';
-// import * as myExtension from '../extension';
+const appFilePath = path.resolve(
+  __dirname,
+  '../../../test-fixtures/gradle-project/src/main/java/gradle/project/App.java'
+);
+const appFileContents = fs.readFileSync(appFilePath, 'utf8');
 
-suite('Extension Test Suite', () => {
-	vscode.window.showInformationMessage('Start all tests.');
+const helloFilePath = path.resolve(
+  __dirname,
+  '../../../test-fixtures/gradle-project/src/main/java/gradle/project/Hello.java'
+);
+const helloFileContents = fs.readFileSync(helloFilePath, 'utf8');
 
-	test('Sample test', () => {
-		assert.equal(-1, [1, 2, 3].indexOf(5));
-		assert.equal(-1, [1, 2, 3].indexOf(0));
-	});
+const expectedFileContents = `package gradle.project;
+
+public class App {
+  public static void main(String[] args) {
+    System.out.println("app");
+  }
+}
+`;
+
+function runAndCheck(command: string): Promise<void> {
+  return new Promise(async (resolve) => {
+    const watcher = vscode.workspace.createFileSystemWatcher(appFilePath);
+    watcher.onDidChange((uri: vscode.Uri) => {
+      const newContents = fs.readFileSync(uri.fsPath, 'utf8');
+      if (newContents !== appFileContents) {
+        watcher.dispose();
+        assert.equal(newContents, expectedFileContents);
+        // check for single file spotless
+        assert.equal(fs.readFileSync(helloFilePath, 'utf8'), helloFileContents);
+        resolve();
+      }
+    });
+    await vscode.window.showTextDocument(
+      await vscode.workspace.openTextDocument(appFilePath)
+    );
+    setTimeout(() => {
+      vscode.commands.executeCommand(command);
+    }, 100);
+  });
+}
+
+describe('Extension Test Suite', () => {
+  afterEach(() => {
+    fs.writeFileSync(appFilePath, appFileContents, 'utf8');
+  });
+
+  it('should run spotless when saving a file', async () => {
+    await runAndCheck('workbench.action.files.save');
+  });
+
+  it('should run spotless when formatting a file', async () => {
+    await runAndCheck('editor.action.formatDocument');
+  });
 });

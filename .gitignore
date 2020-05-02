@@ -1,4 +1,33 @@
-out
+
+# Output directories
+build/
+target/
+bin/
+out/
+
+# Mac OS X files
+.DS_Store
+
+# Eclipse files
+.settings
+.classpath
+.project
+
+# vim files
+.*.sw[a-z]
+*.un~
+
+# Java class files
+*.class
+
+# Gradle
+.gradle
+
+# direnv
+.envrc
+
+# node
 node_modules
-.vscode-test/
-*.vsix
+
+# vscode-tst
+.vscode-test

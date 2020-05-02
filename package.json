@@ -1,31 +1,48 @@
 {
   "name": "vscode-spotless-gradle",
-  "displayName": "vscode-spotless-gradle",
-  "description": "Format your source files using spotless",
-  "version": "0.0.1",
+  "displayName": "Spotless Gradle",
+  "description": "Format your source files using Spotless via Gradle",
+  "version": "0.0.0",
+  "private": true,
+  "publisher": "richardwillis",
+  "readme": "README.md",
+  "author": "Richard Willis <willis.rh@gmail.com>",
+  "license": "SEE LICENSE IN LICENSE.md",
   "engines": {
     "vscode": "^1.44.0"
   },
-  "preview": true,
-  "extensionDependencies": "richardwillis.vscode-gradle",
+  "icon": "icon.png",
+  "bugs": {
+    "url": "https://github.com/badsyntax/vscode-spotless-gradle/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/badsyntax/vscode-spotless-gradle/"
+  },
+  "extensionDependencies": [
+    "richardwillis.vscode-gradle"
+  ],
   "categories": [
-    "Other"
+    "Formatters"
+  ],
+  "keywords": [
+    "spotless",
+    "gradle",
+    "java",
+    "groovy",
+    "scala",
+    "kotlin"
   ],
   "activationEvents": [
-    "*"
+    "workspaceContains:gradlew",
+    "workspaceContains:gradlew.bat"
   ],
   "main": "./out/extension.js",
-  "contributes": {
-    "commands": [
-      {
-        "command": "vscode-spotless-gradle.helloWorld",
-        "title": "Hello World"
-      }
-    ]
-  },
+  "contributes": {},
   "scripts": {
     "vscode:prepublish": "npm run compile",
     "compile": "tsc -p ./",
+    "build": "npm run compile",
     "lint": "eslint src --ext ts",
     "watch": "tsc -watch -p ./",
     "pretest": "npm run compile && npm run lint",

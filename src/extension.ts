@@ -1,37 +1,49 @@
-import * as vscode from "vscode";
+import * as vscode from 'vscode';
+import { FixAllProvider } from './fixAll';
+import { logger } from './logger';
+import { COMMAND_FORMAT } from './commands';
+import { makeSpotless } from './spotless';
 
-function fullDocumentRange(document: vscode.TextDocument): vscode.Range {
-  const lastLineId = document.lineCount - 1;
-  return new vscode.Range(
-    0,
-    0,
-    lastLineId,
-    document.lineAt(lastLineId).text.length
-  );
-}
+const LANGUAGES = ['java', 'kotlin', 'scala', 'groovy'];
 
 export function activate(context: vscode.ExtensionContext): void {
-  console.log(
-    'Congratulations, your extension "vscode-spotless-gradle" is now active!'
+  logger.setLoggingChannel(
+    vscode.window.createOutputChannel('Spotless Gradle')
   );
 
-  const disposable = vscode.languages.registerDocumentFormattingEditProvider(
-    "java",
-    {
-      provideDocumentFormattingEdits(
+  const gradleTasksExtension = vscode.extensions.getExtension(
+    'richardwillis.vscode-gradle'
+  );
+  if (!gradleTasksExtension || !gradleTasksExtension.isActive) {
+    return logger.error('Gradle Tasks extension is not active');
+  }
+
+  context.subscriptions.push(
+    vscode.languages.registerCodeActionsProvider(
+      LANGUAGES.map((language) => ({
+        language,
+        scheme: 'file',
+      })),
+      new FixAllProvider(),
+      FixAllProvider.metadata
+    )
+  );
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand(COMMAND_FORMAT, (document) => {
+      makeSpotless(gradleTasksExtension.exports, document);
+    })
+  );
+
+  context.subscriptions.push(
+    vscode.languages.registerDocumentFormattingEditProvider(LANGUAGES, {
+      async provideDocumentFormattingEdits(
         document: vscode.TextDocument
-      ): vscode.TextEdit[] {
-        return [
-          vscode.TextEdit.replace(
-            fullDocumentRange(document),
-            "FORMATTED CODE TO GO HERE"
-          ),
-        ];
+      ): Promise<null> {
+        return makeSpotless(gradleTasksExtension.exports, document);
       },
-    }
+    })
   );
-
-  context.subscriptions.push(disposable);
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-function

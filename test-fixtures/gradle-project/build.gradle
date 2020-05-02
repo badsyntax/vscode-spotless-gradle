@@ -1,0 +1,26 @@
+plugins {
+    id 'java'
+    id 'application'
+    id 'com.diffplug.gradle.spotless' version '3.28.1'
+}
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+}
+
+application {
+    mainClassName = 'gradle.project.App'
+}
+
+spotless {
+  java {
+    googleJavaFormat()
+    removeUnusedImports()
+    trimTrailingWhitespace()
+    paddedCell()
+    targetExclude "build/**"
+  }
+}

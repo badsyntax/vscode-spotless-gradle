@@ -1,0 +1,60 @@
+name: Build & Publish
+on:
+  push:
+  release:
+    types: [published]
+
+jobs:
+  build-and-test:
+    name: Build & Analyse
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        node-version: [12.16.2]
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v1
+      - name: Use Node ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Install packages
+        run: |
+          npm install
+      - name: Lint extension
+        run: |
+          npm run lint
+      - name: Build extension
+        run: |
+          npm run build
+      - name: Start Xvfb
+        run: |
+          Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
+        if: matrix.os == 'ubuntu-latest'
+      - name: Test extension
+        run: |
+          npm run test
+        env:
+          DISPLAY: ':99.0'
+
+  publish:
+    name: Publish extension
+    runs-on: ubuntu-latest
+    needs: [build-and-test]
+    if: github.event_name == 'release' && github.event.action == 'published'
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 12.16.2
+      - name: Package extension
+        run: |
+          tag=${GITHUB_REF#refs/tags/}
+          echo "Setting package version $tag"
+          npm --no-git-tag-version version "$tag"
+          npx vsce package
+      - name: Publish extension to marketplace
+        env:
+          AZURE_TOKEN: ${{ secrets.AZURE_TOKEN }}
+        run: |
+          npx vsce publish -p "$AZURE_TOKEN"
