@@ -2,16 +2,36 @@
   "name": "vscode-spotless-gradle",
   "displayName": "Spotless Gradle",
   "description": "Format your source files using Spotless via Gradle",
-  "version": "0.0.1",
+  "version": "0.0.0",
+  "private": true,
+  "publisher": "richardwillis",
+  "readme": "README.md",
+  "author": "Richard Willis <willis.rh@gmail.com>",
+  "license": "SEE LICENSE IN LICENSE.md",
   "engines": {
     "vscode": "^1.44.0"
   },
-  "preview": true,
+  "icon": "icon.png",
+  "bugs": {
+    "url": "https://github.com/badsyntax/vscode-spotless-gradle/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/badsyntax/vscode-spotless-gradle/"
+  },
   "extensionDependencies": [
     "richardwillis.vscode-gradle"
   ],
   "categories": [
     "Formatters"
+  ],
+  "keywords": [
+    "spotless",
+    "gradle",
+    "java",
+    "groovy",
+    "scala",
+    "kotlin"
   ],
   "activationEvents": [
     "workspaceContains:gradlew",
