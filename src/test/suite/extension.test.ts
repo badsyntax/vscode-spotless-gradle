@@ -24,23 +24,14 @@ public class App {
 }
 `;
 
-const newline = /\r\n|\r|\n/g;
-function convertLineEndings(text: string): string {
-  return text.replace(newline, '\n');
-}
-
 function runAndCheck(command: string): Promise<void> {
   return new Promise(async (resolve) => {
     const watcher = vscode.workspace.createFileSystemWatcher(appFilePath);
     watcher.onDidChange((uri: vscode.Uri) => {
       const newContents = fs.readFileSync(uri.fsPath, 'utf8');
-      console.log('GOT IT');
-      console.log(convertLineEndings(newContents));
-      console.log('COMPARE TO');
-      console.log(expectedFileContents);
       if (newContents !== appFileContents) {
         watcher.dispose();
-        assert.equal(convertLineEndings(newContents), expectedFileContents);
+        assert.equal(newContents, expectedFileContents);
         // check for single file spotless
         assert.equal(fs.readFileSync(helloFilePath, 'utf8'), helloFileContents);
         resolve();
