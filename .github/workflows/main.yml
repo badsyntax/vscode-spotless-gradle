@@ -47,6 +47,12 @@ jobs:
       - uses: actions/setup-node@v1
         with:
           node-version: 12.16.2
+      - name: Install packages
+        run: |
+          npm install
+      - name: Build extension
+        run: |
+          npm run build
       - name: Package extension
         run: |
           tag=${GITHUB_REF#refs/tags/}
