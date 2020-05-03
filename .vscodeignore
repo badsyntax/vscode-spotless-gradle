@@ -14,3 +14,4 @@ test-fixtures/**
 .nvmrc
 .github/**
 .gradle/**
+images/**

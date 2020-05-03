@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 import { logger } from './logger';
+import { ExtensionApi as GradleTasksApi } from 'vscode-gradle';
 
 function escapeStringRegexp(str: string): string {
   return str.replace(/[.*+\-?^${}()|[\]\\]/g, '\\$&');
@@ -17,19 +18,29 @@ function sanitizePath(fsPath: string): string {
 }
 
 export async function makeSpotless(
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  gradleApi: any,
+  gradleApi: GradleTasksApi,
   document: vscode.TextDocument
 ): Promise<null> {
+  if (document.isClosed || document.isUntitled) {
+    logger.warning('Document is closed or not saved yet, skipping');
+    return null;
+  }
   const workspaceFolder = vscode.workspace.getWorkspaceFolder(document.uri);
   if (!workspaceFolder) {
+    logger.error(
+      `Unable to find workspace folder for ${path.basename(
+        document.uri.fsPath
+      )}, skipping`
+    );
     return null;
   }
   logger.info('Running spotless on', path.basename(document.uri.fsPath));
   try {
-    const saved = await document.save();
-    if (!saved) {
-      throw new Error(`Unable to save file ${document.fileName}`);
+    if (document.isDirty) {
+      const saved = await document.save();
+      if (!saved) {
+        throw new Error(`Unable to save file ${document.fileName}`);
+      }
     }
     const normalizedPath = escapeStringRegexp(
       sanitizePath(document.uri.fsPath)
@@ -37,7 +48,7 @@ export async function makeSpotless(
     const args = [`-PspotlessFiles=${normalizedPath}`];
     await gradleApi.runTask(workspaceFolder.uri.fsPath, 'spotlessApply', args);
   } catch (e) {
-    logger.error('Error running spotless formatter', e.message);
+    logger.error('Error running spotless formatter:', e.message);
   }
   return null;
 }

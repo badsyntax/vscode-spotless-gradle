@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { FixAllProvider } from './fixAll';
 import { logger } from './logger';
-import { COMMAND_FORMAT } from './commands';
+import { COMMAND_FORMAT_ON_SAVE } from './commands';
 import { makeSpotless } from './spotless';
 
 const LANGUAGES = ['java', 'kotlin', 'scala', 'groovy'];
@@ -30,8 +30,15 @@ export function activate(context: vscode.ExtensionContext): void {
   );
 
   context.subscriptions.push(
-    vscode.commands.registerCommand(COMMAND_FORMAT, (document) => {
-      makeSpotless(gradleTasksExtension.exports, document);
+    vscode.commands.registerCommand(COMMAND_FORMAT_ON_SAVE, (document) => {
+      const disposable = vscode.workspace.onDidSaveTextDocument(
+        (documentSaved) => {
+          if (documentSaved === document) {
+            disposable.dispose();
+            makeSpotless(gradleTasksExtension.exports, document);
+          }
+        }
+      );
     })
   );
 
