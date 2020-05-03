@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
+import { ExtensionApi as GradleTasksApi } from 'vscode-gradle';
 import { FixAllProvider } from './fixAll';
 import { logger } from './logger';
-import { COMMAND_FORMAT_ON_SAVE } from './commands';
 import { makeSpotless } from './spotless';
 
 const LANGUAGES = ['java', 'kotlin', 'scala', 'groovy'];
@@ -18,38 +18,39 @@ export function activate(context: vscode.ExtensionContext): void {
     return logger.error('Gradle Tasks extension is not active');
   }
 
-  const documentSelectors = LANGUAGES.map((language) => ({
-    language,
-    scheme: 'file',
-  }));
+  const documentSelectors: vscode.DocumentSelector = LANGUAGES.map(
+    (language) => ({
+      language,
+      scheme: 'file',
+    })
+  );
 
   context.subscriptions.push(
     vscode.languages.registerCodeActionsProvider(
       documentSelectors,
-      new FixAllProvider(),
+      new FixAllProvider(gradleTasksExtension.exports as GradleTasksApi),
       FixAllProvider.metadata
     )
-  );
-
-  context.subscriptions.push(
-    vscode.commands.registerCommand(COMMAND_FORMAT_ON_SAVE, (document) => {
-      const disposable = vscode.workspace.onDidSaveTextDocument(
-        (documentSaved) => {
-          if (documentSaved === document) {
-            disposable.dispose();
-            makeSpotless(gradleTasksExtension.exports, document);
-          }
-        }
-      );
-    })
   );
 
   context.subscriptions.push(
     vscode.languages.registerDocumentFormattingEditProvider(documentSelectors, {
       async provideDocumentFormattingEdits(
         document: vscode.TextDocument
-      ): Promise<null> {
-        return makeSpotless(gradleTasksExtension.exports, document);
+      ): Promise<vscode.TextEdit[]> {
+        const newText = await makeSpotless(
+          gradleTasksExtension.exports,
+          document
+        );
+        if (newText) {
+          const range = new vscode.Range(
+            document.positionAt(0),
+            document.positionAt(document.getText().length - 1)
+          );
+          return [new vscode.TextEdit(range, newText)];
+        } else {
+          return [];
+        }
       },
     })
   );
