@@ -18,12 +18,14 @@ export function activate(context: vscode.ExtensionContext): void {
     return logger.error('Gradle Tasks extension is not active');
   }
 
+  const documentSelectors = LANGUAGES.map((language) => ({
+    language,
+    scheme: 'file',
+  }));
+
   context.subscriptions.push(
     vscode.languages.registerCodeActionsProvider(
-      LANGUAGES.map((language) => ({
-        language,
-        scheme: 'file',
-      })),
+      documentSelectors,
       new FixAllProvider(),
       FixAllProvider.metadata
     )
@@ -43,7 +45,7 @@ export function activate(context: vscode.ExtensionContext): void {
   );
 
   context.subscriptions.push(
-    vscode.languages.registerDocumentFormattingEditProvider(LANGUAGES, {
+    vscode.languages.registerDocumentFormattingEditProvider(documentSelectors, {
       async provideDocumentFormattingEdits(
         document: vscode.TextDocument
       ): Promise<null> {
