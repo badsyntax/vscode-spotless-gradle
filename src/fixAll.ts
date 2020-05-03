@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { COMMAND_FORMAT } from './commands';
+import { COMMAND_FORMAT_ON_SAVE } from './commands';
 
 export class FixAllProvider implements vscode.CodeActionProvider {
   public static readonly fixAllCodeActionKind = vscode.CodeActionKind.SourceFixAll.append(
@@ -32,7 +32,7 @@ export class FixAllProvider implements vscode.CodeActionProvider {
       FixAllProvider.fixAllCodeActionKind
     );
     action.command = {
-      command: COMMAND_FORMAT,
+      command: COMMAND_FORMAT_ON_SAVE,
       title,
       arguments: [document],
     };

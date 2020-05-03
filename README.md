@@ -7,9 +7,11 @@
 
 Format your code using [Spotless](https://github.com/diffplug/spotless) (via Gradle).
 
+![Spotless Gradle Screencast](images/spotless-gradle-screencast.gif)
+
 ## Features
 
-- Provides a new code formatter
+- Provides a new Spotless formatter (`Format Document`)
 - Auto-fix on save
 
 Supports `java`, `kotlin`, `scala` & `groovy` language types.
@@ -17,6 +19,7 @@ Supports `java`, `kotlin`, `scala` & `groovy` language types.
 ## Requirements
 
 - [Gradle Tasks](https://marketplace.visualstudio.com/items?itemName=richardwillis.vscode-gradle)
+- [Spotless Gradle Plugin](https://github.com/diffplug/spotless/tree/master/plugin-gradle)
 - [Java >= 8](https://adoptopenjdk.net/)
 
 ## Setting the Formatter
@@ -36,6 +39,16 @@ Enable spotless fixes on save in `settings.json`:
   "source.fixAll.spotlessGradle": true
 }
 ```
+
+## How it Works
+
+When run via `Format Document` or the "auto-fix" feature, the extension will first _save your file_, then run spotless on it.
+
+The vscode => spotless interface is provided by the [Gradle Tasks](https://marketplace.visualstudio.com/items?itemName=richardwillis.vscode-gradle) extension.
+
+## Troubleshooting
+
+View logs by selecting "Spotless Gradle" in the output panel.
 
 ## Support
 
