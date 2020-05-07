@@ -2,5 +2,7 @@
   "editor.formatOnSave": false,
   "editor.codeActionsOnSave": {
     "source.fixAll.spotlessGradle": true
-  }
+  },
+  "java.saveActions.organizeImports": false,
+  "java.format.enabled": false
 }
