@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
+import type { ExtensionApi as GradleTasksApi } from 'vscode-gradle';
 import { FixAllProvider } from './fixAll';
 import { logger } from './logger';
-import { COMMAND_FORMAT_ON_SAVE } from './commands';
 import { makeSpotless } from './spotless';
 
 const LANGUAGES = ['java', 'kotlin', 'scala', 'groovy'];
@@ -18,6 +18,8 @@ export function activate(context: vscode.ExtensionContext): void {
     return logger.error('Gradle Tasks extension is not active');
   }
 
+  const gradleApi = gradleTasksExtension.exports as GradleTasksApi;
+
   const documentSelectors = LANGUAGES.map((language) => ({
     language,
     scheme: 'file',
@@ -26,30 +28,26 @@ export function activate(context: vscode.ExtensionContext): void {
   context.subscriptions.push(
     vscode.languages.registerCodeActionsProvider(
       documentSelectors,
-      new FixAllProvider(),
+      new FixAllProvider(gradleApi),
       FixAllProvider.metadata
     )
-  );
-
-  context.subscriptions.push(
-    vscode.commands.registerCommand(COMMAND_FORMAT_ON_SAVE, (document) => {
-      const disposable = vscode.workspace.onDidSaveTextDocument(
-        (documentSaved) => {
-          if (documentSaved === document) {
-            disposable.dispose();
-            makeSpotless(gradleTasksExtension.exports, document);
-          }
-        }
-      );
-    })
   );
 
   context.subscriptions.push(
     vscode.languages.registerDocumentFormattingEditProvider(documentSelectors, {
       async provideDocumentFormattingEdits(
         document: vscode.TextDocument
-      ): Promise<null> {
-        return makeSpotless(gradleTasksExtension.exports, document);
+      ): Promise<vscode.TextEdit[]> {
+        const newText = await makeSpotless(gradleApi, document);
+        if (newText) {
+          const range = new vscode.Range(
+            document.positionAt(0),
+            document.positionAt(document.getText().length)
+          );
+          return [new vscode.TextEdit(range, newText)];
+        } else {
+          return [];
+        }
       },
     })
   );

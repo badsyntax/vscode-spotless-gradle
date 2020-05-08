@@ -1,5 +1,7 @@
 import * as vscode from 'vscode';
-import { COMMAND_FORMAT_ON_SAVE } from './commands';
+import type { ExtensionApi as GradleTasksApi } from 'vscode-gradle';
+import { logger } from './logger';
+import { makeSpotless } from './spotless';
 
 export class FixAllProvider implements vscode.CodeActionProvider {
   public static readonly fixAllCodeActionKind = vscode.CodeActionKind.SourceFixAll.append(
@@ -9,6 +11,8 @@ export class FixAllProvider implements vscode.CodeActionProvider {
   public static metadata: vscode.CodeActionProviderMetadata = {
     providedCodeActionKinds: [FixAllProvider.fixAllCodeActionKind],
   };
+
+  constructor(private readonly gradleApi: GradleTasksApi) {}
 
   public async provideCodeActions(
     document: vscode.TextDocument,
@@ -26,18 +30,28 @@ export class FixAllProvider implements vscode.CodeActionProvider {
       return [];
     }
 
-    const title = 'Format code using Spotless';
-    const action = new vscode.CodeAction(
-      title,
-      FixAllProvider.fixAllCodeActionKind
-    );
-    action.command = {
-      command: COMMAND_FORMAT_ON_SAVE,
-      title,
-      arguments: [document],
-    };
-    action.isPreferred = true;
+    try {
+      const newText = await makeSpotless(this.gradleApi, document);
+      if (!newText) {
+        return [];
+      }
+      const range = new vscode.Range(
+        document.positionAt(0),
+        document.positionAt(document.getText().length)
+      );
+      const title = 'Format code using Spotless';
+      const action = new vscode.CodeAction(
+        title,
+        FixAllProvider.fixAllCodeActionKind
+      );
+      action.edit = new vscode.WorkspaceEdit();
+      action.edit.replace(document.uri, range, newText);
+      action.isPreferred = true;
 
-    return [action];
+      return [action];
+    } catch (e) {
+      logger.error('Unable to apply code action:', e.message);
+      return [];
+    }
   }
 }
