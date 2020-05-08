@@ -1,26 +1,37 @@
 import * as vscode from 'vscode';
 import type { ExtensionApi as GradleTasksApi } from 'vscode-gradle';
-import { FixAllProvider } from './fixAll';
+import { FixAllProvider } from './FixAllProvider';
 import { logger } from './logger';
-import { makeSpotless } from './spotless';
+import { DocumentFormattingEditProvider } from './documentFormattingEditProvider';
 
-const LANGUAGES = ['java', 'kotlin', 'scala', 'groovy'];
+const SUPPORTED_LANGUAGES = ['java', 'kotlin', 'scala', 'groovy'];
+const GRADLE_TASKS_EXTENSION = 'richardwillis.vscode-gradle';
 
-export function activate(context: vscode.ExtensionContext): void {
+export interface ExtensionApi {
+  fixAllProvider: FixAllProvider;
+  documentFormattingEditProvider: DocumentFormattingEditProvider;
+}
+
+export function activate(context: vscode.ExtensionContext): ExtensionApi {
   logger.setLoggingChannel(
     vscode.window.createOutputChannel('Spotless Gradle')
   );
 
   const gradleTasksExtension = vscode.extensions.getExtension(
-    'richardwillis.vscode-gradle'
+    GRADLE_TASKS_EXTENSION
   );
   if (!gradleTasksExtension || !gradleTasksExtension.isActive) {
-    return logger.error('Gradle Tasks extension is not active');
+    throw new Error('Gradle Tasks extension is not active');
   }
 
   const gradleApi = gradleTasksExtension.exports as GradleTasksApi;
 
-  const documentSelectors = LANGUAGES.map((language) => ({
+  const fixAllProvider = new FixAllProvider(gradleApi);
+  const documentFormattingEditProvider = new DocumentFormattingEditProvider(
+    gradleApi
+  );
+
+  const documentSelectors = SUPPORTED_LANGUAGES.map((language) => ({
     language,
     scheme: 'file',
   }));
@@ -28,29 +39,21 @@ export function activate(context: vscode.ExtensionContext): void {
   context.subscriptions.push(
     vscode.languages.registerCodeActionsProvider(
       documentSelectors,
-      new FixAllProvider(gradleApi),
+      fixAllProvider,
       FixAllProvider.metadata
-    )
+    ),
+    vscode.languages.registerDocumentFormattingEditProvider(
+      documentSelectors,
+      documentFormattingEditProvider
+    ),
+    fixAllProvider,
+    documentFormattingEditProvider
   );
 
-  context.subscriptions.push(
-    vscode.languages.registerDocumentFormattingEditProvider(documentSelectors, {
-      async provideDocumentFormattingEdits(
-        document: vscode.TextDocument
-      ): Promise<vscode.TextEdit[]> {
-        const newText = await makeSpotless(gradleApi, document);
-        if (newText) {
-          const range = new vscode.Range(
-            document.positionAt(0),
-            document.positionAt(document.getText().length)
-          );
-          return [new vscode.TextEdit(range, newText)];
-        } else {
-          return [];
-        }
-      },
-    })
-  );
+  return {
+    documentFormattingEditProvider,
+    fixAllProvider,
+  };
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-function

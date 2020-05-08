@@ -1,9 +1,10 @@
 import * as vscode from 'vscode';
-import type { ExtensionApi as GradleTasksApi } from 'vscode-gradle';
 import { logger } from './logger';
 import { makeSpotless } from './spotless';
+import { FormattingProvider } from './FormattingProvider';
 
-export class FixAllProvider implements vscode.CodeActionProvider {
+export class FixAllProvider extends FormattingProvider
+  implements vscode.CodeActionProvider {
   public static readonly fixAllCodeActionKind = vscode.CodeActionKind.SourceFixAll.append(
     'spotlessGradle'
   );
@@ -12,12 +13,11 @@ export class FixAllProvider implements vscode.CodeActionProvider {
     providedCodeActionKinds: [FixAllProvider.fixAllCodeActionKind],
   };
 
-  constructor(private readonly gradleApi: GradleTasksApi) {}
-
   public async provideCodeActions(
     document: vscode.TextDocument,
     _range: vscode.Range | vscode.Selection,
-    context: vscode.CodeActionContext
+    context: vscode.CodeActionContext,
+    token: vscode.CancellationToken
   ): Promise<vscode.CodeAction[]> {
     if (!context.only) {
       return [];
@@ -30,9 +30,14 @@ export class FixAllProvider implements vscode.CodeActionProvider {
       return [];
     }
 
+    token.onCancellationRequested(() => {
+      logger.warning('Spotless formatting cancelled');
+      this._onCancelled.fire();
+    });
+
     try {
       const newText = await makeSpotless(this.gradleApi, document);
-      if (!newText) {
+      if (!newText || token.isCancellationRequested) {
         return [];
       }
       const range = new vscode.Range(

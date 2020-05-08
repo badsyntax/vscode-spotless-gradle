@@ -6,6 +6,7 @@ import type {
   RunTaskOpts,
 } from 'vscode-gradle';
 import { Output } from 'vscode-gradle';
+import { sanitizePath } from './util';
 
 const SPOTLESS_STATUS_IS_CLEAN = 'IS CLEAN';
 const SPOTLESS_STATUS_DID_NOT_CONVERGE = 'DID NOT CONVERGE';
@@ -17,15 +18,6 @@ const SPOTLESS_STATUSES = [
   SPOTLESS_STATUS_IS_DIRTY,
 ];
 
-function sanitizePath(fsPath: string): string {
-  if (process.platform === 'win32') {
-    // vscode.Uri.fsPath will lower-case the drive letters
-    // https://github.com/microsoft/vscode/blob/dc348340fd1a6c583cb63a1e7e6b4fd657e01e01/src/vs/vscode.d.ts#L1338
-    return fsPath[0].toUpperCase() + fsPath.substr(1);
-  }
-  return fsPath;
-}
-
 interface TextBuffers {
   stdOut: string[];
   stdErr: string[];
@@ -36,19 +28,18 @@ export async function makeSpotless(
   document: vscode.TextDocument
 ): Promise<string | null> {
   if (document.isClosed || document.isUntitled) {
-    throw new Error('Document is closed or not saved yet, skipping');
+    throw new Error('Document is closed or not saved, skipping formatting');
   }
   const workspaceFolder = vscode.workspace.getWorkspaceFolder(document.uri);
   if (!workspaceFolder) {
     throw new Error(
       `Unable to find workspace folder for ${path.basename(
         document.uri.fsPath
-      )}, skipping`
+      )}`
     );
   }
 
   const sanitizedPath = sanitizePath(document.uri.fsPath);
-  const args = [`-PspotlessIdeHook=${sanitizedPath}`, '--quiet'];
   const textBuffers: TextBuffers = {
     stdOut: [],
     stdErr: [],
@@ -57,7 +48,7 @@ export async function makeSpotless(
   const runTaskOpts: RunTaskOpts = {
     projectFolder: workspaceFolder.uri.fsPath,
     taskName: 'spotlessApply',
-    args,
+    args: [`-PspotlessIdeHook=${sanitizedPath}`, '--quiet'],
     showProgress: true,
     input: document.getText(),
     showOutputColors: false,
@@ -79,7 +70,7 @@ export async function makeSpotless(
   const stdErr = textBuffers.stdErr.join('').trim();
 
   if (SPOTLESS_STATUSES.includes(stdErr)) {
-    logger.debug('Spotless:', stdErr);
+    logger.debug('Status:', stdErr);
   }
   if (stdErr === SPOTLESS_STATUS_IS_DIRTY) {
     return stdOut;
@@ -88,7 +79,7 @@ export async function makeSpotless(
     stdErr !== SPOTLESS_STATUS_DID_NOT_CONVERGE &&
     stdErr !== SPOTLESS_STATUS_IS_CLEAN
   ) {
-    logger.error(stdErr);
+    throw new Error(stdErr);
   }
   return null;
 }
