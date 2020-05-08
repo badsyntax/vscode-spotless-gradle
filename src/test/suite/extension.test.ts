@@ -2,6 +2,19 @@ import * as vscode from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs';
 import * as assert from 'assert';
+import {
+  rerunIfCancelled,
+  formatFileWithCommand,
+  formatFileOnSave,
+} from '../testUtil';
+
+const SPOTLESS_EXTENSION_ID = 'richardwillis.vscode-spotless-gradle';
+const GRADLE_TASKS_EXTENSION_ID = 'richardwillis.vscode-gradle';
+
+const spotlessExtension = vscode.extensions.getExtension(SPOTLESS_EXTENSION_ID);
+const gradleTasksExtension = vscode.extensions.getExtension(
+  GRADLE_TASKS_EXTENSION_ID
+);
 
 const appFilePath = path.resolve(
   __dirname,
@@ -24,38 +37,55 @@ public class App {
 }
 `;
 
-function runAndCheck(command: string): Promise<void> {
-  return new Promise(async (resolve) => {
-    const watcher = vscode.workspace.createFileSystemWatcher(appFilePath);
-    watcher.onDidChange((uri: vscode.Uri) => {
-      const newContents = fs.readFileSync(uri.fsPath, 'utf8');
-      if (newContents !== appFileContents) {
-        watcher.dispose();
-        assert.equal(newContents, expectedFileContents);
-        // check for single file spotless
-        assert.equal(fs.readFileSync(helloFilePath, 'utf8'), helloFileContents);
-        resolve();
-      }
-    });
-    await vscode.window.showTextDocument(
-      await vscode.workspace.openTextDocument(appFilePath)
-    );
-    setTimeout(() => {
-      vscode.commands.executeCommand(command);
-    }, 100);
-  });
-}
-
 describe('Extension Test Suite', () => {
-  afterEach(() => {
+  before(function (done) {
+    // It's a high timeout as gradle needs to do a full build
+    this.timeout(90000);
+
+    // Although the vscode-gradle `runTask` api also waits for tasks to be
+    // loaded before running a task, we do this here to speed up the tests,
+    // as once the tasks are loaded formatting should be quick.
+    gradleTasksExtension?.exports.onTasksLoaded(done);
+  });
+
+  afterEach(async () => {
+    await vscode.commands.executeCommand('workbench.action.closeActiveEditor');
     fs.writeFileSync(appFilePath, appFileContents, 'utf8');
   });
 
   it('should run spotless when saving a file', async () => {
-    await runAndCheck('workbench.action.files.save');
+    const document = await rerunIfCancelled(
+      spotlessExtension!.exports.fixAllProvider.onCancelled,
+      () => formatFileOnSave(appFilePath)
+    );
+    assert.equal(
+      document?.getText(),
+      expectedFileContents,
+      'The formatted document does not match the expected formatting'
+    );
+    assert.equal(
+      fs.readFileSync(helloFilePath, 'utf8'),
+      helloFileContents,
+      'Spotless formatted multiple files'
+    );
   });
 
   it('should run spotless when formatting a file', async () => {
-    await runAndCheck('editor.action.formatDocument');
+    const document = await rerunIfCancelled(
+      spotlessExtension!.exports.documentFormattingEditProvider.onCancelled,
+      () => formatFileWithCommand(appFilePath)
+    );
+    assert.equal(
+      document?.getText(),
+      expectedFileContents,
+      'The formatted document does not match the expected formatting'
+    );
+    assert.equal(
+      fs.readFileSync(helloFilePath, 'utf8'),
+      helloFileContents,
+      'Spotless formatted multiple files'
+    );
+    // check the document hasn't been saved
+    assert.equal(document?.isDirty, true, 'The document was saved');
   });
 });
