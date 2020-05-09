@@ -1,24 +1,20 @@
-import * as vscode from 'vscode';
 import * as path from 'path';
-import { logger } from './logger';
+import * as vscode from 'vscode';
 import type {
   ExtensionApi as GradleTasksApi,
   RunTaskOpts,
 } from 'vscode-gradle';
 import { Output } from 'vscode-gradle';
+import { logger } from './logger';
 import { sanitizePath } from './util';
-
-const SPOTLESS_STATUS_IS_CLEAN = 'IS CLEAN';
-const SPOTLESS_STATUS_DID_NOT_CONVERGE = 'DID NOT CONVERGE';
-const SPOTLESS_STATUS_IS_DIRTY = 'IS DIRTY';
-
-const SPOTLESS_STATUSES = [
+import {
+  SPOTLESS_STATUSES,
+  SPOTLESS_STATUS_IS_DIRTY,
   SPOTLESS_STATUS_DID_NOT_CONVERGE,
   SPOTLESS_STATUS_IS_CLEAN,
-  SPOTLESS_STATUS_IS_DIRTY,
-];
+} from './constants';
 
-interface TextBuffers {
+interface OutputBuffers {
   stdOut: string[];
   stdErr: string[];
 }
@@ -40,7 +36,7 @@ export async function makeSpotless(
   }
 
   const sanitizedPath = sanitizePath(document.uri.fsPath);
-  const textBuffers: TextBuffers = {
+  const outputBuffers: OutputBuffers = {
     stdOut: [],
     stdErr: [],
   };
@@ -55,10 +51,10 @@ export async function makeSpotless(
     onOutput: (output: Output) => {
       switch (output.getOutputType()) {
         case Output.OutputType.STDOUT:
-          textBuffers.stdOut.push(output.getMessage());
+          outputBuffers.stdOut.push(output.getMessage());
           break;
         case Output.OutputType.STDERR:
-          textBuffers.stdErr.push(output.getMessage());
+          outputBuffers.stdErr.push(output.getMessage());
           break;
       }
     },
@@ -66,8 +62,8 @@ export async function makeSpotless(
 
   await gradleApi.runTask(runTaskOpts);
 
-  const stdOut = textBuffers.stdOut.join('');
-  const stdErr = textBuffers.stdErr.join('').trim();
+  const stdOut = outputBuffers.stdOut.join('');
+  const stdErr = outputBuffers.stdErr.join('').trim();
 
   if (SPOTLESS_STATUSES.includes(stdErr)) {
     logger.debug('Status:', stdErr);
