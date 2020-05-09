@@ -39,7 +39,7 @@ public class App {
 
 describe('Extension Test Suite', () => {
   before(function (done) {
-    // It's a high timeout as gradle needs to do a full build
+    // It's a high timeout as gradle needs to install deps
     this.timeout(90000);
 
     // Although the vscode-gradle `runTask` api also waits for tasks to be

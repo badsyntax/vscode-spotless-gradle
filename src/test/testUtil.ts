@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as vscode from 'vscode';
 
-const WAIT_FOR_FORMATTING_TIMEOUT = 2000;
+const WAIT_FOR_FORMATTING_TIMEOUT = 90000;
 const TOTAL_CANCELLED_RERUNS = 3;
 
 export async function formatFileOnSave(
