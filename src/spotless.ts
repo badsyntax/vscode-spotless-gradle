@@ -10,14 +10,8 @@ import { sanitizePath } from './util';
 import {
   SPOTLESS_STATUSES,
   SPOTLESS_STATUS_IS_DIRTY,
-  SPOTLESS_STATUS_DID_NOT_CONVERGE,
   SPOTLESS_STATUS_IS_CLEAN,
 } from './constants';
-
-interface OutputBuffers {
-  stdOut: string[];
-  stdErr: string[];
-}
 
 export async function makeSpotless(
   gradleApi: GradleTasksApi,
@@ -36,25 +30,29 @@ export async function makeSpotless(
   }
 
   const sanitizedPath = sanitizePath(document.uri.fsPath);
-  const outputBuffers: OutputBuffers = {
-    stdOut: [],
-    stdErr: [],
-  };
+
+  let stdOut = '';
+  let stdErr = '';
 
   const runTaskOpts: RunTaskOpts = {
     projectFolder: workspaceFolder.uri.fsPath,
     taskName: 'spotlessApply',
-    args: [`-PspotlessIdeHook=${sanitizedPath}`, '--quiet'],
+    args: [
+      `-PspotlessIdeHook=${sanitizedPath}`,
+      '-PspotlessIdeHookUseStdIn',
+      '-PspotlessIdeHookUseStdOut',
+      '--quiet',
+    ],
     showProgress: true,
     input: document.getText(),
     showOutputColors: false,
     onOutput: (output: Output) => {
       switch (output.getOutputType()) {
         case Output.OutputType.STDOUT:
-          outputBuffers.stdOut.push(output.getMessage());
+          stdOut += String.fromCharCode(output.getMessageByte());
           break;
         case Output.OutputType.STDERR:
-          outputBuffers.stdErr.push(output.getMessage());
+          stdErr += String.fromCharCode(output.getMessageByte());
           break;
       }
     },
@@ -62,20 +60,17 @@ export async function makeSpotless(
 
   await gradleApi.runTask(runTaskOpts);
 
-  const stdOut = outputBuffers.stdOut.join('');
-  const stdErr = outputBuffers.stdErr.join('').trim();
+  const stdErrClean = stdErr.trim();
 
-  if (SPOTLESS_STATUSES.includes(stdErr)) {
-    logger.debug('Status:', stdErr);
+  if (SPOTLESS_STATUSES.includes(stdErrClean)) {
+    const basename = path.basename(document.uri.fsPath);
+    logger.info(`${basename}: ${stdErrClean}`);
   }
-  if (stdErr === SPOTLESS_STATUS_IS_DIRTY) {
+  if (stdErrClean === SPOTLESS_STATUS_IS_DIRTY) {
     return stdOut;
   }
-  if (
-    stdErr !== SPOTLESS_STATUS_DID_NOT_CONVERGE &&
-    stdErr !== SPOTLESS_STATUS_IS_CLEAN
-  ) {
-    throw new Error(stdErr);
+  if (stdErrClean !== SPOTLESS_STATUS_IS_CLEAN) {
+    throw new Error(stdErrClean);
   }
   return null;
 }
