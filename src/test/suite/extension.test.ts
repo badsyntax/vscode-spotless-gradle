@@ -2,19 +2,7 @@ import * as vscode from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs';
 import * as assert from 'assert';
-import {
-  rerunIfCancelled,
-  formatFileWithCommand,
-  formatFileOnSave,
-} from '../testUtil';
-
-const SPOTLESS_EXTENSION_ID = 'richardwillis.vscode-spotless-gradle';
-const GRADLE_TASKS_EXTENSION_ID = 'richardwillis.vscode-gradle';
-
-const spotlessExtension = vscode.extensions.getExtension(SPOTLESS_EXTENSION_ID);
-const gradleTasksExtension = vscode.extensions.getExtension(
-  GRADLE_TASKS_EXTENSION_ID
-);
+import { formatFileWithCommand, formatFileOnSave } from '../testUtil';
 
 const appFilePath = path.resolve(
   __dirname,
@@ -37,27 +25,31 @@ public class App {
 }
 `;
 
-describe('Extension Test Suite', () => {
-  before(function (done) {
-    // It's a high timeout as gradle needs to install deps
-    this.timeout(90000);
+describe('Extension Test Suite', function () {
+  // Series of events:
+  // 1. Save document
+  // 2. Wait for spotless (which waits for vscode-gradle to load tasks)
+  // 3. Formatting cancelled by vscode
+  // 4. Save document
+  // 5. Original spotless request still pending, so no effect on save
+  // 6. Spotless returns (but due to 3, has no effect on the document)
+  // 7. Save document
+  // 8. Wait for spotless
+  // 9. Apply formatting
 
-    // Although the vscode-gradle `runTask` api also waits for tasks to be
-    // loaded before running a task, we do this here to speed up the tests,
-    // as once the tasks are loaded formatting should be quick.
-    gradleTasksExtension?.exports.onTasksLoaded(done);
-  });
+  // The above steps show how complex it is to test for cancelled formatting.
+  // As we can't cancel the spotless process (step 2) when the formatting is
+  // cancelled, we just have to keep trying.
+  // 10 * 5000 = max 50 seconds per test.
+  this.retries(10);
 
   afterEach(async () => {
     await vscode.commands.executeCommand('workbench.action.closeActiveEditor');
     fs.writeFileSync(appFilePath, appFileContents, 'utf8');
   });
 
-  it('should run spotless when saving a file', async () => {
-    const document = await rerunIfCancelled(
-      spotlessExtension!.exports.fixAllProvider.onCancelled,
-      () => formatFileOnSave(appFilePath)
-    );
+  it('should run spotless when saving a file', async function () {
+    const document = await formatFileOnSave(appFilePath);
     assert.equal(
       document?.getText(),
       expectedFileContents,
@@ -71,10 +63,7 @@ describe('Extension Test Suite', () => {
   });
 
   it('should run spotless when formatting a file', async () => {
-    const document = await rerunIfCancelled(
-      spotlessExtension!.exports.documentFormattingEditProvider.onCancelled,
-      () => formatFileWithCommand(appFilePath)
-    );
+    const document = await formatFileWithCommand(appFilePath);
     assert.equal(
       document?.getText(),
       expectedFileContents,
