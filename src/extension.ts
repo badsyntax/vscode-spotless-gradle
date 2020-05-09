@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import type { ExtensionApi as GradleTasksApi } from 'vscode-gradle';
 import { FixAllCodeActionProvider } from './FixAllCodeActionProvider';
 import { logger } from './logger';
-import { DocumentFormattingEditProvider } from './documentFormattingEditProvider';
+import { DocumentFormattingEditProvider } from './DocumentFormattingEditProvider';
 
 const SUPPORTED_LANGUAGES = ['java', 'kotlin', 'scala', 'groovy'];
 const GRADLE_TASKS_EXTENSION = 'richardwillis.vscode-gradle';
