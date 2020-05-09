@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import type { ExtensionApi as GradleTasksApi } from 'vscode-gradle';
-import { FixAllProvider } from './FixAllProvider';
+import { FixAllCodeActionProvider } from './FixAllCodeActionProvider';
 import { logger } from './logger';
 import { DocumentFormattingEditProvider } from './documentFormattingEditProvider';
 
@@ -8,7 +8,7 @@ const SUPPORTED_LANGUAGES = ['java', 'kotlin', 'scala', 'groovy'];
 const GRADLE_TASKS_EXTENSION = 'richardwillis.vscode-gradle';
 
 export interface ExtensionApi {
-  fixAllProvider: FixAllProvider;
+  fixAllProvider: FixAllCodeActionProvider;
   documentFormattingEditProvider: DocumentFormattingEditProvider;
 }
 
@@ -26,7 +26,7 @@ export function activate(context: vscode.ExtensionContext): ExtensionApi {
 
   const gradleApi = gradleTasksExtension.exports as GradleTasksApi;
 
-  const fixAllProvider = new FixAllProvider(gradleApi);
+  const fixAllProvider = new FixAllCodeActionProvider(gradleApi);
   const documentFormattingEditProvider = new DocumentFormattingEditProvider(
     gradleApi
   );
@@ -40,7 +40,7 @@ export function activate(context: vscode.ExtensionContext): ExtensionApi {
     vscode.languages.registerCodeActionsProvider(
       documentSelectors,
       fixAllProvider,
-      FixAllProvider.metadata
+      FixAllCodeActionProvider.metadata
     ),
     vscode.languages.registerDocumentFormattingEditProvider(
       documentSelectors,

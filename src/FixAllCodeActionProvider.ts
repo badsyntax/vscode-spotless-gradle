@@ -3,14 +3,14 @@ import { logger } from './logger';
 import { makeSpotless } from './spotless';
 import { FormattingProvider } from './FormattingProvider';
 
-export class FixAllProvider extends FormattingProvider
+export class FixAllCodeActionProvider extends FormattingProvider
   implements vscode.CodeActionProvider {
   public static readonly fixAllCodeActionKind = vscode.CodeActionKind.SourceFixAll.append(
     'spotlessGradle'
   );
 
   public static metadata: vscode.CodeActionProviderMetadata = {
-    providedCodeActionKinds: [FixAllProvider.fixAllCodeActionKind],
+    providedCodeActionKinds: [FixAllCodeActionProvider.fixAllCodeActionKind],
   };
 
   public async provideCodeActions(
@@ -24,15 +24,15 @@ export class FixAllProvider extends FormattingProvider
     }
 
     if (
-      !context.only.contains(FixAllProvider.fixAllCodeActionKind) &&
-      !FixAllProvider.fixAllCodeActionKind.contains(context.only)
+      !context.only.contains(FixAllCodeActionProvider.fixAllCodeActionKind) &&
+      !FixAllCodeActionProvider.fixAllCodeActionKind.contains(context.only)
     ) {
       return [];
     }
 
     token.onCancellationRequested(() => {
       logger.warning('Spotless formatting cancelled');
-      this._onCancelled.fire();
+      this._onCancelled.fire(null);
     });
 
     try {
@@ -47,7 +47,7 @@ export class FixAllProvider extends FormattingProvider
       const title = 'Format code using Spotless';
       const action = new vscode.CodeAction(
         title,
-        FixAllProvider.fixAllCodeActionKind
+        FixAllCodeActionProvider.fixAllCodeActionKind
       );
       action.edit = new vscode.WorkspaceEdit();
       action.edit.replace(document.uri, range, newText);

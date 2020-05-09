@@ -13,7 +13,7 @@ export class DocumentFormattingEditProvider extends FormattingProvider
   ): Promise<vscode.TextEdit[]> {
     token.onCancellationRequested(() => {
       logger.warning('Spotless formatting cancelled');
-      this._onCancelled.fire();
+      this._onCancelled.fire(null);
     });
     const newText = await makeSpotless(this.gradleApi, document);
     if (newText && !token.isCancellationRequested) {
