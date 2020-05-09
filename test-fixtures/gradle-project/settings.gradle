@@ -15,7 +15,7 @@ pluginManagement {
   resolutionStrategy {
     eachPlugin {
       if (requested.id.id == 'com.diffplug.gradle.spotless') {
-        useModule('com.github.diffplug.spotless:spotless-plugin-gradle:1ccd0800bdd0d7ca1591d8d19e2a6073643c2a89')
+        useModule('com.github.diffplug.spotless:spotless-plugin-gradle:13700cbe45344f45cbef79cbba94aec6724757f8')
       }
     }
   }
