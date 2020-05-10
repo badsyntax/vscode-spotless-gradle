@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 
-import { makeSpotless } from './spotless';
+import { makeSpotless, cancelMakeSpotless } from './spotless';
 import { FormattingProvider } from './FormattingProvider';
 import { logger } from './logger';
 
@@ -13,6 +13,7 @@ export class DocumentFormattingEditProvider extends FormattingProvider
   ): Promise<vscode.TextEdit[]> {
     token.onCancellationRequested(() => {
       logger.warning('Spotless formatting cancelled');
+      cancelMakeSpotless(this.gradleApi, document);
       this._onCancelled.fire(null);
     });
     try {

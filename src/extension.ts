@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import type { ExtensionApi as GradleTasksApi } from 'vscode-gradle';
+import type { ExtensionApi as GradleApi } from 'vscode-gradle';
 import { FixAllCodeActionProvider } from './FixAllCodeActionProvider';
 import { logger } from './logger';
 import { DocumentFormattingEditProvider } from './DocumentFormattingEditProvider';
@@ -24,7 +24,7 @@ export function activate(context: vscode.ExtensionContext): ExtensionApi {
     throw new Error('Gradle Tasks extension is not active');
   }
 
-  const gradleApi = gradleTasksExtension.exports as GradleTasksApi;
+  const gradleApi = gradleTasksExtension.exports as GradleApi;
 
   const fixAllProvider = new FixAllCodeActionProvider(gradleApi);
   const documentFormattingEditProvider = new DocumentFormattingEditProvider(

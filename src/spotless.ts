@@ -1,11 +1,12 @@
 import * as path from 'path';
 import * as vscode from 'vscode';
 import {
-  ExtensionApi as GradleTasksApi,
+  ExtensionApi as GradleApi,
   RunTaskOpts,
   RunTaskRequest,
+  CancelTaskOpts,
+  Output,
 } from 'vscode-gradle';
-import { Output } from 'vscode-gradle';
 import { logger } from './logger';
 import { sanitizePath } from './util';
 import {
@@ -14,8 +15,27 @@ import {
   SPOTLESS_STATUS_IS_CLEAN,
 } from './constants';
 
+export function cancelMakeSpotless(
+  gradleApi: GradleApi,
+  document: vscode.TextDocument
+): Promise<void> {
+  const workspaceFolder = vscode.workspace.getWorkspaceFolder(document.uri);
+  if (!workspaceFolder) {
+    throw new Error(
+      `Unable to find workspace folder for ${path.basename(
+        document.uri.fsPath
+      )}`
+    );
+  }
+  const cancelTaskOpts: CancelTaskOpts = {
+    projectFolder: workspaceFolder.uri.fsPath,
+    taskName: 'spotlessApply',
+  };
+  return gradleApi.cancelRunTask(cancelTaskOpts);
+}
+
 export async function makeSpotless(
-  gradleApi: GradleTasksApi,
+  gradleApi: GradleApi,
   document: vscode.TextDocument
 ): Promise<string | null> {
   if (document.isClosed || document.isUntitled) {
