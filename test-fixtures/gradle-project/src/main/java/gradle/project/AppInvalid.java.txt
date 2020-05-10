@@ -1,0 +1,3 @@
+package gradle.project;
+
+public class AppInvalid {
