@@ -111,11 +111,9 @@ describe('Extension Test Suite', function () {
       assert.ok(
         loggerSpy.calledWith(
           'Unable to apply formatting:',
-          sinon.match(
-            "Step 'google-java-format' found problem in 'src/main/java/gradle/project/AppInvalid.java'"
-          )
+          sinon.match("Step 'google-java-format' found problem")
         ),
-        'Spotless status not logged'
+        'Spotless error not logged'
       );
     });
   });
