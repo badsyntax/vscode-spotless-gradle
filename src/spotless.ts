@@ -14,8 +14,9 @@ import {
   SPOTLESS_STATUS_IS_DIRTY,
   SPOTLESS_STATUS_IS_CLEAN,
 } from './constants';
+import { Deferred } from './Deferred';
 
-export function cancelMakeSpotless(
+export function cancelSpotless(
   gradleApi: GradleApi,
   document: vscode.TextDocument
 ): Promise<void> {
@@ -50,10 +51,21 @@ export async function makeSpotless(
     );
   }
 
-  const sanitizedPath = sanitizePath(document.uri.fsPath);
-
   let stdOut = '';
   let stdErr = '';
+
+  const stdOutDeferred = new Deferred<string>();
+  const stdErrDeferred = new Deferred<string>();
+  const hasStdErrAndStdOut = Promise.all([
+    stdOutDeferred.promise,
+    stdErrDeferred.promise,
+  ]);
+
+  const sanitizedPath = sanitizePath(document.uri.fsPath);
+
+  // Don't stream the output as bytes. Request the output to be streamed
+  // as a string only when the stdout or stderr streams are closed.
+  const outputStream = RunTaskRequest.OutputStream.STRING;
 
   const runTaskOpts: RunTaskOpts = {
     projectFolder: workspaceFolder.uri.fsPath,
@@ -67,21 +79,25 @@ export async function makeSpotless(
     showProgress: true,
     input: document.getText(),
     showOutputColors: false,
-    // Don't stream bytes to support super-massive files
-    outputStream: RunTaskRequest.OutputStream.STRING,
+    outputStream,
     onOutput: (output: Output) => {
       switch (output.getOutputType()) {
         case Output.OutputType.STDOUT:
           stdOut = output.getMessage();
+          stdOutDeferred.resolve();
           break;
         case Output.OutputType.STDERR:
           stdErr = output.getMessage().trim();
+          stdErrDeferred.resolve();
           break;
       }
     },
   };
 
-  await gradleApi.runTask(runTaskOpts);
+  const runTask = gradleApi.runTask(runTaskOpts);
+
+  // Bail early if we have some data
+  await Promise.race([runTask, hasStdErrAndStdOut]);
 
   if (SPOTLESS_STATUSES.includes(stdErr)) {
     const basename = path.basename(document.uri.fsPath);

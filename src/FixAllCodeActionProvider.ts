@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { logger } from './logger';
-import { makeSpotless, cancelMakeSpotless } from './spotless';
+import { makeSpotless, cancelSpotless } from './spotless';
 import { FormattingProvider } from './FormattingProvider';
 
 export class FixAllCodeActionProvider extends FormattingProvider
@@ -32,7 +32,7 @@ export class FixAllCodeActionProvider extends FormattingProvider
 
     token.onCancellationRequested(() => {
       logger.warning('Spotless formatting cancelled');
-      cancelMakeSpotless(this.gradleApi, document);
+      cancelSpotless(this.gradleApi, document);
       this._onCancelled.fire(null);
     });
 
