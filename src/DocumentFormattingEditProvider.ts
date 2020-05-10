@@ -15,14 +15,19 @@ export class DocumentFormattingEditProvider extends FormattingProvider
       logger.warning('Spotless formatting cancelled');
       this._onCancelled.fire(null);
     });
-    const newText = await makeSpotless(this.gradleApi, document);
-    if (newText && !token.isCancellationRequested) {
-      const range = new vscode.Range(
-        document.positionAt(0),
-        document.positionAt(document.getText().length)
-      );
-      return [new vscode.TextEdit(range, newText)];
+    try {
+      const newText = await makeSpotless(this.gradleApi, document);
+      if (newText && !token.isCancellationRequested) {
+        const range = new vscode.Range(
+          document.positionAt(0),
+          document.positionAt(document.getText().length)
+        );
+        return [new vscode.TextEdit(range, newText)];
+      }
+      return [];
+    } catch (e) {
+      logger.error('Unable to apply formatting:', e.message);
+      return [];
     }
-    return [];
   }
 }

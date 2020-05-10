@@ -1,8 +1,9 @@
 import * as path from 'path';
 import * as vscode from 'vscode';
-import type {
+import {
   ExtensionApi as GradleTasksApi,
   RunTaskOpts,
+  RunTaskRequest,
 } from 'vscode-gradle';
 import { Output } from 'vscode-gradle';
 import { logger } from './logger';
@@ -46,13 +47,15 @@ export async function makeSpotless(
     showProgress: true,
     input: document.getText(),
     showOutputColors: false,
+    // Don't stream bytes to support super-massive files
+    outputStream: RunTaskRequest.OutputStream.STRING,
     onOutput: (output: Output) => {
       switch (output.getOutputType()) {
         case Output.OutputType.STDOUT:
-          stdOut += String.fromCharCode(output.getMessageByte());
+          stdOut = output.getMessage();
           break;
         case Output.OutputType.STDERR:
-          stdErr += String.fromCharCode(output.getMessageByte());
+          stdErr = output.getMessage().trim();
           break;
       }
     },
@@ -60,17 +63,15 @@ export async function makeSpotless(
 
   await gradleApi.runTask(runTaskOpts);
 
-  const stdErrClean = stdErr.trim();
-
-  if (SPOTLESS_STATUSES.includes(stdErrClean)) {
+  if (SPOTLESS_STATUSES.includes(stdErr)) {
     const basename = path.basename(document.uri.fsPath);
-    logger.info(`${basename}: ${stdErrClean}`);
+    logger.info(`${basename}: ${stdErr}`);
   }
-  if (stdErrClean === SPOTLESS_STATUS_IS_DIRTY) {
+  if (stdErr === SPOTLESS_STATUS_IS_DIRTY) {
     return stdOut;
   }
-  if (stdErrClean !== SPOTLESS_STATUS_IS_CLEAN) {
-    throw new Error(stdErrClean);
+  if (stdErr !== SPOTLESS_STATUS_IS_CLEAN) {
+    throw new Error(stdErr);
   }
   return null;
 }
