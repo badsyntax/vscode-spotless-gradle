@@ -5,6 +5,7 @@
 - Consumes new spotless API for proper VS Code integation. Now includes a proper fix for race conditions
 - Improved performance with new spotless API and new stdout streaming approach
 - Expanded set of supported languages
+- Added snyk-protect
 
 ## 0.0.3
 
