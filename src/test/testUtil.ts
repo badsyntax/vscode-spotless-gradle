@@ -47,6 +47,6 @@ export async function formatFileWithCommand(
       }
     );
     await vscode.window.showTextDocument(document);
-    vscode.commands.executeCommand('editor.action.formatDocument');
+    await vscode.commands.executeCommand('editor.action.formatDocument');
   });
 }

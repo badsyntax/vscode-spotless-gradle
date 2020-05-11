@@ -10,7 +10,9 @@ import {
   OUTPUT_CHANNEL_ID,
 } from './constants';
 
-export function activate(context: vscode.ExtensionContext): void {
+export async function activate(
+  context: vscode.ExtensionContext
+): Promise<void> {
   logger.setLoggingChannel(
     vscode.window.createOutputChannel(OUTPUT_CHANNEL_ID)
   );
@@ -29,7 +31,11 @@ export function activate(context: vscode.ExtensionContext): void {
     spotless
   );
 
-  const documentSelectors = SUPPORTED_LANGUAGES.map((language) => ({
+  const knownLanguages = await vscode.languages.getLanguages();
+  const spotlessLanguages = SUPPORTED_LANGUAGES.filter((language) =>
+    knownLanguages.includes(language)
+  );
+  const documentSelectors = spotlessLanguages.map((language) => ({
     language,
     scheme: 'file',
   }));

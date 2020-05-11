@@ -1,4 +1,23 @@
-export const SUPPORTED_LANGUAGES = ['java', 'kotlin', 'scala', 'groovy'];
+export const SUPPORTED_LANGUAGES = [
+  'java',
+  'kotlinscript',
+  'kotlin',
+  'scala',
+  'sql',
+  'groovy',
+  'javascript',
+  'javascriptreact',
+  'typescript',
+  'typescriptreact',
+  'css',
+  'scss',
+  'less',
+  'vue',
+  'graphql',
+  'json',
+  'yaml',
+  'markdown',
+];
 export const GRADLE_TASKS_EXTENSION_ID = 'richardwillis.vscode-gradle';
 
 export const OUTPUT_CHANNEL_ID = 'Spotless Gradle';

@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { logger } from './logger';
-import { Spotless } from './spotless';
+import { Spotless } from './Spotless';
 
 const noChanges: vscode.CodeAction[] = [];
 
