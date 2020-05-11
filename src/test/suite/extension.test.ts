@@ -7,78 +7,85 @@ import { formatFileWithCommand, formatFileOnSave } from '../testUtil';
 import { logger } from '../../logger';
 import { Spotless } from '../../Spotless';
 
-describe('Extension Test Suite', function () {
-  describe('Running spotless', function () {
+describe('Extension Test Suite', () => {
+  describe('Running Spotless', () => {
     const basePath = path.resolve(
       __dirname,
       '../../../test-fixtures/gradle-project/src/main/java/gradle/project'
     );
 
-    const appFilePath = path.resolve(basePath, 'App.java');
-    const appFileContents = fs.readFileSync(appFilePath, 'utf8');
-    const helloFilePath = path.resolve(basePath, 'Hello.java');
-    const helloFileContents = fs.readFileSync(helloFilePath, 'utf8');
-    const formattedAppFilePath = path.resolve(
-      basePath,
-      'AppFormatted.java.txt'
-    );
-    const formattedAppFileContents = fs.readFileSync(
-      formattedAppFilePath,
-      'utf8'
-    );
+    describe('Happy path', () => {
+      ['App.java', 'App.kt'].forEach((file) => {
+        describe(file, function () {
+          const appFilePath = path.resolve(basePath, file);
+          const appFileContents = fs.readFileSync(appFilePath, 'utf8');
+          const helloFilePath = path.resolve(basePath, 'Hello.java');
+          const helloFileContents = fs.readFileSync(helloFilePath, 'utf8');
+          const formattedAppFilePath = path.resolve(
+            basePath,
+            `${file}.formatted.txt`
+          );
+          const formattedAppFileContents = fs.readFileSync(
+            formattedAppFilePath,
+            'utf8'
+          );
 
-    // VsCode will cancel the formatting so we have to keep trying.
-    // 10 * 5000 = max 50 seconds per test.
-    this.retries(10);
+          // VS Code will cancel the formatting when formatting immediately
+          // after opening a document.
+          // 10 * 5000 = max 50 seconds per test.
+          this.retries(10);
 
-    afterEach(async () => {
-      await vscode.commands.executeCommand(
-        'workbench.action.closeActiveEditor'
-      );
-      fs.writeFileSync(appFilePath, appFileContents, 'utf8');
-      sinon.restore();
+          afterEach(async () => {
+            await vscode.commands.executeCommand(
+              'workbench.action.closeActiveEditor'
+            );
+            fs.writeFileSync(appFilePath, appFileContents, 'utf8');
+            sinon.restore();
+          });
+
+          it('should run spotless when saving a file', async () => {
+            const loggerSpy = sinon.spy(logger, 'info');
+            const document = await formatFileOnSave(appFilePath);
+            assert.equal(
+              document?.getText(),
+              formattedAppFileContents,
+              'The formatted document does not match the expected formatting'
+            );
+            assert.equal(
+              fs.readFileSync(helloFilePath, 'utf8'),
+              helloFileContents,
+              'Spotless formatted multiple files'
+            );
+            assert.ok(
+              loggerSpy.calledWith(`${file}: IS DIRTY`),
+              'Spotless status not logged'
+            );
+          });
+
+          it('should run spotless when formatting a file', async () => {
+            const loggerSpy = sinon.spy(logger, 'info');
+            const document = await formatFileWithCommand(appFilePath);
+            assert.equal(
+              document?.getText(),
+              formattedAppFileContents,
+              'The formatted document does not match the expected formatting'
+            );
+            assert.equal(
+              fs.readFileSync(helloFilePath, 'utf8'),
+              helloFileContents,
+              'Spotless formatted multiple files'
+            );
+            assert.equal(document?.isDirty, true, 'The document was saved');
+            assert.ok(
+              loggerSpy.calledWith(`${file}: IS DIRTY`),
+              'Spotless status not logged'
+            );
+          });
+        });
+      });
     });
 
-    it('should run spotless when saving a file', async function () {
-      const loggerSpy = sinon.spy(logger, 'info');
-      const document = await formatFileOnSave(appFilePath);
-      assert.equal(
-        document?.getText(),
-        formattedAppFileContents,
-        'The formatted document does not match the expected formatting'
-      );
-      assert.equal(
-        fs.readFileSync(helloFilePath, 'utf8'),
-        helloFileContents,
-        'Spotless formatted multiple files'
-      );
-      assert.ok(
-        loggerSpy.calledWith('App.java: IS DIRTY'),
-        'Spotless status not logged'
-      );
-    });
-
-    it('should run spotless when formatting a file', async () => {
-      const loggerSpy = sinon.spy(logger, 'info');
-      const document = await formatFileWithCommand(appFilePath);
-      assert.equal(
-        document?.getText(),
-        formattedAppFileContents,
-        'The formatted document does not match the expected formatting'
-      );
-      assert.equal(
-        fs.readFileSync(helloFilePath, 'utf8'),
-        helloFileContents,
-        'Spotless formatted multiple files'
-      );
-      assert.equal(document?.isDirty, true, 'The document was saved');
-      assert.ok(
-        loggerSpy.calledWith('App.java: IS DIRTY'),
-        'Spotless status not logged'
-      );
-    });
-
-    describe('Errors', () => {
+    describe('Error path', () => {
       const invalidFilePath = path.resolve(basePath, 'AppInvalid.java');
 
       before(() => {
@@ -109,7 +116,6 @@ describe('Extension Test Suite', function () {
       });
     });
   });
-
   // We can't test for `.kt` or `.scala` as they're not known language identifiers
   // See: https://code.visualstudio.com/docs/languages/identifiers#_known-language-identifiers
   describe('Supported language types', async () => {
@@ -124,8 +130,8 @@ describe('Extension Test Suite', function () {
     });
 
     files.forEach((file) => {
-      describe(file, function () {
-        it('should format using spotless', async () => {
+      describe(file, () => {
+        it('should format with spotless', async () => {
           const spotlessApplySpy = sinon.spy(Spotless.prototype, 'apply');
           const filePath = path.resolve(basePath, file);
           const document = await vscode.workspace.openTextDocument(filePath);

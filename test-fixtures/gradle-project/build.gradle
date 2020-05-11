@@ -23,4 +23,7 @@ spotless {
     paddedCell()
     targetExclude "build/**"
   }
+  kotlin {
+    ktfmt()
+  }
 }
