@@ -32,7 +32,7 @@ describe('Extension Test Suite', () => {
 
           // VS Code will cancel the formatting when formatting immediately
           // after opening a document. So we have to keep retrying.
-          // 10 * 5000 = max 50 seconds per test.
+          // 10 * 10000 = max 100 seconds per test.
           this.retries(10);
 
           afterEach(async () => {
@@ -116,9 +116,9 @@ describe('Extension Test Suite', () => {
       });
     });
   });
-  // We can't test for .kt, .scala or .graphql as they're not known language identifiers
+  // We can't test for .kt, .scala, .graphql or .vue as they're not known language identifiers
   // See: https://code.visualstudio.com/docs/languages/identifiers#_known-language-identifiers
-  describe('Supported language types', async () => {
+  describe.only('Supported language types', async () => {
     const basePath = path.resolve(
       __dirname,
       '../../../test-fixtures/language-types'
