@@ -11,10 +11,10 @@ Format your code using [Spotless](https://github.com/diffplug/spotless) (via Gra
 
 ## Features
 
-- Provides a new Spotless formatter (`Format Document`)
-- Auto-fix on save
+- Provides a Spotless formatter (`Format Document`)
+- Provides a Spotless fixAll code action (`Format on Save`)
 
-Supports `java`, `kotlin`, `scala` & `groovy` language types.
+Supports `java`, `kotlin`, `kotlinscript`, `scala`, `sql`, `groovy`, `javascript`, `javascriptreact`, `typescript`, `typescriptreact`, `css`, `scss`, `less`, `vue`, `graphql`, `json`, `yaml`, `markdown` language types.
 
 ## Requirements
 
@@ -22,17 +22,15 @@ Supports `java`, `kotlin`, `scala` & `groovy` language types.
 - [Spotless Gradle Plugin](https://github.com/diffplug/spotless/tree/master/plugin-gradle)
 - [Java >= 8](https://adoptopenjdk.net/)
 
-## Setting the Formatter
+For `scala`, `kotlin`, `kotlinscript`, `vue` & `graphql` languages, you'll need to install a language extension that provides these language identifiers.
 
-Set the default formatter for a specified language type in `settings.json`:
+## Usage
 
-```json
-"[java]": {
-  "editor.defaultFormatter": "richardwillis.vscode-spotless-gradle"
-}
-```
+Before using this extension ensure you've [configured Spotless](https://github.com/diffplug/spotless/tree/master/plugin-gradle) correctly in your Gradle build file.
 
-Enable spotless fixes on save in `settings.json`:
+### Format on Save
+
+Enable Spotless fixes on save in `settings.json`:
 
 ```json
 "editor.codeActionsOnSave": {
@@ -40,15 +38,29 @@ Enable spotless fixes on save in `settings.json`:
 }
 ```
 
+### Setting the default Formatter
+
+If there are multiple formatters for a language, set Spotless to be the default in `settings.json`:
+
+```json
+"[java]": {
+  "editor.defaultFormatter": "richardwillis.vscode-spotless-gradle"
+}
+```
+
 ## How it Works
 
-When run via `Format Document` or the "auto-fix" feature, the extension will first _save your file_, then run spotless on it.
+This extension runs the `spotlessApply` Gradle task on the focused file. Untitled/Unsaved files are ignored.
 
-The vscode => spotless interface is provided by the [Gradle Tasks](https://marketplace.visualstudio.com/items?itemName=richardwillis.vscode-gradle) extension.
+Invoking the Spotless formatting will take a while if your Gradle build hasn't previously resolved project dependencies. To warm up Spotless, run `./gradlew spotlessDiagnose`.
+
+The vscode => Spotless interface is provided by the [Gradle Tasks](https://marketplace.visualstudio.com/items?itemName=richardwillis.vscode-gradle) extension.
+
+👉 [Architecture Overview](./ARCHITECTURE.md)
 
 ## Troubleshooting
 
-View logs by selecting "Spotless Gradle" in the output panel.
+View logs by selecting "Spotless Gradle" and/or "Gradle Tasks" in the output panel.
 
 ## Support
 
@@ -56,6 +68,11 @@ For general support queries, use the [#gradle-tasks](https://vscode-dev-communit
 
 - 👉 [Submit a bug report](https://github.com/badsyntax/vscode-spotless-gradle/issues/new?assignees=badsyntax&labels=bug&template=bug_report.md&title=)
 - 👉 [Submit a feature request](https://github.com/badsyntax/vscode-spotless-gradle/issues/new?assignees=badsyntax&labels=enhancement&template=feature_request.md&title=)
+
+## Credits
+
+- Thanks to Ned Twigg (@nedtwigg) for adapting Spotless for better IDE integration
+- Thanks to all the [Spotless contributors](https://github.com/diffplug/spotless#acknowledgements)
 
 ## Release Notes
 
