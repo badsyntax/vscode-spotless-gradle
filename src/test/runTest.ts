@@ -41,6 +41,7 @@ async function main(): Promise<void> {
         '--disable-extension=shengchen.vscode-checkstyle',
         '--disable-extension=eamodio.gitlens',
         '--disable-extension=sonarsource.sonarlint-vscode',
+        '--disable-extension=esbenp.prettier-vscode',
       ],
     });
   } catch (err) {
