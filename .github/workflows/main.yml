@@ -33,6 +33,12 @@ jobs:
       - name: Build extension
         run: |
           npm run build
+      - name: Prepare Gradle
+        uses: eskatos/gradle-command-action@v1
+        with:
+          arguments: build -x spotlessCheck
+          build-root-directory: test-fixtures/gradle-project
+          wrapper-directory: test-fixtures/gradle-project
       - name: Prepare Spotless
         uses: eskatos/gradle-command-action@v1
         with:

@@ -1,6 +1,7 @@
 plugins {
     id 'java'
     id 'application'
+    id 'groovy'
     id 'com.diffplug.gradle.spotless' version '3.28.1'
 }
 
@@ -9,6 +10,7 @@ repositories {
 }
 
 dependencies {
+  implementation 'org.codehaus.groovy:groovy-all:2.4.15'
 }
 
 application {
@@ -23,7 +25,8 @@ spotless {
     paddedCell()
     targetExclude "build/**"
   }
-  kotlin {
-    ktfmt()
+  groovy {
+    excludeJava()
+    greclipse()
   }
 }
