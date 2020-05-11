@@ -40,9 +40,6 @@
   "[less]": {
     "editor.defaultFormatter": "richardwillis.vscode-spotless-gradle"
   },
-  "[vue]": {
-    "editor.defaultFormatter": "richardwillis.vscode-spotless-gradle"
-  },
   "[json]": {
     "editor.defaultFormatter": "richardwillis.vscode-spotless-gradle"
   },
