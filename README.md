@@ -33,8 +33,10 @@ Before using this extension ensure you've [configured Spotless](https://github.c
 Enable Spotless fixes on save in `settings.json`:
 
 ```json
-"editor.codeActionsOnSave": {
-  "source.fixAll.spotlessGradle": true
+"[java]": {
+  "editor.codeActionsOnSave": {
+    "source.fixAll.spotlessGradle": true
+  }
 }
 ```
 
