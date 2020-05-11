@@ -118,7 +118,7 @@ describe('Extension Test Suite', () => {
   });
   // We can't test for .kt, .scala, .graphql or .vue as they're not known language identifiers
   // See: https://code.visualstudio.com/docs/languages/identifiers#_known-language-identifiers
-  describe.only('Supported language types', async () => {
+  describe('Supported language types', async () => {
     const basePath = path.resolve(
       __dirname,
       '../../../test-fixtures/language-types'
