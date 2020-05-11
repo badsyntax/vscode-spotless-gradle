@@ -18,8 +18,8 @@ Supports `java`, `kotlin`, `kotlinscript`, `scala`, `sql`, `groovy`, `javascript
 
 ## Requirements
 
-- [Gradle Tasks](https://marketplace.visualstudio.com/items?itemName=richardwillis.vscode-gradle)
-- [Spotless Gradle Plugin](https://github.com/diffplug/spotless/tree/master/plugin-gradle)
+- [Gradle Tasks => 2.7.11](https://marketplace.visualstudio.com/items?itemName=richardwillis.vscode-gradle)
+- [Spotless Gradle Plugin >= 3.30.0](https://github.com/diffplug/spotless/tree/master/plugin-gradle)
 - [Java >= 8](https://adoptopenjdk.net/)
 
 For `scala`, `kotlin`, `kotlinscript`, `vue` & `graphql` languages, you'll need to install a language extension that provides these language identifiers.
@@ -71,7 +71,7 @@ For general support queries, use the [#gradle-tasks](https://vscode-dev-communit
 
 ## Credits
 
-- Thanks to Ned Twigg (@nedtwigg) for adapting Spotless for better IDE integration
+- Thanks to [Ned Twigg](https://github.com/nedtwigg) for adapting Spotless for better IDE integration
 - Thanks to all the [Spotless contributors](https://github.com/diffplug/spotless#acknowledgements)
 
 ## Release Notes
