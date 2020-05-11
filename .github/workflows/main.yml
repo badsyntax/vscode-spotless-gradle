@@ -11,6 +11,7 @@ jobs:
     strategy:
       matrix:
         node-version: [12.16.2]
+        java-version: ['11']
         os: [ubuntu-latest, windows-latest, macos-latest]
     steps:
       - uses: actions/checkout@v1
@@ -18,7 +19,18 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node-version }}
-      - name: Install packages
+      - name: Use Java ${{ matrix.java-version }}
+        uses: actions/setup-java@v1
+        with:
+          java-version: ${{ matrix.java-version }}
+          architecture: x64
+      - name: Prepare Spotless
+        uses: eskatos/gradle-command-action@v1
+        with:
+          arguments: spotlessDiagnose
+          build-root-directory: test-fixtures/gradle-project
+          wrapper-directory: test-fixtures/gradle-project
+      - name: Install npm packages
         run: |
           npm install
       - name: Lint extension
