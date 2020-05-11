@@ -1,11 +1,13 @@
 # Change Log
 
-## UNRELEASED
+## 0.1.0
 
-- Consumes new spotless API for proper VS Code integation. Now includes a proper fix for race conditions
-- Improved performance with new spotless API and new stdout streaming approach
-- Expanded set of supported languages
-- Added snyk-protect
+- Consumes new spotless API for proper VS Code integation. Now includes a proper fix for race conditions (#10) @badsyntax
+- Improved performance with new spotless API and new stdout streaming approach (#10) @badsyntax
+- Expanded set of supported languages (#10) @badsyntax
+- Added snyk-protect (#13) @snyk-bot
+- [Snyk] Fix for 1 vulnerabilities (#13) @snyk-bot
+- Use more specific document selectors (#4) @badsyntax
 
 ## 0.0.3
 
