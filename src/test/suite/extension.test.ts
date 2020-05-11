@@ -32,8 +32,8 @@ describe('Extension Test Suite', () => {
 
           // VS Code will cancel the formatting when formatting immediately
           // after opening a document.
-          // 10 * 5000 = max 50 seconds per test.
-          this.retries(10);
+          // 20 * 30000 = max 600 seconds per test.
+          this.retries(20);
 
           afterEach(async () => {
             await vscode.commands.executeCommand(
