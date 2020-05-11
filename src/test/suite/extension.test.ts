@@ -116,7 +116,7 @@ describe('Extension Test Suite', () => {
       });
     });
   });
-  // We can't test for `.kt` or `.scala` as they're not known language identifiers
+  // We can't test for .kt, .scala or .graphql as they're not known language identifiers
   // See: https://code.visualstudio.com/docs/languages/identifiers#_known-language-identifiers
   describe('Supported language types', async () => {
     const basePath = path.resolve(

@@ -43,9 +43,6 @@
   "[vue]": {
     "editor.defaultFormatter": "richardwillis.vscode-spotless-gradle"
   },
-  "[graphql]": {
-    "editor.defaultFormatter": "richardwillis.vscode-spotless-gradle"
-  },
   "[json]": {
     "editor.defaultFormatter": "richardwillis.vscode-spotless-gradle"
   },
