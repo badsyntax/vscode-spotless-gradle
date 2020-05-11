@@ -25,20 +25,7 @@ public class App {
 `;
 
 describe('Extension Test Suite', function () {
-  // Series of events:
-  // 1. Save document
-  // 2. Wait for spotless (which waits for vscode-gradle to load tasks)
-  // 3. Formatting cancelled by vscode
-  // 4. Save document
-  // 5. Original spotless request still pending, so no effect on save
-  // 6. Spotless returns (but due to 3, has no effect on the document)
-  // 7. Save document
-  // 8. Wait for spotless
-  // 9. Apply formatting
-
-  // The above steps show how complex it is to test for cancelled formatting.
-  // As we can't cancel the spotless process (step 2) when the formatting is
-  // cancelled, we just have to keep trying.
+  // VsCode will cancel the formatting so we have to keep trying.
   // 10 * 5000 = max 50 seconds per test.
   this.retries(10);
 
@@ -80,7 +67,6 @@ describe('Extension Test Suite', function () {
       helloFileContents,
       'Spotless formatted multiple files'
     );
-    // check the document hasn't been saved
     assert.equal(document?.isDirty, true, 'The document was saved');
     assert.ok(
       loggerSpy.calledWith('App.java: IS DIRTY'),

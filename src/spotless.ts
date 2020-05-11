@@ -16,98 +16,111 @@ import {
 } from './constants';
 import { Deferred } from './Deferred';
 
-export function cancelSpotless(
-  gradleApi: GradleApi,
-  document: vscode.TextDocument
-): Promise<void> {
-  const workspaceFolder = vscode.workspace.getWorkspaceFolder(document.uri);
-  if (!workspaceFolder) {
-    throw new Error(
-      `Unable to find workspace folder for ${path.basename(
-        document.uri.fsPath
-      )}`
-    );
-  }
-  const cancelTaskOpts: CancelTaskOpts = {
-    projectFolder: workspaceFolder.uri.fsPath,
-    taskName: 'spotlessApply',
-  };
-  return gradleApi.cancelRunTask(cancelTaskOpts);
-}
+export class Spotless {
+  constructor(private readonly gradleApi: GradleApi) {}
 
-export async function makeSpotless(
-  gradleApi: GradleApi,
-  document: vscode.TextDocument
-): Promise<string | null> {
-  if (document.isClosed || document.isUntitled) {
-    throw new Error('Document is closed or not saved, skipping formatting');
-  }
-  const workspaceFolder = vscode.workspace.getWorkspaceFolder(document.uri);
-  if (!workspaceFolder) {
-    throw new Error(
-      `Unable to find workspace folder for ${path.basename(
-        document.uri.fsPath
-      )}`
-    );
+  cancel(document: vscode.TextDocument): Promise<void> {
+    const workspaceFolder = vscode.workspace.getWorkspaceFolder(document.uri);
+    if (!workspaceFolder) {
+      throw new Error(
+        `Unable to find workspace folder for ${path.basename(
+          document.uri.fsPath
+        )}`
+      );
+    }
+    const cancelTaskOpts: CancelTaskOpts = {
+      projectFolder: workspaceFolder.uri.fsPath,
+      taskName: 'spotlessApply',
+    };
+    return this.gradleApi.cancelRunTask(cancelTaskOpts);
   }
 
-  let stdOut = '';
-  let stdErr = '';
+  async apply(
+    document: vscode.TextDocument,
+    cancellationToken: vscode.CancellationToken
+  ): Promise<string | null> {
+    if (document.isClosed || document.isUntitled) {
+      throw new Error('Document is closed or not saved, skipping formatting');
+    }
+    const workspaceFolder = vscode.workspace.getWorkspaceFolder(document.uri);
+    if (!workspaceFolder) {
+      throw new Error(
+        `Unable to find workspace folder for ${path.basename(
+          document.uri.fsPath
+        )}`
+      );
+    }
 
-  const stdOutDeferred = new Deferred<string>();
-  const stdErrDeferred = new Deferred<string>();
-  const hasStdErrAndStdOut = Promise.all([
-    stdOutDeferred.promise,
-    stdErrDeferred.promise,
-  ]);
+    const cancelledDeferred = new Deferred();
+    const stdOutDeferred = new Deferred();
+    const stdErrDeferred = new Deferred();
+    const hasStdErrAndStdOut = Promise.all([
+      stdOutDeferred.promise,
+      stdErrDeferred.promise,
+    ]);
 
-  const sanitizedPath = sanitizePath(document.uri.fsPath);
+    cancellationToken.onCancellationRequested(() => {
+      this.cancel(document);
+      cancelledDeferred.resolve();
+    });
 
-  // Don't stream the output as bytes. Request the output to be streamed
-  // as a string only when the stdout or stderr streams are closed.
-  const outputStream = RunTaskRequest.OutputStream.STRING;
+    let stdOut = '';
+    let stdErr = '';
+    const sanitizedPath = sanitizePath(document.uri.fsPath);
 
-  const runTaskOpts: RunTaskOpts = {
-    projectFolder: workspaceFolder.uri.fsPath,
-    taskName: 'spotlessApply',
-    args: [
-      `-PspotlessIdeHook=${sanitizedPath}`,
-      '-PspotlessIdeHookUseStdIn',
-      '-PspotlessIdeHookUseStdOut',
-      '--quiet',
-    ],
-    showProgress: true,
-    input: document.getText(),
-    showOutputColors: false,
-    outputStream,
-    onOutput: (output: Output) => {
-      switch (output.getOutputType()) {
-        case Output.OutputType.STDOUT:
-          stdOut = output.getMessage();
-          stdOutDeferred.resolve();
-          break;
-        case Output.OutputType.STDERR:
-          stdErr = output.getMessage().trim();
-          stdErrDeferred.resolve();
-          break;
+    // Don't stream the output as bytes. Request the output to be streamed
+    // as a string only when the stdout or stderr streams are closed.
+    const outputStream = RunTaskRequest.OutputStream.STRING;
+
+    const runTaskOpts: RunTaskOpts = {
+      projectFolder: workspaceFolder.uri.fsPath,
+      taskName: 'spotlessApply',
+      args: [
+        `-PspotlessIdeHook=${sanitizedPath}`,
+        '-PspotlessIdeHookUseStdIn',
+        '-PspotlessIdeHookUseStdOut',
+        '--quiet',
+      ],
+      showProgress: true,
+      input: document.getText(),
+      showOutputColors: false,
+      outputStream,
+      onOutput: (output: Output) => {
+        switch (output.getOutputType()) {
+          case Output.OutputType.STDOUT:
+            stdOut = output.getMessage();
+            stdOutDeferred.resolve();
+            break;
+          case Output.OutputType.STDERR:
+            stdErr = output.getMessage().trim();
+            stdErrDeferred.resolve();
+            break;
+        }
+      },
+    };
+
+    const runTask = this.gradleApi.runTask(runTaskOpts);
+
+    await Promise.race([
+      runTask,
+      hasStdErrAndStdOut,
+      cancelledDeferred.promise,
+    ]);
+
+    if (cancellationToken.isCancellationRequested) {
+      logger.warning('Spotless formatting cancelled');
+    } else {
+      if (SPOTLESS_STATUSES.includes(stdErr)) {
+        const basename = path.basename(document.uri.fsPath);
+        logger.info(`${basename}: ${stdErr}`);
       }
-    },
-  };
-
-  const runTask = gradleApi.runTask(runTaskOpts);
-
-  // Bail early if we have some data
-  await Promise.race([runTask, hasStdErrAndStdOut]);
-
-  if (SPOTLESS_STATUSES.includes(stdErr)) {
-    const basename = path.basename(document.uri.fsPath);
-    logger.info(`${basename}: ${stdErr}`);
+      if (stdErr === SPOTLESS_STATUS_IS_DIRTY) {
+        return stdOut;
+      }
+      if (stdErr !== SPOTLESS_STATUS_IS_CLEAN) {
+        throw new Error(stdErr);
+      }
+    }
+    return null;
   }
-  if (stdErr === SPOTLESS_STATUS_IS_DIRTY) {
-    return stdOut;
-  }
-  if (stdErr !== SPOTLESS_STATUS_IS_CLEAN) {
-    throw new Error(stdErr);
-  }
-  return null;
 }

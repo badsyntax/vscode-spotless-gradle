@@ -1,3 +1,8 @@
+export const SUPPORTED_LANGUAGES = ['java', 'kotlin', 'scala', 'groovy'];
+export const GRADLE_TASKS_EXTENSION_ID = 'richardwillis.vscode-gradle';
+
+export const OUTPUT_CHANNEL_ID = 'Spotless Gradle';
+
 export const SPOTLESS_STATUS_IS_CLEAN = 'IS CLEAN';
 export const SPOTLESS_STATUS_DID_NOT_CONVERGE = 'DID NOT CONVERGE';
 export const SPOTLESS_STATUS_IS_DIRTY = 'IS DIRTY';

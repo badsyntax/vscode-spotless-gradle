@@ -1,34 +1,32 @@
 import * as vscode from 'vscode';
 
-import { makeSpotless, cancelSpotless } from './spotless';
-import { FormattingProvider } from './FormattingProvider';
 import { logger } from './logger';
+import { Spotless } from './spotless';
 
-export class DocumentFormattingEditProvider extends FormattingProvider
+const noChanges: vscode.TextEdit[] = [];
+
+export class DocumentFormattingEditProvider
   implements vscode.DocumentFormattingEditProvider {
+  constructor(private readonly spotless: Spotless) {}
+
   async provideDocumentFormattingEdits(
     document: vscode.TextDocument,
     _options: vscode.FormattingOptions,
-    token: vscode.CancellationToken
+    cancellationToken: vscode.CancellationToken
   ): Promise<vscode.TextEdit[]> {
-    token.onCancellationRequested(() => {
-      logger.warning('Spotless formatting cancelled');
-      cancelSpotless(this.gradleApi, document);
-      this._onCancelled.fire(null);
-    });
     try {
-      const newText = await makeSpotless(this.gradleApi, document);
-      if (newText && !token.isCancellationRequested) {
-        const range = new vscode.Range(
-          document.positionAt(0),
-          document.positionAt(document.getText().length)
-        );
-        return [new vscode.TextEdit(range, newText)];
+      const newText = await this.spotless.apply(document, cancellationToken);
+      if (!newText) {
+        return noChanges;
       }
-      return [];
+      const range = new vscode.Range(
+        document.positionAt(0),
+        document.positionAt(document.getText().length)
+      );
+      return [new vscode.TextEdit(range, newText)];
     } catch (e) {
       logger.error('Unable to apply formatting:', e.message);
-      return [];
+      return noChanges;
     }
   }
 }

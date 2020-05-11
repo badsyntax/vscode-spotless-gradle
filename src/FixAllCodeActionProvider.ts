@@ -1,10 +1,10 @@
 import * as vscode from 'vscode';
 import { logger } from './logger';
-import { makeSpotless, cancelSpotless } from './spotless';
-import { FormattingProvider } from './FormattingProvider';
+import { Spotless } from './spotless';
 
-export class FixAllCodeActionProvider extends FormattingProvider
-  implements vscode.CodeActionProvider {
+const noChanges: vscode.CodeAction[] = [];
+
+export class FixAllCodeActionProvider implements vscode.CodeActionProvider {
   public static readonly fixAllCodeActionKind = vscode.CodeActionKind.SourceFixAll.append(
     'spotlessGradle'
   );
@@ -13,33 +13,29 @@ export class FixAllCodeActionProvider extends FormattingProvider
     providedCodeActionKinds: [FixAllCodeActionProvider.fixAllCodeActionKind],
   };
 
+  constructor(private readonly spotless: Spotless) {}
+
   public async provideCodeActions(
     document: vscode.TextDocument,
     _range: vscode.Range | vscode.Selection,
     context: vscode.CodeActionContext,
-    token: vscode.CancellationToken
+    cancellationToken: vscode.CancellationToken
   ): Promise<vscode.CodeAction[]> {
     if (!context.only) {
-      return [];
+      return noChanges;
     }
 
     if (
       !context.only.contains(FixAllCodeActionProvider.fixAllCodeActionKind) &&
       !FixAllCodeActionProvider.fixAllCodeActionKind.contains(context.only)
     ) {
-      return [];
+      return noChanges;
     }
 
-    token.onCancellationRequested(() => {
-      logger.warning('Spotless formatting cancelled');
-      cancelSpotless(this.gradleApi, document);
-      this._onCancelled.fire(null);
-    });
-
     try {
-      const newText = await makeSpotless(this.gradleApi, document);
-      if (!newText || token.isCancellationRequested) {
-        return [];
+      const newText = await this.spotless.apply(document, cancellationToken);
+      if (!newText) {
+        return noChanges;
       }
       const range = new vscode.Range(
         document.positionAt(0),
@@ -57,7 +53,7 @@ export class FixAllCodeActionProvider extends FormattingProvider
       return [action];
     } catch (e) {
       logger.error('Unable to apply code action:', e.message);
-      return [];
+      return noChanges;
     }
   }
 }
