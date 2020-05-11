@@ -1,6 +1,52 @@
 {
   "editor.formatOnSave": false,
   "editor.codeActionsOnSave": {
-    "source.fixAll.spotlessGradle": true
+    "source.fixAll.spotlessGradle": true,
+  },
+  "java.format.enabled": false,
+  "[java]": {
+    "editor.defaultFormatter": "richardwillis.vscode-spotless-gradle"
+  },
+  "[kotlinscript]": {
+    "editor.defaultFormatter": "richardwillis.vscode-spotless-gradle"
+  },
+  "[scala]": {
+    "editor.defaultFormatter": "richardwillis.vscode-spotless-gradle"
+  },
+  "[sql]": {
+    "editor.defaultFormatter": "richardwillis.vscode-spotless-gradle"
+  },
+  "[groovy]": {
+    "editor.defaultFormatter": "richardwillis.vscode-spotless-gradle"
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "richardwillis.vscode-spotless-gradle"
+  },
+  "[javascriptreact]": {
+    "editor.defaultFormatter": "richardwillis.vscode-spotless-gradle"
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "richardwillis.vscode-spotless-gradle"
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "richardwillis.vscode-spotless-gradle"
+  },
+  "[css]": {
+    "editor.defaultFormatter": "richardwillis.vscode-spotless-gradle"
+  },
+  "[scss]": {
+    "editor.defaultFormatter": "richardwillis.vscode-spotless-gradle"
+  },
+  "[less]": {
+    "editor.defaultFormatter": "richardwillis.vscode-spotless-gradle"
+  },
+  "[json]": {
+    "editor.defaultFormatter": "richardwillis.vscode-spotless-gradle"
+  },
+  "[yaml]": {
+    "editor.defaultFormatter": "richardwillis.vscode-spotless-gradle"
+  },
+  "[markdown]": {
+    "editor.defaultFormatter": "richardwillis.vscode-spotless-gradle"
   }
 }

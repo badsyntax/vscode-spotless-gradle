@@ -1,24 +1,41 @@
 import * as vscode from 'vscode';
-import { FixAllProvider } from './fixAll';
+import type { ExtensionApi as GradleApi } from 'vscode-gradle';
+import { FixAllCodeActionProvider } from './FixAllCodeActionProvider';
 import { logger } from './logger';
-import { COMMAND_FORMAT_ON_SAVE } from './commands';
-import { makeSpotless } from './spotless';
+import { DocumentFormattingEditProvider } from './DocumentFormattingEditProvider';
+import { Spotless } from './Spotless';
+import {
+  GRADLE_TASKS_EXTENSION_ID,
+  SUPPORTED_LANGUAGES,
+  OUTPUT_CHANNEL_ID,
+} from './constants';
 
-const LANGUAGES = ['java', 'kotlin', 'scala', 'groovy'];
-
-export function activate(context: vscode.ExtensionContext): void {
+export async function activate(
+  context: vscode.ExtensionContext
+): Promise<void> {
   logger.setLoggingChannel(
-    vscode.window.createOutputChannel('Spotless Gradle')
+    vscode.window.createOutputChannel(OUTPUT_CHANNEL_ID)
   );
 
   const gradleTasksExtension = vscode.extensions.getExtension(
-    'richardwillis.vscode-gradle'
+    GRADLE_TASKS_EXTENSION_ID
   );
   if (!gradleTasksExtension || !gradleTasksExtension.isActive) {
-    return logger.error('Gradle Tasks extension is not active');
+    throw new Error('Gradle Tasks extension is not active');
   }
 
-  const documentSelectors = LANGUAGES.map((language) => ({
+  const gradleApi = gradleTasksExtension.exports as GradleApi;
+  const spotless = new Spotless(gradleApi);
+  const fixAllCodeActionProvider = new FixAllCodeActionProvider(spotless);
+  const documentFormattingEditProvider = new DocumentFormattingEditProvider(
+    spotless
+  );
+
+  const knownLanguages = await vscode.languages.getLanguages();
+  const spotlessLanguages = SUPPORTED_LANGUAGES.filter((language) =>
+    knownLanguages.includes(language)
+  );
+  const documentSelectors = spotlessLanguages.map((language) => ({
     language,
     scheme: 'file',
   }));
@@ -26,32 +43,13 @@ export function activate(context: vscode.ExtensionContext): void {
   context.subscriptions.push(
     vscode.languages.registerCodeActionsProvider(
       documentSelectors,
-      new FixAllProvider(),
-      FixAllProvider.metadata
+      fixAllCodeActionProvider,
+      FixAllCodeActionProvider.metadata
+    ),
+    vscode.languages.registerDocumentFormattingEditProvider(
+      documentSelectors,
+      documentFormattingEditProvider
     )
-  );
-
-  context.subscriptions.push(
-    vscode.commands.registerCommand(COMMAND_FORMAT_ON_SAVE, (document) => {
-      const disposable = vscode.workspace.onDidSaveTextDocument(
-        (documentSaved) => {
-          if (documentSaved === document) {
-            disposable.dispose();
-            makeSpotless(gradleTasksExtension.exports, document);
-          }
-        }
-      );
-    })
-  );
-
-  context.subscriptions.push(
-    vscode.languages.registerDocumentFormattingEditProvider(documentSelectors, {
-      async provideDocumentFormattingEdits(
-        document: vscode.TextDocument
-      ): Promise<null> {
-        return makeSpotless(gradleTasksExtension.exports, document);
-      },
-    })
   );
 }
 

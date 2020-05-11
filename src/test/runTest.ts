@@ -7,12 +7,14 @@ import {
   resolveCliPathFromVSCodeExecutablePath,
 } from 'vscode-test';
 
+const VSCODE_VERSION = '1.45.0';
+
 async function main(): Promise<void> {
   try {
     const extensionDevelopmentPath = path.resolve(__dirname, '../..');
     const extensionTestsPath = path.resolve(__dirname, './suite/index');
 
-    const vscodeExecutablePath = await downloadAndUnzipVSCode('1.44.2');
+    const vscodeExecutablePath = await downloadAndUnzipVSCode(VSCODE_VERSION);
     const cliPath = resolveCliPathFromVSCodeExecutablePath(
       vscodeExecutablePath
     );
@@ -39,6 +41,7 @@ async function main(): Promise<void> {
         '--disable-extension=shengchen.vscode-checkstyle',
         '--disable-extension=eamodio.gitlens',
         '--disable-extension=sonarsource.sonarlint-vscode',
+        '--disable-extension=esbenp.prettier-vscode',
       ],
     });
   } catch (err) {

@@ -31,3 +31,6 @@ node_modules
 
 # vscode-tst
 .vscode-test
+
+# vscode packaged extension
+*.vsix
