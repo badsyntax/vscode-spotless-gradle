@@ -1,5 +1,11 @@
 # Change Log
 
+## UNRELEASED
+
+- Consumes new spotless API for proper VS Code integation. Now includes a proper fix for race conditions
+- Improved performance with new spotless API and new stdout streaming approach
+- Expanded set of supported languages
+
 ## 0.0.3
 
 - Fix race condition on save and update README (#3) @badsyntax
