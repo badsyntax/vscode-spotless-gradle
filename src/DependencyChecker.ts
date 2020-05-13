@@ -88,8 +88,6 @@ export class DependencyChecker {
         (extension) => extension.id
       );
       // From here it's up to the user to choose the correct dependency
-      // TODO: Can/should we automate this? (EG if user has auto-updates switched on, then
-      // the version will be reverted).
       await vscode.commands.executeCommand(
         'workbench.extensions.action.showExtensionsWithIds',
         extensionIds

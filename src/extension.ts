@@ -22,7 +22,6 @@ export async function activate(
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   const packageJson = require(path.join(context.extensionPath, 'package.json'));
 
-  // Wait for correct extension dependency versions to be installed
   const dependencyChecker = new DependencyChecker(packageJson);
   if (!(await dependencyChecker.check())) {
     return;
@@ -31,8 +30,13 @@ export async function activate(
   const gradleTasksExtension = vscode.extensions.getExtension(
     GRADLE_TASKS_EXTENSION_ID
   );
+  // vscode should be checking this for us (via `extensionDependencies`), but
+  // we're also doing this as a type-check.
+  if (!gradleTasksExtension || !gradleTasksExtension.isActive) {
+    throw new Error('Gradle Tasks extension is not active');
+  }
 
-  const gradleApi = gradleTasksExtension!.exports as GradleApi;
+  const gradleApi = gradleTasksExtension.exports as GradleApi;
   const spotless = new Spotless(gradleApi);
   const fixAllCodeActionProvider = new FixAllCodeActionProvider(spotless);
   const documentFormattingEditProvider = new DocumentFormattingEditProvider(
