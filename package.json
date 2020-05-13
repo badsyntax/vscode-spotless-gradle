@@ -46,7 +46,7 @@
     "vscode:prepublish": "npm run compile:prod",
     "build": "npm run compile:dev",
     "lint": "eslint src --ext ts",
-    "pretest": "npm run compile && npm run lint",
+    "pretest": "npm run compile:all && npm run lint",
     "test": "node ./out/test/runTest.js",
     "install:ext": "code --install-extension vscode-spotless-gradle-0.0.0.vsix --force",
     "preinstall:ext": "vsce package",
@@ -55,8 +55,7 @@
     "compile:dev": "webpack --mode development",
     "compile:prod": "webpack --mode production",
     "compile:test": "tsc -p ./",
-    "compile:all": "npm run compile:dev",
-    "precompile:all": "npm run compile:test",
+    "compile:all": "npm run compile:dev && npm run compile:test",
     "install:vscode-gradle": "npm install $(npm pack ../vscode-gradle/npm-package | tail -1)"
   },
   "devDependencies": {
