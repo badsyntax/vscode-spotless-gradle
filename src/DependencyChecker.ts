@@ -3,7 +3,7 @@ import * as vscode from 'vscode';
 import * as semver from 'semver';
 import { INSTALL_COMPATIBLE_EXTENSION_VERSIONS } from './constants';
 
-interface PackageJson {
+export interface PackageJson {
   extensionDependencies: string[];
   extensionDependenciesCompatibility?: {
     [key: string]: string;
@@ -11,7 +11,7 @@ interface PackageJson {
   [key: string]: any;
 }
 
-interface ExtensionVersion {
+export interface ExtensionVersion {
   id: string;
   required: string;
   compatible: boolean;
@@ -60,13 +60,14 @@ export class DependencyChecker {
     } = this.packageJson;
     return extensions.map((extensionDependency) => {
       const extensionVersion = extensionDependency.packageJSON.version;
-      const requiredVersion = compatibleVersions![
-        extensionDependency.packageJSON.id
-      ];
+      const requiredVersion = compatibleVersions![extensionDependency.id];
       const version: ExtensionVersion = {
         id: extensionDependency.id,
         required: requiredVersion,
-        compatible: semver.satisfies(extensionVersion, requiredVersion),
+        compatible: semver.satisfies(
+          extensionVersion,
+          semver.validRange(requiredVersion)
+        ),
       };
       return version;
     });

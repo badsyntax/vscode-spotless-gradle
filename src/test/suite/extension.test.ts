@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import * as vscode from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs';
@@ -6,6 +7,8 @@ import * as assert from 'assert';
 import { formatFileWithCommand, formatFileOnSave } from '../testUtil';
 import { logger } from '../../logger';
 import { Spotless } from '../../Spotless';
+import { DependencyChecker } from '../../DependencyChecker';
+import { GRADLE_TASKS_EXTENSION_ID } from '../../constants';
 
 describe('Extension Test Suite', () => {
   describe('Running Spotless', () => {
@@ -195,6 +198,72 @@ describe('Extension Test Suite', () => {
           );
         });
       });
+    });
+  });
+
+  describe('Dependency checks', () => {
+    afterEach(async () => {
+      sinon.restore();
+    });
+
+    it('should match patch versions', async () => {
+      sinon.stub(vscode.extensions, 'getExtension').callsFake(() => {
+        return {
+          id: GRADLE_TASKS_EXTENSION_ID,
+          packageJSON: {
+            version: '1.0.2',
+          },
+          isActive: true,
+        } as vscode.Extension<any>;
+      });
+      const dependencyChecker = new DependencyChecker({
+        extensionDependencies: [GRADLE_TASKS_EXTENSION_ID],
+        extensionDependenciesCompatibility: {
+          [GRADLE_TASKS_EXTENSION_ID]: '^1.0.1',
+        },
+      });
+      const isValid = await dependencyChecker.check();
+      assert.ok(isValid, 'Dependencies do not match');
+    });
+
+    it('should match minor versions', async () => {
+      sinon.stub(vscode.extensions, 'getExtension').callsFake(() => {
+        return {
+          id: GRADLE_TASKS_EXTENSION_ID,
+          packageJSON: {
+            version: '1.1.0',
+          },
+          isActive: true,
+        } as vscode.Extension<any>;
+      });
+      const dependencyChecker = new DependencyChecker({
+        extensionDependencies: [GRADLE_TASKS_EXTENSION_ID],
+        extensionDependenciesCompatibility: {
+          [GRADLE_TASKS_EXTENSION_ID]: '^1.0.1',
+        },
+      });
+      const isValid = await dependencyChecker.check();
+      assert.ok(isValid, 'Dependencies do not match');
+    });
+
+    it('should not match major versions', async () => {
+      sinon.stub(vscode.extensions, 'getExtension').callsFake(() => {
+        return {
+          id: GRADLE_TASKS_EXTENSION_ID,
+          packageJSON: {
+            version: '2.0.0',
+          },
+          isActive: true,
+        } as vscode.Extension<any>;
+      });
+      const dependencyChecker = new DependencyChecker({
+        extensionDependencies: [GRADLE_TASKS_EXTENSION_ID],
+        extensionDependenciesCompatibility: {
+          [GRADLE_TASKS_EXTENSION_ID]: '^1.0.1',
+        },
+      });
+      const isValid = await dependencyChecker.check();
+      assert.equal(isValid, false, 'Dependencies match');
     });
   });
 });
