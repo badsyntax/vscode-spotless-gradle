@@ -31,3 +31,6 @@ export const SPOTLESS_STATUSES = [
   SPOTLESS_STATUS_IS_CLEAN,
   SPOTLESS_STATUS_IS_DIRTY,
 ];
+
+export const INSTALL_COMPATIBLE_EXTENSION_VERSIONS =
+  'Install compatible versions';
