@@ -50,7 +50,6 @@
     "test": "node ./out/test/runTest.js",
     "install:ext": "code --install-extension vscode-spotless-gradle-0.0.0.vsix --force",
     "preinstall:ext": "vsce package",
-    "prepreinstall:ext": "npm run compile",
     "snyk-protect": "snyk protect",
     "prepare": "npm run snyk-protect",
     "compile:dev": "webpack --mode development",
