@@ -3,7 +3,7 @@ import * as path from 'path';
 import * as fs from 'fs';
 import type { ExtensionApi as GradleApi } from 'vscode-gradle';
 import { FixAllCodeActionProvider } from './FixAllCodeActionProvider';
-import { logger } from './logger';
+import { logger, Logger } from './logger';
 import { DocumentFormattingEditProvider } from './DocumentFormattingEditProvider';
 import { Spotless } from './Spotless';
 import {
@@ -13,9 +13,14 @@ import {
 } from './constants';
 import { DependencyChecker } from './DependencyChecker';
 
+export interface ExtensionApi {
+  logger: Logger;
+  spotless: Spotless;
+}
+
 export async function activate(
   context: vscode.ExtensionContext
-): Promise<void> {
+): Promise<ExtensionApi | undefined> {
   logger.setLoggingChannel(
     vscode.window.createOutputChannel(OUTPUT_CHANNEL_ID)
   );
@@ -66,6 +71,8 @@ export async function activate(
       documentFormattingEditProvider
     )
   );
+
+  return { logger, spotless };
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-function
