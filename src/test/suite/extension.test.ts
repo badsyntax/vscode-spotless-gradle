@@ -5,12 +5,14 @@ import * as fs from 'fs';
 import * as sinon from 'sinon';
 import * as assert from 'assert';
 import { formatFileWithCommand, formatFileOnSave } from '../testUtil';
-import { logger } from '../../logger';
-import { Spotless } from '../../Spotless';
 import { DependencyChecker } from '../../DependencyChecker';
 import { GRADLE_TASKS_EXTENSION_ID } from '../../constants';
+import { ExtensionApi } from '../../extension';
 
 describe('Extension Test Suite', () => {
+  const { logger, spotless } = vscode.extensions.getExtension(
+    'richardwillis.vscode-spotless-gradle'
+  )!.exports as ExtensionApi;
   describe('Running Spotless', () => {
     const javaBasePath = path.resolve(
       __dirname,
@@ -187,7 +189,7 @@ describe('Extension Test Suite', () => {
     files.forEach((file) => {
       describe(file, () => {
         it('should format with spotless', async () => {
-          const spotlessApplySpy = sinon.spy(Spotless.prototype, 'apply');
+          const spotlessApplySpy = sinon.spy(spotless, 'apply');
           const filePath = path.resolve(basePath, file);
           const document = await vscode.workspace.openTextDocument(filePath);
           await vscode.window.showTextDocument(document);

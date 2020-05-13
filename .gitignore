@@ -34,3 +34,9 @@ node_modules
 
 # vscode packaged extension
 *.vsix
+
+# webpack bundle
+dist
+
+# local packages
+*.tgz
