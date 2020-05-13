@@ -40,21 +40,25 @@
     "workspaceContains:gradlew",
     "workspaceContains:gradlew.bat"
   ],
-  "main": "./out/extension.js",
+  "main": "./dist/extension",
   "contributes": {},
   "scripts": {
-    "vscode:prepublish": "npm run compile",
-    "compile": "tsc -p ./",
-    "build": "npm run compile",
+    "vscode:prepublish": "npm run compile:prod",
+    "build": "npm run compile:dev",
     "lint": "eslint src --ext ts",
-    "watch": "tsc -watch -p ./",
     "pretest": "npm run compile && npm run lint",
     "test": "node ./out/test/runTest.js",
     "install:ext": "code --install-extension vscode-spotless-gradle-0.0.0.vsix --force",
     "preinstall:ext": "vsce package",
     "prepreinstall:ext": "npm run compile",
     "snyk-protect": "snyk protect",
-    "prepare": "npm run snyk-protect"
+    "prepare": "npm run snyk-protect",
+    "compile:dev": "webpack --mode development",
+    "compile:prod": "webpack --mode production",
+    "compile:test": "tsc -p ./",
+    "compile:all": "npm run compile:dev",
+    "precompile:all": "npm run compile:test",
+    "install:vscode-gradle": "npm install $(npm pack ../vscode-gradle/npm-package | tail -1)"
   },
   "devDependencies": {
     "@types/glob": "^7.1.1",
@@ -72,9 +76,12 @@
     "prettier": "^2.0.5",
     "sinon": "^9.0.2",
     "snyk": "^1.320.2",
+    "ts-loader": "^7.0.4",
     "typescript": "^3.9.2",
     "vsce": "^1.75.0",
-    "vscode-test": "^1.3.0"
+    "vscode-test": "^1.3.0",
+    "webpack": "^4.43.0",
+    "webpack-cli": "^3.3.11"
   },
   "dependencies": {
     "semver": "^7.3.2",

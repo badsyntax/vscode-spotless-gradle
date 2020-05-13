@@ -34,3 +34,9 @@ node_modules
 
 # vscode packaged extension
 *.vsix
+
+# webpck bundle
+dist
+
+# local packages
+*.tgz

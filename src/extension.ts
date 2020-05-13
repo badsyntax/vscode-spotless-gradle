@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
+import * as fs from 'fs';
 import type { ExtensionApi as GradleApi } from 'vscode-gradle';
 import { FixAllCodeActionProvider } from './FixAllCodeActionProvider';
 import { logger } from './logger';
@@ -20,7 +21,9 @@ export async function activate(
   );
 
   // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const packageJson = require(path.join(context.extensionPath, 'package.json'));
+  const packageJson = JSON.parse(
+    fs.readFileSync(path.join(context.extensionPath, 'package.json'), 'utf8')
+  );
 
   const dependencyChecker = new DependencyChecker(packageJson);
   if (!(await dependencyChecker.check())) {
