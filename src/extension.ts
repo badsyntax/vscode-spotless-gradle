@@ -24,7 +24,9 @@ export async function activate(
 
   // Wait for correct extension dependency versions to be installed
   const dependencyChecker = new DependencyChecker(packageJson);
-  await dependencyChecker.check();
+  if (!(await dependencyChecker.check())) {
+    return;
+  }
 
   const gradleTasksExtension = vscode.extensions.getExtension(
     GRADLE_TASKS_EXTENSION_ID

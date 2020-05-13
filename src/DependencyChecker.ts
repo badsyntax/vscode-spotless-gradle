@@ -34,7 +34,7 @@ export class DependencyChecker {
     );
 
     if (incompatibleExtensions.length) {
-      await this.notify(incompatibleExtensions);
+      this.notify(incompatibleExtensions);
       return false;
     }
 
