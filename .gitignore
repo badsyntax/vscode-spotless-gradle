@@ -35,7 +35,7 @@ node_modules
 # vscode packaged extension
 *.vsix
 
-# webpck bundle
+# webpack bundle
 dist
 
 # local packages
