@@ -81,7 +81,6 @@ export class Spotless {
         '-PspotlessIdeHookUseStdOut',
         '--quiet',
       ],
-      showProgress: true,
       input: document.getText(),
       showOutputColors: false,
       outputStream,
@@ -118,7 +117,7 @@ export class Spotless {
         return stdOut;
       }
       if (stdErr !== SPOTLESS_STATUS_IS_CLEAN) {
-        throw new Error(stdErr);
+        throw new Error(stdErr || 'No status received from Spotless');
       }
     }
     return null;

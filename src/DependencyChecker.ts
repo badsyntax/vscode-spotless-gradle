@@ -29,7 +29,7 @@ export class DependencyChecker {
     }
   }
 
-  public async check(): Promise<boolean> {
+  public check(): boolean {
     const extensions = this.getExtensionDependencies();
     const extensionVersions = this.getExtensionVersions(extensions);
     const incompatibleExtensions = extensionVersions.filter(
