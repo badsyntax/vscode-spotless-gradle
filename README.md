@@ -18,6 +18,7 @@ Supports `java`, `kotlin`, `kotlinscript`, `scala`, `sql`, `groovy`, `javascript
 
 ## Requirements
 
+- [VS Code >= 1.45.0](https://code.visualstudio.com/download)
 - [Gradle Tasks](https://marketplace.visualstudio.com/items?itemName=richardwillis.vscode-gradle)
 - [Spotless Gradle Plugin >= 3.30.0](https://github.com/diffplug/spotless/tree/master/plugin-gradle)
 - [Java >= 8](https://adoptopenjdk.net/)
