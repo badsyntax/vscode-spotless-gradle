@@ -1,7 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import * as vscode from 'vscode';
 import * as semver from 'semver';
-import { INSTALL_COMPATIBLE_EXTENSION_VERSIONS } from './constants';
+import {
+  INSTALL_COMPATIBLE_EXTENSION_VERSIONS,
+  SPOTLESS_GRADLE_EXTENSION_ID,
+} from './constants';
 
 export interface PackageJson {
   extensionDependencies: string[];
@@ -79,14 +82,19 @@ export class DependencyChecker {
     const requiredVersions = incompatibleExtensions
       .map((extension) => `${extension.id}@${extension.required}`)
       .join(', ');
+    const message = [
+      `Extension versions are incompatible: ${requiredVersions}.`,
+      'Install those specific versions or update this extension.',
+    ].join(' ');
     const input = await vscode.window.showErrorMessage(
-      `Extension versions are incompatible: ${requiredVersions}`,
+      message,
       INSTALL_COMPATIBLE_EXTENSION_VERSIONS
     );
     if (input === INSTALL_COMPATIBLE_EXTENSION_VERSIONS) {
       const extensionIds = incompatibleExtensions.map(
         (extension) => extension.id
       );
+      extensionIds.push(SPOTLESS_GRADLE_EXTENSION_ID);
       // From here it's up to the user to choose the correct dependency
       await vscode.commands.executeCommand(
         'workbench.extensions.action.showExtensionsWithIds',

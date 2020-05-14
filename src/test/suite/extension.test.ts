@@ -6,12 +6,15 @@ import * as sinon from 'sinon';
 import * as assert from 'assert';
 import { formatFileWithCommand, formatFileOnSave } from '../testUtil';
 import { DependencyChecker } from '../../DependencyChecker';
-import { GRADLE_TASKS_EXTENSION_ID } from '../../constants';
+import {
+  GRADLE_TASKS_EXTENSION_ID,
+  SPOTLESS_GRADLE_EXTENSION_ID,
+} from '../../constants';
 import { ExtensionApi } from '../../extension';
 
 describe('Extension Test Suite', () => {
   const { logger, spotless } = vscode.extensions.getExtension(
-    'richardwillis.vscode-spotless-gradle'
+    SPOTLESS_GRADLE_EXTENSION_ID
   )!.exports as ExtensionApi;
   describe('Running Spotless', () => {
     const javaBasePath = path.resolve(
@@ -249,6 +252,7 @@ describe('Extension Test Suite', () => {
     });
 
     it('should not match major versions', async () => {
+      const errorSpy = sinon.spy(vscode.window, 'showErrorMessage');
       sinon.stub(vscode.extensions, 'getExtension').callsFake(() => {
         return {
           id: GRADLE_TASKS_EXTENSION_ID,
@@ -266,6 +270,13 @@ describe('Extension Test Suite', () => {
       });
       const isValid = await dependencyChecker.check();
       assert.equal(isValid, false, 'Dependencies match');
+      assert.ok(
+        errorSpy.calledWith(
+          'Extension versions are incompatible: richardwillis.vscode-gradle@^1.0.1. Install those specific versions or update this extension.',
+          'Install Compatible Versions' as vscode.MessageOptions
+        ),
+        'Error message not shown'
+      );
     });
   });
 });

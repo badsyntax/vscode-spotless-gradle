@@ -19,6 +19,8 @@ export const SUPPORTED_LANGUAGES = [
   'markdown',
 ];
 export const GRADLE_TASKS_EXTENSION_ID = 'richardwillis.vscode-gradle';
+export const SPOTLESS_GRADLE_EXTENSION_ID =
+  'richardwillis.vscode-spotless-gradle';
 
 export const OUTPUT_CHANNEL_ID = 'Spotless Gradle';
 
@@ -33,4 +35,4 @@ export const SPOTLESS_STATUSES = [
 ];
 
 export const INSTALL_COMPATIBLE_EXTENSION_VERSIONS =
-  'Install compatible versions';
+  'Install Compatible Versions';
