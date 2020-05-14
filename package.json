@@ -49,14 +49,16 @@
     "pretest": "npm run compile:all && npm run lint",
     "test": "node ./out/test/runTest.js",
     "install:ext": "code --install-extension vscode-spotless-gradle-0.0.0.vsix --force",
-    "preinstall:ext": "vsce package",
+    "preinstall:ext": "npm run package",
     "snyk-protect": "snyk protect",
     "prepare": "npm run snyk-protect",
     "compile:dev": "webpack --mode development",
     "compile:prod": "webpack --mode production",
     "compile:test": "tsc -p ./",
     "compile:all": "npm run compile:dev && npm run compile:test",
-    "install:vscode-gradle": "npm install $(npm pack ../vscode-gradle/npm-package | tail -1)"
+    "install:vscode-gradle": "npm install $(npm pack ../vscode-gradle/npm-package | tail -1)",
+    "package": "vsce package",
+    "publish": "vsce publish"
   },
   "devDependencies": {
     "@types/glob": "^7.1.1",
