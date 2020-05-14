@@ -1,9 +1,9 @@
 import * as path from 'path';
+import * as util from 'util';
 import * as vscode from 'vscode';
 import {
   ExtensionApi as GradleApi,
   RunTaskOpts,
-  RunTaskRequest,
   CancelTaskOpts,
   Output,
 } from 'vscode-gradle';
@@ -52,12 +52,6 @@ export class Spotless {
     }
 
     const cancelledDeferred = new Deferred();
-    const stdOutDeferred = new Deferred();
-    const stdErrDeferred = new Deferred();
-    const hasStdErrAndStdOut = Promise.all([
-      stdOutDeferred.promise,
-      stdErrDeferred.promise,
-    ]);
 
     cancellationToken.onCancellationRequested(() => {
       this.cancel(document);
@@ -67,10 +61,6 @@ export class Spotless {
     let stdOut = '';
     let stdErr = '';
     const sanitizedPath = sanitizePath(document.uri.fsPath);
-
-    // Don't stream the output as bytes. Request the output to be streamed
-    // as a string only when the stdout or stderr streams are closed.
-    const outputStream = RunTaskRequest.OutputStream.STRING;
 
     const runTaskOpts: RunTaskOpts = {
       projectFolder: workspaceFolder.uri.fsPath,
@@ -83,16 +73,16 @@ export class Spotless {
       ],
       input: document.getText(),
       showOutputColors: false,
-      outputStream,
       onOutput: (output: Output) => {
+        const outputString = new util.TextDecoder('utf-8').decode(
+          output.getOutputBytes_asU8()
+        );
         switch (output.getOutputType()) {
           case Output.OutputType.STDOUT:
-            stdOut = output.getOutputString();
-            stdOutDeferred.resolve();
+            stdOut += outputString;
             break;
           case Output.OutputType.STDERR:
-            stdErr = output.getOutputString().trim();
-            stdErrDeferred.resolve();
+            stdErr += outputString;
             break;
         }
       },
@@ -100,24 +90,22 @@ export class Spotless {
 
     const runTask = this.gradleApi.runTask(runTaskOpts);
 
-    await Promise.race([
-      runTask,
-      hasStdErrAndStdOut,
-      cancelledDeferred.promise,
-    ]);
+    await Promise.race([runTask, cancelledDeferred.promise]);
+
+    const trimmedStdErr = stdErr.trim();
 
     if (cancellationToken.isCancellationRequested) {
       logger.warning('Spotless formatting cancelled');
     } else {
-      if (SPOTLESS_STATUSES.includes(stdErr)) {
+      if (SPOTLESS_STATUSES.includes(trimmedStdErr)) {
         const basename = path.basename(document.uri.fsPath);
-        logger.info(`${basename}: ${stdErr}`);
+        logger.info(`${basename}: ${trimmedStdErr}`);
       }
-      if (stdErr === SPOTLESS_STATUS_IS_DIRTY) {
+      if (trimmedStdErr === SPOTLESS_STATUS_IS_DIRTY) {
         return stdOut;
       }
-      if (stdErr !== SPOTLESS_STATUS_IS_CLEAN) {
-        throw new Error(stdErr || 'No status received from Spotless');
+      if (trimmedStdErr !== SPOTLESS_STATUS_IS_CLEAN) {
+        throw new Error(trimmedStdErr || 'No status received from Spotless');
       }
     }
     return null;
