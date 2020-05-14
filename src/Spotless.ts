@@ -81,18 +81,17 @@ export class Spotless {
         '-PspotlessIdeHookUseStdOut',
         '--quiet',
       ],
-      showProgress: true,
       input: document.getText(),
       showOutputColors: false,
       outputStream,
       onOutput: (output: Output) => {
         switch (output.getOutputType()) {
           case Output.OutputType.STDOUT:
-            stdOut = output.getMessage();
+            stdOut = output.getOutputString();
             stdOutDeferred.resolve();
             break;
           case Output.OutputType.STDERR:
-            stdErr = output.getMessage().trim();
+            stdErr = output.getOutputString().trim();
             stdErrDeferred.resolve();
             break;
         }
@@ -118,7 +117,7 @@ export class Spotless {
         return stdOut;
       }
       if (stdErr !== SPOTLESS_STATUS_IS_CLEAN) {
-        throw new Error(stdErr);
+        throw new Error(stdErr || 'No status received from Spotless');
       }
     }
     return null;

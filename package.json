@@ -23,7 +23,7 @@
     "richardwillis.vscode-gradle"
   ],
   "extensionDependenciesCompatibility": {
-    "richardwillis.vscode-gradle": "^2.7.11"
+    "richardwillis.vscode-gradle": "^3.0.1"
   },
   "categories": [
     "Formatters"
@@ -83,7 +83,7 @@
   },
   "dependencies": {
     "semver": "^7.3.2",
-    "vscode-gradle": "^2.7.12"
+    "vscode-gradle": "^3.0.1"
   },
   "snyk": true
 }
