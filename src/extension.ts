@@ -31,7 +31,7 @@ export async function activate(
   );
 
   const dependencyChecker = new DependencyChecker(packageJson);
-  if (!(await dependencyChecker.check())) {
+  if (!dependencyChecker.check()) {
     return;
   }
 
