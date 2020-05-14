@@ -88,11 +88,11 @@ export class Spotless {
       onOutput: (output: Output) => {
         switch (output.getOutputType()) {
           case Output.OutputType.STDOUT:
-            stdOut = output.getMessage();
+            stdOut = output.getOutputString();
             stdOutDeferred.resolve();
             break;
           case Output.OutputType.STDERR:
-            stdErr = output.getMessage().trim();
+            stdErr = output.getOutputString().trim();
             stdErrDeferred.resolve();
             break;
         }
