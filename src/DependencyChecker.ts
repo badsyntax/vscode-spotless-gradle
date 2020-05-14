@@ -67,10 +67,12 @@ export class DependencyChecker {
       const version: ExtensionVersion = {
         id: extensionDependency.id,
         required: requiredVersion,
-        compatible: semver.satisfies(
-          extensionVersion,
-          semver.validRange(requiredVersion)
-        ),
+        compatible:
+          extensionVersion === '0.0.0' ||
+          semver.satisfies(
+            extensionVersion,
+            semver.validRange(requiredVersion)
+          ),
       };
       return version;
     });
