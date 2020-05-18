@@ -57,7 +57,8 @@ async function main(): Promise<void> {
       ],
     });
   } catch (err) {
-    console.error('Failed to run tests:', err.message);
+    console.error('Failed to run tests', err.message);
+    process.exit(1);
   } finally {
     fs.removeSync(tmpDir);
   }
