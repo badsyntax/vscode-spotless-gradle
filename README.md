@@ -11,8 +11,8 @@ Format your code using [Spotless](https://github.com/diffplug/spotless) (via Gra
 
 ## Features
 
-- Provides a Spotless formatter (`Format Document`)
 - Provides a Spotless fixAll code action (`Format on Save`)
+- Provides a Spotless formatter (`Format Document`)
 
 Supports `java`, `kotlin`, `kotlinscript`, `scala`, `sql`, `groovy`, `javascript`, `javascriptreact`, `typescript`, `typescriptreact`, `css`, `scss`, `less`, `vue`, `graphql`, `json`, `yaml`, `markdown` language types.
 
@@ -27,11 +27,11 @@ For `scala`, `kotlin`, `kotlinscript`, `vue` & `graphql` languages, you'll need 
 
 ## Usage
 
-Before using this extension ensure you've [configured Spotless](https://github.com/diffplug/spotless/tree/master/plugin-gradle) correctly in your Gradle build file.
+Before using this extension, ensure you've [configured Spotless](https://github.com/diffplug/spotless/tree/master/plugin-gradle) correctly in your Gradle build file.
 
 ### Format on Save
 
-Enable Spotless fixes on save in `settings.json`:
+Enable Spotless fixes on file save in `settings.json`:
 
 ```json
 "[java]": {
@@ -41,9 +41,11 @@ Enable Spotless fixes on save in `settings.json`:
 }
 ```
 
-### Setting the default Formatter
+### Format Document
 
-If there are multiple formatters for a language, set Spotless to be the default in `settings.json`:
+The `Format Document` feature can be accessed via the vscode `Command Palette`.
+
+If there are multiple formatters for a language type, set Spotless to be the default in `settings.json`:
 
 ```json
 "[java]": {
@@ -63,7 +65,7 @@ The vscode => Spotless interface is provided by the [Gradle Tasks](https://marke
 
 ## Troubleshooting
 
-View logs by selecting "Spotless Gradle" and/or "Gradle Tasks" in the output panel.
+View logs by selecting `Spotless Gradle` and/or `Gradle Tasks` in the output panel.
 
 ## Support
 
