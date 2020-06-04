@@ -22,7 +22,6 @@ spotless {
     googleJavaFormat()
     removeUnusedImports()
     trimTrailingWhitespace()
-    paddedCell()
     targetExclude "build/**"
   }
   groovy {
