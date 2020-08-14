@@ -3,11 +3,11 @@
     "module": "commonjs",
     "target": "es6",
     "outDir": "out",
-    "lib": ["es6", "es2018.promise", "es2019.array"],
+    "lib": ["es6", "es2018.promise", "es2019.array", "dom"],
     "sourceMap": true,
     "strict": true,
     "rootDir": "src",
-    "noUnusedLocals": true,
+    "noUnusedLocals": true
   },
-  "include": ["src/**/*.ts"],
+  "include": ["src/**/*.ts"]
 }
