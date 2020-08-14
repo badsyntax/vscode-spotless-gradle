@@ -19,15 +19,8 @@ import { Deferred } from './Deferred';
 export class Spotless {
   constructor(private readonly gradleApi: GradleApi) {}
 
-  cancel(document: vscode.TextDocument): Promise<void> {
-    const workspaceFolder = vscode.workspace.getWorkspaceFolder(document.uri);
-    if (!workspaceFolder) {
-      throw new Error(
-        `Unable to find workspace folder for ${path.basename(
-          document.uri.fsPath
-        )}`
-      );
-    }
+  public cancel(document: vscode.TextDocument): Promise<void> {
+    const workspaceFolder = this.getWorkspaceFolder(document.uri);
     const cancelTaskOpts: CancelTaskOpts = {
       projectFolder: workspaceFolder.uri.fsPath,
       taskName: 'spotlessApply',
@@ -35,22 +28,14 @@ export class Spotless {
     return this.gradleApi.cancelRunTask(cancelTaskOpts);
   }
 
-  async apply(
+  public async apply(
     document: vscode.TextDocument,
     cancellationToken: vscode.CancellationToken
   ): Promise<string | null> {
     if (document.isClosed || document.isUntitled) {
       throw new Error('Document is closed or not saved, skipping formatting');
     }
-    const workspaceFolder = vscode.workspace.getWorkspaceFolder(document.uri);
-    if (!workspaceFolder) {
-      throw new Error(
-        `Unable to find workspace folder for ${path.basename(
-          document.uri.fsPath
-        )}`
-      );
-    }
-
+    const workspaceFolder = this.getWorkspaceFolder(document.uri);
     const cancelledDeferred = new Deferred();
 
     cancellationToken.onCancellationRequested(() => {
@@ -109,5 +94,15 @@ export class Spotless {
       }
     }
     return null;
+  }
+
+  private getWorkspaceFolder(uri: vscode.Uri): vscode.WorkspaceFolder {
+    const workspaceFolder = vscode.workspace.getWorkspaceFolder(uri);
+    if (!workspaceFolder) {
+      throw new Error(
+        `Unable to find workspace folder for ${path.basename(uri.fsPath)}`
+      );
+    }
+    return workspaceFolder;
   }
 }
