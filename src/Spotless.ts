@@ -92,11 +92,11 @@ export class Spotless {
 
     await Promise.race([runTask, cancelledDeferred.promise]);
 
-    const trimmedStdErr = stdErr.trim();
-
     if (cancellationToken.isCancellationRequested) {
       logger.warning('Spotless formatting cancelled');
     } else {
+      const trimmedStdErr = stdErr.trim();
+
       if (SPOTLESS_STATUSES.includes(trimmedStdErr)) {
         const basename = path.basename(document.uri.fsPath);
         logger.info(`${basename}: ${trimmedStdErr}`);

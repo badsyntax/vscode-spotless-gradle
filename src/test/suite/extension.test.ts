@@ -167,21 +167,19 @@ describe('Extension Test Suite', () => {
         await vscode.window.showTextDocument(document);
         await vscode.commands.executeCommand('editor.action.formatDocument');
         assert.ok(
-          loggerSpy.calledWith(
-            'Unable to apply formatting:',
-            sinon.match("Step 'google-java-format' found problem")
-          ),
+          loggerSpy.calledWith('Unable to apply formatting:', sinon.match.any),
           'Spotless error not logged'
         );
       });
     });
   });
+
   // We can't test for .kt, .scala, .graphql or .vue as they're not known language identifiers
   // See: https://code.visualstudio.com/docs/languages/identifiers#_known-language-identifiers
   describe('Supported language types', async () => {
     const basePath = path.resolve(
       __dirname,
-      '../../../test-fixtures/language-types'
+      '../../../test-fixtures/gradle-project/src/main/resources/language-types'
     );
     const files = fs.readdirSync(basePath);
 
