@@ -78,7 +78,7 @@
     "prettier": "^2.0.5",
     "sinon": "^9.0.2",
     "snyk": "^1.320.3",
-    "ts-loader": "^7.0.5",
+    "ts-loader": "^8.0.2",
     "typescript": "^3.9.5",
     "vsce": "^1.78.0",
     "vscode-test": "^1.4.0",
