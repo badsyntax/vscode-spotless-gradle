@@ -1,7 +1,7 @@
 {
   "editor.formatOnSave": false,
   "editor.codeActionsOnSave": {
-    "source.fixAll.spotlessGradle": true,
+    "source.fixAll.spotlessGradle": true
   },
   "java.format.enabled": false,
   "[java]": {
