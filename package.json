@@ -80,7 +80,7 @@
     "snyk": "^1.374.0",
     "ts-loader": "^8.0.2",
     "typescript": "^3.9.7",
-    "vsce": "^1.78.0",
+    "vsce": "^1.79.1",
     "vscode-test": "^1.4.0",
     "webpack": "^4.44.1",
     "webpack-cli": "^3.3.12"
