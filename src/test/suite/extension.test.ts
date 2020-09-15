@@ -54,12 +54,12 @@ describe('Extension Test Suite', () => {
       it('should run spotless when saving a file', async () => {
         const loggerSpy = sinon.spy(logger, 'info');
         const document = await formatFileOnSave(appFilePath);
-        assert.equal(
+        assert.strictEqual(
           document?.getText(),
           formattedAppFileContents,
           'The formatted document does not match the expected formatting'
         );
-        assert.equal(
+        assert.strictEqual(
           fs.readFileSync(helloFilePath, 'utf8'),
           helloFileContents,
           'Spotless formatted multiple files'
@@ -73,17 +73,17 @@ describe('Extension Test Suite', () => {
       it('should run spotless when formatting a file', async () => {
         const loggerSpy = sinon.spy(logger, 'info');
         const document = await formatFileWithCommand(appFilePath);
-        assert.equal(
+        assert.strictEqual(
           document?.getText(),
           formattedAppFileContents,
           'The formatted document does not match the expected formatting'
         );
-        assert.equal(
+        assert.strictEqual(
           fs.readFileSync(helloFilePath, 'utf8'),
           helloFileContents,
           'Spotless formatted multiple files'
         );
-        assert.equal(document?.isDirty, true, 'The document was saved');
+        assert.strictEqual(document?.isDirty, true, 'The document was saved');
         assert.ok(
           loggerSpy.calledWith('App.java: IS DIRTY'),
           'Spotless status not logged'
@@ -118,7 +118,7 @@ describe('Extension Test Suite', () => {
       it('should run spotless when saving a file', async () => {
         const loggerSpy = sinon.spy(logger, 'info');
         const document = await formatFileOnSave(appFilePath);
-        assert.equal(
+        assert.strictEqual(
           document?.getText(),
           formattedAppFileContents,
           'The formatted document does not match the expected formatting'
@@ -132,12 +132,12 @@ describe('Extension Test Suite', () => {
       it('should run spotless when formatting a file', async () => {
         const loggerSpy = sinon.spy(logger, 'info');
         const document = await formatFileWithCommand(appFilePath);
-        assert.equal(
+        assert.strictEqual(
           document?.getText(),
           formattedAppFileContents,
           'The formatted document does not match the expected formatting'
         );
-        assert.equal(document?.isDirty, true, 'The document was saved');
+        assert.strictEqual(document?.isDirty, true, 'The document was saved');
         assert.ok(
           loggerSpy.calledWith('App.groovy: IS DIRTY'),
           'Spotless status not logged'
@@ -267,7 +267,7 @@ describe('Extension Test Suite', () => {
         },
       });
       const isValid = await dependencyChecker.check();
-      assert.equal(isValid, false, 'Dependencies match');
+      assert.strictEqual(isValid, false, 'Dependencies match');
       assert.ok(
         errorSpy.calledWith(
           'Extension versions are incompatible: richardwillis.vscode-gradle@^1.0.1. Install those specific versions or update this extension.',
