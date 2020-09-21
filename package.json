@@ -82,7 +82,7 @@
     "typescript": "^3.9.7",
     "vsce": "^1.78.0",
     "vscode-test": "^1.4.0",
-    "webpack": "^4.44.1",
+    "webpack": "^4.44.2",
     "webpack-cli": "^3.3.12"
   },
   "dependencies": {
