@@ -14,7 +14,7 @@ Format your code using [Spotless](https://github.com/diffplug/spotless) (via Gra
 - Provides a Spotless fixAll code action (`Format on Save`)
 - Provides a Spotless formatter (`Format Document`)
 
-Supports `java`, `kotlin`, `kotlinscript`, `scala`, `sql`, `groovy`, `javascript`, `javascriptreact`, `typescript`, `typescriptreact`, `css`, `scss`, `less`, `vue`, `graphql`, `json`, `yaml`, `markdown` language types.
+Supports `java`, `kotlin`, `kotlinscript`, `scala`, `sql`, `groovy`, `javascript`, `javascriptreact`, `typescript`, `typescriptreact`, `css`, `scss`, `less`, `vue`, `graphql`, `json`, `yaml`, `markdown`, `python`, `c`, `cpp`, `csharp`, `objective-c`, `objective-cpp` language types.
 
 ## Requirements
 
