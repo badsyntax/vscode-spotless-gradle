@@ -48,5 +48,8 @@
   },
   "[markdown]": {
     "editor.defaultFormatter": "richardwillis.vscode-spotless-gradle"
+  },
+  "[python]": {
+    "editor.defaultFormatter": "richardwillis.vscode-spotless-gradle"
   }
 }

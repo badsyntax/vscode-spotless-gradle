@@ -36,7 +36,8 @@
     "java",
     "groovy",
     "scala",
-    "kotlin"
+    "kotlin",
+    "python"
   ],
   "activationEvents": [
     "workspaceContains:gradlew",
