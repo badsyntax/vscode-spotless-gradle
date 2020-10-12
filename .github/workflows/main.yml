@@ -1,6 +1,9 @@
 name: Build & Publish
 on:
   push:
+    branches: [master]
+  pull_request:
+    branches: [master]
   release:
     types: [published]
 
@@ -24,15 +27,49 @@ jobs:
         with:
           java-version: ${{ matrix.java-version }}
           architecture: x64
+      - name: Cache Gradle
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-node-${{ matrix.node-version }}-java-${{ matrix.java-version }}-${{ hashFiles('**/*.gradle*') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-node-${{ matrix.node-version }}-java-${{ matrix.java-version }}
+      - name: Cache npm cache directory
+        uses: actions/cache@v2
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-npm-node-${{ matrix.node-version }}-java-${{ matrix.java-version }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-npm-node-${{ matrix.node-version }}-java-${{ matrix.java-version }}
+        if: matrix.os != 'windows-latest'
+      - name: Get npm cache directory
+        id: npm-cache
+        run: |
+          echo "::set-output name=dir::$(npm config get cache)"
+        if: matrix.os == 'windows-latest'
+      - name: Cache npm cache directory windows
+        uses: actions/cache@v2
+        with:
+          path: ${{ steps.npm-cache.outputs.dir }}
+          key: ${{ runner.os }}-npm-node-${{ matrix.node-version }}-java-${{ matrix.java-version }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-npm-node-${{ matrix.node-version }}-java-${{ matrix.java-version }}
+        if: matrix.os == 'windows-latest'
+      - name: Cache vscode
+        uses: actions/cache@v2
+        with:
+          path: .vscode-test
+          key: ${{ runner.os }}-vscode-node-${{ matrix.node-version }}-java-${{ matrix.java-version }}-${{ hashFiles('**/vscode-version.ts') }}
+          restore-keys: |
+            ${{ runner.os }}-vscode-node-${{ matrix.node-version }}-java-${{ matrix.java-version }}
       - name: Install npm packages
-        run: |
-          npm install
+        run: npm ci
       - name: Lint extension
-        run: |
-          npm run lint
+        run: npm run lint
       - name: Build extension
-        run: |
-          npm run build
+        run: npm run build
       - name: Prepare Gradle
         uses: eskatos/gradle-command-action@v1
         with:

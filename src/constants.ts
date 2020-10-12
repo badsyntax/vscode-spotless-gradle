@@ -17,6 +17,12 @@ export const SUPPORTED_LANGUAGES = [
   'json',
   'yaml',
   'markdown',
+  'python',
+  'c',
+  'cpp',
+  'csharp',
+  'objective-c',
+  'objective-cpp',
 ];
 export const GRADLE_TASKS_EXTENSION_ID = 'richardwillis.vscode-gradle';
 export const SPOTLESS_GRADLE_EXTENSION_ID =

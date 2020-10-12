@@ -36,7 +36,13 @@
     "java",
     "groovy",
     "scala",
-    "kotlin"
+    "kotlin",
+    "python",
+    "c",
+    "cpp",
+    "csharp",
+    "objective-c",
+    "objective-cpp"
   ],
   "activationEvents": [
     "workspaceContains:gradlew",

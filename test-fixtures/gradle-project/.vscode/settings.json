@@ -48,5 +48,23 @@
   },
   "[markdown]": {
     "editor.defaultFormatter": "richardwillis.vscode-spotless-gradle"
+  },
+  "[python]": {
+    "editor.defaultFormatter": "richardwillis.vscode-spotless-gradle"
+  },
+  "[c]": {
+    "editor.defaultFormatter": "richardwillis.vscode-spotless-gradle"
+  },
+  "[cpp]": {
+    "editor.defaultFormatter": "richardwillis.vscode-spotless-gradle"
+  },
+  "[csharp]": {
+    "editor.defaultFormatter": "richardwillis.vscode-spotless-gradle"
+  },
+  "[objective-c]": {
+    "editor.defaultFormatter": "richardwillis.vscode-spotless-gradle"
+  },
+  "[objective-cpp]": {
+    "editor.defaultFormatter": "richardwillis.vscode-spotless-gradle"
   }
 }
