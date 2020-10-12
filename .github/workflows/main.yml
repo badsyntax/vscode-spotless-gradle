@@ -43,6 +43,13 @@ jobs:
           key: ${{ runner.os }}-npm-node-${{ matrix.node-version }}-java-${{ matrix.java-version }}-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-npm-node-${{ matrix.node-version }}-java-${{ matrix.java-version }}
+      - name: Cache vscode
+        uses: actions/cache@v2
+        with:
+          path: .vscode-test
+          key: ${{ runner.os }}-vscode-node-${{ matrix.node-version }}-java-${{ matrix.java-version }}-${{ hashFiles('**/vscode-version.ts') }}
+          restore-keys: |
+            ${{ runner.os }}-vscode-node-${{ matrix.node-version }}-java-${{ matrix.java-version }}
       - name: Install npm packages
         run: npm ci
       - name: Lint extension
