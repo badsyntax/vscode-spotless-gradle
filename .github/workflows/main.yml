@@ -44,14 +44,11 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-npm-node-${{ matrix.node-version }}-java-${{ matrix.java-version }}
       - name: Install npm packages
-        run: |
-          npm install
+        run: npm ci
       - name: Lint extension
-        run: |
-          npm run lint
+        run: npm run lint
       - name: Build extension
-        run: |
-          npm run build
+        run: npm run build
       - name: Prepare Gradle
         uses: eskatos/gradle-command-action@v1
         with:
