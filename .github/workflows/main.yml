@@ -43,6 +43,20 @@ jobs:
           key: ${{ runner.os }}-npm-node-${{ matrix.node-version }}-java-${{ matrix.java-version }}-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-npm-node-${{ matrix.node-version }}-java-${{ matrix.java-version }}
+        if: matrix.os != 'windows-latest'
+      - name: Get npm cache directory
+        id: npm-cache
+        run: |
+          echo "::set-output name=dir::$(npm config get cache)"
+        if: matrix.os == 'windows-latest'
+      - name: Cache npm cache directory windows
+        uses: actions/cache@v2
+        with:
+          path: ${{ steps.npm-cache.outputs.dir }}
+          key: ${{ runner.os }}-npm-node-${{ matrix.node-version }}-java-${{ matrix.java-version }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-npm-node-${{ matrix.node-version }}-java-${{ matrix.java-version }}
+        if: matrix.os == 'windows-latest'
       - name: Cache vscode
         uses: actions/cache@v2
         with:
