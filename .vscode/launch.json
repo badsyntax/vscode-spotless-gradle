@@ -1,34 +1,41 @@
+// A launch configuration that compiles the extension and then opens it inside a new window
 {
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Run Extension",
       "type": "extensionHost",
       "request": "launch",
+      "name": "Debug Extension",
       "runtimeExecutable": "${execPath}",
-      "args": ["--extensionDevelopmentPath=${workspaceFolder}"],
-      "outFiles": ["${workspaceFolder}/dist/**/*.js"],
+      "args": ["--extensionDevelopmentPath=${workspaceRoot}"],
+      "outFiles": ["${workspaceRoot}/dist/**/*.js"],
       "preLaunchTask": "npm: compile:dev"
     },
     {
-      "name": "Extension Tests",
+      "type": "node",
+      "request": "attach",
+      "name": "Attach to Server",
+      "port": 6009,
+      "restart": true,
+      "outFiles": ["${workspaceRoot}/dist/**/*.js"]
+    },
+    {
+      "name": "Language Server E2E Test",
       "type": "extensionHost",
       "request": "launch",
       "runtimeExecutable": "${execPath}",
       "args": [
-        "--extensionDevelopmentPath=${workspaceFolder}",
-        "--extensionTestsPath=${workspaceFolder}/out/test/suite/index",
-        "--disable-extension=redhat.java",
-        "--disable-extension=vscjava.vscode-java-dependency",
-        "--disable-extension=vscjava.vscode-java-test",
-        "--disable-extension=shengchen.vscode-checkstyle",
-        "--disable-extension=eamodio.gitlens",
-        "--disable-extension=sonarsource.sonarlint-vscode",
-        "--disable-extension=esbenp.prettier-vscode",
-        "${workspaceFolder}/test-fixtures/gradle-project"
+        "--extensionDevelopmentPath=${workspaceRoot}",
+        "--extensionTestsPath=${workspaceRoot}/client/out/test/index",
+        "${workspaceRoot}/client/testFixture"
       ],
-      "outFiles": ["${workspaceFolder}/out/test/**/*.js"],
-      "preLaunchTask": "npm: compile:all"
+      "outFiles": ["${workspaceRoot}/client/out/test/**/*.js"]
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Client + Server",
+      "configurations": ["Debug Extension", "Attach to Server"]
     }
   ]
 }

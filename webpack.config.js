@@ -7,12 +7,15 @@ const path = require('path');
 /**@type {import('webpack').Configuration}*/
 const config = {
   target: 'node',
-  entry: './src/extension.ts',
+  entry: {
+    extension: './src/extension.ts',
+    server: './src/server.ts',
+  },
   output: {
     path: path.resolve(__dirname, 'dist'),
-    filename: 'extension.js',
+    filename: '[name].js',
     libraryTarget: 'commonjs2',
-    devtoolModuleFilenameTemplate: '../[resource-path]',
+    devtoolModuleFilenameTemplate: '[absolute-resource-path]',
   },
   devtool: 'source-map',
   externals: {
