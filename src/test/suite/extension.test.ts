@@ -11,11 +11,83 @@ import {
   SPOTLESS_GRADLE_EXTENSION_ID,
 } from '../../constants';
 import { ExtensionApi } from '../../extension';
+import { getPositionFromOffset } from '../../util';
 
 describe('Extension Test Suite', () => {
   const { logger, spotless } = vscode.extensions.getExtension(
     SPOTLESS_GRADLE_EXTENSION_ID
   )!.exports as ExtensionApi;
+
+  describe('Diagnostics', () => {
+    describe('getRange', () => {
+      const getLoc = (
+        offset: number,
+        linesText: string[] = ['123456'],
+        deleteText = '45'
+      ): {
+        start: vscode.Position;
+        end: vscode.Position;
+      } => {
+        const difference = {
+          offset,
+          deleteText,
+        };
+        const lines = linesText.map((lineText, i) => ({
+          lineNumber: i,
+          text: lineText,
+        }));
+        const document = {
+          lineCount: lines.length,
+          lineAt(
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            index: number
+          ): {
+            lineNumber: number;
+            text: string;
+          } {
+            return lines[index];
+          },
+        };
+        const start = getPositionFromOffset(
+          document as vscode.TextDocument,
+          difference.offset
+        );
+        const end = getPositionFromOffset(
+          document as vscode.TextDocument,
+          difference.offset + difference.deleteText!.length
+        );
+        return { start, end };
+      };
+      it('should get correct delete range with 0 offset', () => {
+        const { start, end } = getLoc(0);
+        assert.ok(start);
+        assert.ok(end);
+        assert.strictEqual(start.line, 0);
+        assert.strictEqual(start.character, 0);
+        assert.strictEqual(end.line, 0);
+        assert.strictEqual(end.character, 2);
+      });
+      it('should get correct delete range with 3 offset', () => {
+        const { start, end } = getLoc(3);
+        assert.ok(start);
+        assert.ok(end);
+        assert.strictEqual(start.line, 0);
+        assert.strictEqual(start.character, 3);
+        assert.strictEqual(end.line, 0);
+        assert.strictEqual(end.character, 5);
+      });
+
+      it('should get correct delete range for multi-lines', () => {
+        const { start, end } = getLoc(7, ['123456', '78910']);
+        assert.ok(start);
+        assert.ok(end);
+        assert.strictEqual(start.line, 1);
+        assert.strictEqual(start.character, 1);
+        assert.strictEqual(end.line, 1);
+        assert.strictEqual(end.character, 3);
+      });
+    });
+  });
   describe('Running Spotless', () => {
     const javaBasePath = path.resolve(
       __dirname,

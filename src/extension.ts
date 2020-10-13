@@ -13,77 +13,11 @@ import {
   OUTPUT_CHANNEL_ID,
 } from './constants';
 import { DependencyChecker } from './DependencyChecker';
-import { Difference, generateDifferences } from 'prettier-linter-helpers';
+import { getRange } from './util';
 
 export interface ExtensionApi {
   logger: Logger;
   spotless: Spotless;
-}
-
-const { INSERT, DELETE, REPLACE } = generateDifferences;
-
-function getPositionFromOffset(
-  document: vscode.TextDocument,
-  offset: number
-): vscode.Position | void {
-  let text = '';
-  for (let i = 0; i < document.lineCount; i++) {
-    const line = document.lineAt(i);
-    if ((text + line.text).length >= offset) {
-      return new vscode.Position(i, offset - text.length);
-    }
-    text += line.text + '\n';
-  }
-}
-
-function getRange(
-  document: vscode.TextDocument,
-  difference: Difference
-): vscode.Range | void {
-  switch (difference.operation) {
-    case INSERT: {
-      const start = getPositionFromOffset(document, difference.offset);
-      if (start) {
-        return new vscode.Range(
-          start.line,
-          start.character,
-          start.line,
-          start.character
-        );
-      }
-      break;
-    }
-    case DELETE:
-      const start = getPositionFromOffset(document, difference.offset);
-      const end = getPositionFromOffset(
-        document,
-        difference.offset + difference.deleteText!.length
-      );
-      if (start && end) {
-        return new vscode.Range(
-          start.line,
-          start.character,
-          end.line,
-          end.character
-        );
-      }
-      break;
-    case REPLACE: {
-      const start = getPositionFromOffset(document, difference.offset);
-      const end = getPositionFromOffset(
-        document,
-        difference.offset + difference.deleteText!.length
-      );
-      if (start && end) {
-        return new vscode.Range(
-          start.line,
-          start.character,
-          end.line,
-          end.character
-        );
-      }
-    }
-  }
 }
 
 function getDiagnosticMap(
@@ -93,6 +27,7 @@ function getDiagnosticMap(
   const diagnosticMap: Map<string, vscode.Diagnostic[]> = new Map();
   diff.differences.forEach((difference) => {
     const canonicalFile = document.uri.toString();
+    logger.info('difference', JSON.stringify(difference, null, 2));
     const range = getRange(document, difference);
     if (range) {
       let diagnostics = diagnosticMap.get(canonicalFile);
