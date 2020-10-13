@@ -73,6 +73,7 @@
     "@types/glob": "^7.1.3",
     "@types/mocha": "^8.0.3",
     "@types/node": "^12.12.67",
+    "@types/prettier-linter-helpers": "^1.0.0",
     "@types/sinon": "^9.0.8",
     "@types/vscode": "^1.45.0",
     "@typescript-eslint/eslint-plugin": "^4.4.0",
@@ -94,6 +95,7 @@
     "webpack-cli": "^4.0.0"
   },
   "dependencies": {
+    "prettier-linter-helpers": "^1.0.0",
     "semver": "^7.3.2",
     "vscode-gradle": "^3.5.0"
   },

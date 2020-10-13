@@ -8,19 +8,26 @@ import {
   Output,
 } from 'vscode-gradle';
 import { logger } from './logger';
-import { sanitizePath } from './util';
+import { getWorkspaceFolder, sanitizePath } from './util';
 import {
   SPOTLESS_STATUSES,
   SPOTLESS_STATUS_IS_DIRTY,
   SPOTLESS_STATUS_IS_CLEAN,
 } from './constants';
 import { Deferred } from './Deferred';
+import { Difference, generateDifferences } from 'prettier-linter-helpers';
+
+export interface SpotlessDiff {
+  source: string;
+  formattedSource: string;
+  differences: Difference[];
+}
 
 export class Spotless {
   constructor(private readonly gradleApi: GradleApi) {}
 
   public cancel(document: vscode.TextDocument): Promise<void> {
-    const workspaceFolder = this.getWorkspaceFolder(document.uri);
+    const workspaceFolder = getWorkspaceFolder(document.uri);
     const cancelTaskOpts: CancelTaskOpts = {
       projectFolder: workspaceFolder.uri.fsPath,
       taskName: 'spotlessApply',
@@ -28,17 +35,35 @@ export class Spotless {
     return this.gradleApi.cancelRunTask(cancelTaskOpts);
   }
 
+  public async getDiff(
+    document: vscode.TextDocument,
+    cancellationToken?: vscode.CancellationToken
+  ): Promise<SpotlessDiff> {
+    const source = document.getText();
+    const formattedSource =
+      (await this.apply(document, cancellationToken)) || '';
+    let differences: Difference[] = [];
+    if (formattedSource && source !== formattedSource) {
+      differences = generateDifferences(source, formattedSource);
+    }
+    return {
+      source,
+      formattedSource,
+      differences,
+    };
+  }
+
   public async apply(
     document: vscode.TextDocument,
-    cancellationToken: vscode.CancellationToken
+    cancellationToken?: vscode.CancellationToken
   ): Promise<string | null> {
     if (document.isClosed || document.isUntitled) {
       throw new Error('Document is closed or not saved, skipping formatting');
     }
-    const workspaceFolder = this.getWorkspaceFolder(document.uri);
+    const workspaceFolder = getWorkspaceFolder(document.uri);
     const cancelledDeferred = new Deferred();
 
-    cancellationToken.onCancellationRequested(() => {
+    cancellationToken?.onCancellationRequested(() => {
       this.cancel(document);
       cancelledDeferred.resolve();
     });
@@ -77,7 +102,7 @@ export class Spotless {
 
     await Promise.race([runTask, cancelledDeferred.promise]);
 
-    if (cancellationToken.isCancellationRequested) {
+    if (cancellationToken?.isCancellationRequested) {
       logger.warning('Spotless formatting cancelled');
     } else {
       const trimmedStdErr = stdErr.trim();
@@ -94,15 +119,5 @@ export class Spotless {
       }
     }
     return null;
-  }
-
-  private getWorkspaceFolder(uri: vscode.Uri): vscode.WorkspaceFolder {
-    const workspaceFolder = vscode.workspace.getWorkspaceFolder(uri);
-    if (!workspaceFolder) {
-      throw new Error(
-        `Unable to find workspace folder for ${path.basename(uri.fsPath)}`
-      );
-    }
-    return workspaceFolder;
   }
 }
