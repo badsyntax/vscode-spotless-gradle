@@ -5,7 +5,7 @@
 [![Build & Publish](https://github.com/badsyntax/vscode-spotless-gradle/workflows/Build%20&%20Publish/badge.svg)](https://github.com/badsyntax/vscode-spotless-gradle/actions?query=workflow%3A"Build+%26+Publish")
 [![GitHub bug issues](https://img.shields.io/github/issues/badsyntax/vscode-spotless-gradle/bug?label=bug%20reports)](https://github.com/badsyntax/vscode-spotless-gradle/issues?q=is%3Aissue+is%3Aopen+label%3Abug)
 
-Format your code using [Spotless](https://github.com/diffplug/spotless) (via Gradle).
+A VS Code extension to format your code using [Spotless](https://github.com/diffplug/spotless) (via Gradle).
 
 ![Spotless Gradle Screencast](images/spotless-gradle-screencast.gif)
 
