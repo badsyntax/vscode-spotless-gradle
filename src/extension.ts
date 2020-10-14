@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import * as vscode from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs';
@@ -6,39 +5,18 @@ import type { ExtensionApi as GradleApi } from 'vscode-gradle';
 import { FixAllCodeActionProvider } from './FixAllCodeActionProvider';
 import { logger, Logger } from './logger';
 import { DocumentFormattingEditProvider } from './DocumentFormattingEditProvider';
-import { Spotless, SpotlessDiff } from './Spotless';
+import { Spotless } from './Spotless';
 import {
   GRADLE_TASKS_EXTENSION_ID,
   SUPPORTED_LANGUAGES,
   OUTPUT_CHANNEL_ID,
 } from './constants';
 import { DependencyChecker } from './DependencyChecker';
-import { getRange } from './util';
+import { SpotlessDiagnostics } from './SpotlessDiagnostics';
 
 export interface ExtensionApi {
   logger: Logger;
   spotless: Spotless;
-}
-
-function getDiagnosticMap(
-  diff: SpotlessDiff,
-  document: vscode.TextDocument
-): Map<string, vscode.Diagnostic[]> {
-  const diagnosticMap: Map<string, vscode.Diagnostic[]> = new Map();
-  diff.differences.forEach((difference) => {
-    const canonicalFile = document.uri.toString();
-    logger.info('difference', JSON.stringify(difference, null, 2));
-    const range = getRange(document, difference);
-    if (range) {
-      let diagnostics = diagnosticMap.get(canonicalFile);
-      if (!diagnostics) {
-        diagnostics = [];
-      }
-      diagnostics.push(new vscode.Diagnostic(range, difference.operation));
-      diagnosticMap.set(canonicalFile, diagnostics);
-    }
-  });
-  return diagnosticMap;
 }
 
 export async function activate(
@@ -83,26 +61,8 @@ export async function activate(
     scheme: 'file',
   }));
 
-  const diagnosticCollection = vscode.languages.createDiagnosticCollection(
-    'java'
-  );
-
-  vscode.workspace.onDidChangeTextDocument(
-    async (e: vscode.TextDocumentChangeEvent) => {
-      if (vscode.window.activeTextEditor?.document === e.document) {
-        const diff = await spotless.getDiff(e.document);
-        diagnosticCollection.clear();
-        const diagnosticMap = getDiagnosticMap(diff, e.document);
-        diagnosticMap.forEach((diags, file) => {
-          diagnosticCollection.set(vscode.Uri.parse(file), diags);
-        });
-      }
-    }
-  );
-
-  vscode.window.onDidChangeActiveTextEditor((editor?: vscode.TextEditor) => {
-    console.log('', editor);
-  });
+  const spotlessDiagnostics = new SpotlessDiagnostics(context, spotless);
+  spotlessDiagnostics.register();
 
   context.subscriptions.push(
     vscode.languages.registerCodeActionsProvider(
@@ -113,8 +73,7 @@ export async function activate(
     vscode.languages.registerDocumentFormattingEditProvider(
       documentSelectors,
       documentFormattingEditProvider
-    ),
-    diagnosticCollection
+    )
   );
 
   return { logger, spotless };

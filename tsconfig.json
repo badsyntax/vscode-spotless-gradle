@@ -8,7 +8,8 @@
     "strict": true,
     "rootDir": "src",
     "skipLibCheck": true,
-    "noUnusedLocals": true
+    "noUnusedLocals": true,
+    "experimentalDecorators": true
   },
   "include": ["src/**/*.ts"]
 }
