@@ -1,3 +1,4 @@
+/* eslint-disable sonarjs/no-duplicate-string */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import * as vscode from 'vscode';
 import * as path from 'path';
@@ -30,6 +31,18 @@ describe('Extension Test Suite', () => {
       __dirname,
       '../../../test-fixtures/gradle-project/src/main/groovy/gradle/project'
     );
+
+    const reset = async (
+      appFilePath: string,
+      appFileContents: string
+    ): Promise<void> => {
+      await vscode.commands.executeCommand(
+        'workbench.action.closeActiveEditor'
+      );
+      fs.writeFileSync(appFilePath, appFileContents, 'utf8');
+      sinon.restore();
+    };
+
     describe('Java', function () {
       const appFilePath = path.resolve(javaBasePath, 'App.java');
       const appFileContents = fs.readFileSync(appFilePath, 'utf8');
@@ -49,11 +62,7 @@ describe('Extension Test Suite', () => {
       this.retries(5);
 
       afterEach(async () => {
-        await vscode.commands.executeCommand(
-          'workbench.action.closeActiveEditor'
-        );
-        fs.writeFileSync(appFilePath, appFileContents, 'utf8');
-        sinon.restore();
+        await reset(appFilePath, appFileContents);
       });
 
       it('should run spotless when saving a file', async () => {
@@ -113,11 +122,7 @@ describe('Extension Test Suite', () => {
       this.retries(5);
 
       afterEach(async () => {
-        await vscode.commands.executeCommand(
-          'workbench.action.closeActiveEditor'
-        );
-        fs.writeFileSync(appFilePath, appFileContents, 'utf8');
-        sinon.restore();
+        await reset(appFilePath, appFileContents);
       });
 
       it('should run spotless when saving a file', async () => {

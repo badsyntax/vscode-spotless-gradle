@@ -64,7 +64,7 @@ export class DependencyChecker {
     return extensions.map((extensionDependency) => {
       const extensionVersion = extensionDependency.packageJSON.version;
       const requiredVersion = compatibleVersions![extensionDependency.id];
-      const version: ExtensionVersion = {
+      return {
         id: extensionDependency.id,
         required: requiredVersion,
         compatible:
@@ -74,7 +74,6 @@ export class DependencyChecker {
             semver.validRange(requiredVersion)
           ),
       };
-      return version;
     });
   }
 
