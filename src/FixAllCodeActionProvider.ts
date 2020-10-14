@@ -52,7 +52,7 @@ export class FixAllCodeActionProvider implements vscode.CodeActionProvider {
 
       return [action];
     } catch (e) {
-      logger.error('Unable to apply code action:', e.message);
+      logger.error(`Unable to apply code action: ${e.message}`);
       return noChanges;
     }
   }

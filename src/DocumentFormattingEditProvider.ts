@@ -25,7 +25,7 @@ export class DocumentFormattingEditProvider
       );
       return [new vscode.TextEdit(range, newText)];
     } catch (e) {
-      logger.error('Unable to apply formatting:', e.message);
+      logger.error(`Unable to apply formatting: ${e.message}`);
       return noChanges;
     }
   }

@@ -1,7 +1,7 @@
 import * as path from 'path';
 import * as util from 'util';
 import * as vscode from 'vscode';
-import { ExtensionApi as GradleApi, Output } from 'vscode-gradle';
+import { ExtensionApi as GradleApi, Output, RunBuildOpts } from 'vscode-gradle';
 import { logger } from './logger';
 import { getWorkspaceFolder, sanitizePath } from './util';
 import {
@@ -10,15 +10,15 @@ import {
   SPOTLESS_STATUS_IS_CLEAN,
 } from './constants';
 import { Deferred } from './Deferred';
-import { RunBuildOpts } from 'vscode-gradle/lib/api/Api'; // FIXME new vscode-gradle version required
 
 export class Spotless {
   constructor(private readonly gradleApi: GradleApi) {}
 
-  public async cancel(): Promise<void> {
-    // FIXME: new vscode-gradle version required
+  // TODO: verify this works
+  public async cancel(args: string[], projectFolder: string): Promise<void> {
     await this.gradleApi.cancelRunBuild({
-      cancellationKey: this.cancellationKey,
+      args,
+      projectFolder,
     });
   }
 
@@ -33,27 +33,30 @@ export class Spotless {
     if (document.isClosed || document.isUntitled) {
       throw new Error('Document is closed or not saved, skipping formatting');
     }
+    const sanitizedPath = sanitizePath(document.uri.fsPath);
+
+    const args = [
+      'spotlessApply',
+      `-PspotlessIdeHook=${sanitizedPath}`,
+      '-PspotlessIdeHookUseStdIn',
+      '-PspotlessIdeHookUseStdOut',
+      '--quiet',
+    ];
+
     const workspaceFolder = getWorkspaceFolder(document.uri);
     const cancelledDeferred = new Deferred();
 
     cancellationToken?.onCancellationRequested(() => {
-      this.cancel();
+      this.cancel(args, workspaceFolder.uri.fsPath);
       cancelledDeferred.resolve();
     });
 
     let stdOut = '';
     let stdErr = '';
-    const sanitizedPath = sanitizePath(document.uri.fsPath);
 
     const runBuildOpts: RunBuildOpts = {
       projectFolder: workspaceFolder.uri.fsPath,
-      args: [
-        'spotlessApply',
-        `-PspotlessIdeHook=${sanitizedPath}`,
-        '-PspotlessIdeHookUseStdIn',
-        '-PspotlessIdeHookUseStdOut',
-        '--quiet',
-      ],
+      args,
       input: document.getText(),
       showOutputColors: false,
       onOutput: (output: Output) => {

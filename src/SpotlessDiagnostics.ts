@@ -4,7 +4,7 @@ import { Spotless } from './Spotless';
 import { logger } from './logger';
 import { debounce, getDiagnosticMap } from './util';
 
-const UPDATE_DEBOUNCE_MS = 360;
+export const DIAGNOSTICS_UPDATES_DEBOUNCE_MS = 360;
 
 export interface SpotlessDiff {
   source: string;
@@ -43,7 +43,7 @@ export class SpotlessDiagnostics {
     );
   }
 
-  @debounce(UPDATE_DEBOUNCE_MS)
+  @debounce(DIAGNOSTICS_UPDATES_DEBOUNCE_MS)
   async handleChangeTextDocument(
     e: vscode.TextDocumentChangeEvent
   ): Promise<void> {
