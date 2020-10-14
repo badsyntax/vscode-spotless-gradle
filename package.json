@@ -25,7 +25,7 @@
     "richardwillis.vscode-gradle"
   ],
   "extensionDependenciesCompatibility": {
-    "richardwillis.vscode-gradle": "^3.0.1"
+    "richardwillis.vscode-gradle": "^3.5.1"
   },
   "categories": [
     "Formatters"
