@@ -1,10 +1,16 @@
 import * as vscode from 'vscode';
-import { generateDifferences } from 'prettier-linter-helpers';
-import { Spotless, SpotlessDiff } from './Spotless';
+import { Difference, generateDifferences } from 'prettier-linter-helpers';
+import { Spotless } from './Spotless';
 import { logger } from './logger';
 import { debounce, getDiagnosticMap } from './util';
 
 const UPDATE_DEBOUNCE_MS = 360;
+
+export interface SpotlessDiff {
+  source: string;
+  formattedSource: string;
+  differences: Difference[];
+}
 
 export class SpotlessDiagnostics {
   private diagnosticCollection: vscode.DiagnosticCollection;
@@ -20,7 +26,14 @@ export class SpotlessDiagnostics {
   }
 
   public register(): void {
+    const onReady = this.spotless.onReady(() => {
+      const activeDocument = vscode.window.activeTextEditor?.document;
+      if (activeDocument) {
+        void this.updateDiagnostics(activeDocument);
+      }
+    });
     this.context.subscriptions.push(
+      onReady,
       vscode.workspace.onDidChangeTextDocument(
         (e: vscode.TextDocumentChangeEvent) => {
           void this.handleChangeTextDocument(e);
@@ -30,6 +43,7 @@ export class SpotlessDiagnostics {
     );
   }
 
+  @debounce(UPDATE_DEBOUNCE_MS)
   async handleChangeTextDocument(
     e: vscode.TextDocumentChangeEvent
   ): Promise<void> {
@@ -38,7 +52,6 @@ export class SpotlessDiagnostics {
     }
   }
 
-  @debounce(UPDATE_DEBOUNCE_MS)
   private async updateDiagnostics(
     document: vscode.TextDocument
   ): Promise<void> {
@@ -58,13 +71,9 @@ export class SpotlessDiagnostics {
     }
   }
 
-  private async getDiff(
-    document: vscode.TextDocument,
-    cancellationToken?: vscode.CancellationToken
-  ): Promise<SpotlessDiff> {
+  private async getDiff(document: vscode.TextDocument): Promise<SpotlessDiff> {
     const source = document.getText();
-    const formattedSource =
-      (await this.spotless.apply(document, cancellationToken)) || source;
+    const formattedSource = (await this.spotless.apply(document)) || source;
     const differences = generateDifferences(source, formattedSource);
     return {
       source,

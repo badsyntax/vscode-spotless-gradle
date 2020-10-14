@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 import { Difference, generateDifferences } from 'prettier-linter-helpers';
-import { SpotlessDiff } from './Spotless';
+import { SpotlessDiff } from './SpotlessDiagnostics';
 
 const { INSERT, DELETE, REPLACE } = generateDifferences;
 

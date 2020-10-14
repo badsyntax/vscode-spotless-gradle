@@ -10,23 +10,20 @@ import {
   SPOTLESS_STATUS_IS_CLEAN,
 } from './constants';
 import { Deferred } from './Deferred';
-import { Difference } from 'prettier-linter-helpers';
-import { RunBuildOpts } from 'vscode-gradle/lib/api/Api'; // FIXME
-
-export interface SpotlessDiff {
-  source: string;
-  formattedSource: string;
-  differences: Difference[];
-}
+import { RunBuildOpts } from 'vscode-gradle/lib/api/Api'; // FIXME new vscode-gradle version required
 
 export class Spotless {
   constructor(private readonly gradleApi: GradleApi) {}
 
   public async cancel(): Promise<void> {
-    // FIXME
-    // await this.gradleApi.cancelRunBuild({
-    //   cancellationKey: this.cancellationKey,
-    // });
+    // FIXME: new vscode-gradle version required
+    await this.gradleApi.cancelRunBuild({
+      cancellationKey: this.cancellationKey,
+    });
+  }
+
+  public onReady(callback: () => void): vscode.Disposable {
+    return this.gradleApi.onReady(callback);
   }
 
   public async apply(
