@@ -95,7 +95,7 @@
   },
   "dependencies": {
     "semver": "^7.3.2",
-    "vscode-gradle": "^3.5.0"
+    "vscode-gradle": "^3.5.1"
   },
   "snyk": true
 }
