@@ -14,14 +14,6 @@ import { Deferred } from './Deferred';
 export class Spotless {
   constructor(private readonly gradleApi: GradleApi) {}
 
-  // TODO: verify this works
-  public async cancel(args: string[], projectFolder: string): Promise<void> {
-    await this.gradleApi.cancelRunBuild({
-      args,
-      projectFolder,
-    });
-  }
-
   public onReady(callback: () => void): vscode.Disposable {
     return this.gradleApi.onReady(callback);
   }
@@ -47,10 +39,9 @@ export class Spotless {
     const workspaceFolder = getWorkspaceFolder(document.uri);
     const cancelledDeferred = new Deferred();
 
-    cancellationToken?.onCancellationRequested(() => {
-      this.cancel(args, workspaceFolder.uri.fsPath);
-      cancelledDeferred.resolve();
-    });
+    cancellationToken?.onCancellationRequested(() =>
+      cancelledDeferred.resolve()
+    );
 
     let stdOut = '';
     let stdErr = '';

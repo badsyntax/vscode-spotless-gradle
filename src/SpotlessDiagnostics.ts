@@ -71,7 +71,6 @@ export class SpotlessDiagnostics {
 
   @debounce(DIAGNOSTICS_UPDATES_DEBOUNCE_MS)
   async handleChangeTextDocument(document: vscode.TextDocument): Promise<void> {
-    // TODO: prevent diagnostics if run after applying formatting
     void this.runDiagnostics(document);
   }
 
