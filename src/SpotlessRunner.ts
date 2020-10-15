@@ -11,6 +11,6 @@ export class SpotlessRunner extends AsyncQueue<string | null> {
     document: vscode.TextDocument,
     cancellationToken?: vscode.CancellationToken
   ): Promise<string | null> {
-    return this.queue(this.spotless.apply(document, cancellationToken));
+    return this.queue(() => this.spotless.apply(document, cancellationToken));
   }
 }
