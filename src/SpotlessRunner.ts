@@ -1,18 +1,23 @@
 import * as vscode from 'vscode';
 import { Spotless } from './Spotless';
+
 export class SpotlessRunner {
   private promise: Promise<string | null> | undefined;
 
   constructor(private readonly spotless: Spotless) {}
 
-  run(
+  async run(
     document: vscode.TextDocument,
     cancellationToken?: vscode.CancellationToken
   ): Promise<string | null> {
+    return this.queue(this.spotless.apply(document, cancellationToken));
+  }
+
+  private async queue(promise: Promise<string | null>): Promise<string | null> {
     if (this.promise) {
-      throw new Error('spotlessApply is already running');
+      await this.promise;
     }
-    this.promise = this.spotless.apply(document, cancellationToken);
+    this.promise = promise;
     return this.promise.finally(() => {
       this.promise = undefined;
     });

@@ -38,9 +38,7 @@ Quick fixes can be used to fix separate parts of the document.
 
 ### Formatting
 
-Formatting uses diagnostic information (if available) to quick format your code. You can help ensure diagnostic information is available by disabling `files.trimTrailingWhitespace` in your settings.json:
-
-TODO
+As Spotless will format the entire document there's no reason to enable other formatters. Disable other formatters to improve the formatting performance, for example:
 
 ```json
 "[java]": {

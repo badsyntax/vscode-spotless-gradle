@@ -46,8 +46,7 @@ export class SpotlessDiagnostics {
       (e: vscode.TextDocumentChangeEvent) => {
         if (
           e.contentChanges.length &&
-          vscode.window.activeTextEditor?.document === e.document &&
-          e.document.languageId.toLowerCase() === this.diagnosticCollection.name
+          vscode.window.activeTextEditor?.document === e.document
         ) {
           void this.handleChangeTextDocument(e.document);
         }
@@ -80,6 +79,9 @@ export class SpotlessDiagnostics {
     document: vscode.TextDocument,
     cancellationToken?: vscode.CancellationToken
   ): Promise<SpotlessDiff | undefined> {
+    if (document.languageId.toLowerCase() !== this.diagnosticCollection.name) {
+      return;
+    }
     // There's already a diagnostic session running, mark the current one as stale
     if (this.getDiffPromise) {
       this.isStale = true;

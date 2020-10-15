@@ -50,16 +50,14 @@ export async function activate(
   const gradleApi = gradleTasksExtension.exports as GradleApi;
   const spotless = new Spotless(gradleApi);
   const spotlessRunner = new SpotlessRunner(spotless);
+
   const spotlessDiagnostics = new SpotlessDiagnostics(
     context,
     spotless,
     spotlessRunner
   );
 
-  const fixAllCodeActionsCommand = new FixAllCodeActionsCommand(
-    spotlessRunner,
-    spotlessDiagnostics
-  );
+  const fixAllCodeActionsCommand = new FixAllCodeActionsCommand(spotlessRunner);
 
   const fixAllCodeActionProvider = new FixAllCodeActionProvider(
     context,
@@ -78,7 +76,7 @@ export async function activate(
     scheme: 'file',
   }));
 
-  // spotlessDiagnostics.register();
+  spotlessDiagnostics.register();
 
   context.subscriptions.push(
     vscode.languages.registerCodeActionsProvider(
