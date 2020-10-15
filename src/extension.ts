@@ -14,6 +14,7 @@ import {
 import { DependencyChecker } from './DependencyChecker';
 import { SpotlessDiagnostics } from './SpotlessDiagnostics';
 import { SpotlessRunner } from './SpotlessRunner';
+import { FixAllCodeActionsCommand } from './FixAllCodeActionCommand';
 
 export interface ExtensionApi {
   logger: Logger;
@@ -55,9 +56,14 @@ export async function activate(
     spotlessRunner
   );
 
-  const fixAllCodeActionProvider = new FixAllCodeActionProvider(
+  const fixAllCodeActionsCommand = new FixAllCodeActionsCommand(
     spotlessRunner,
     spotlessDiagnostics
+  );
+
+  const fixAllCodeActionProvider = new FixAllCodeActionProvider(
+    context,
+    fixAllCodeActionsCommand
   );
   const documentFormattingEditProvider = new DocumentFormattingEditProvider(
     spotless
@@ -72,7 +78,7 @@ export async function activate(
     scheme: 'file',
   }));
 
-  spotlessDiagnostics.register();
+  // spotlessDiagnostics.register();
 
   context.subscriptions.push(
     vscode.languages.registerCodeActionsProvider(

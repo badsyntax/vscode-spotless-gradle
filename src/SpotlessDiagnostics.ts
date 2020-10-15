@@ -41,10 +41,9 @@ export class SpotlessDiagnostics {
         void this.runDiagnostics(activeDocument);
       }
     });
+
     const onDidChangeTextDocument = vscode.workspace.onDidChangeTextDocument(
       (e: vscode.TextDocumentChangeEvent) => {
-        // This handler can be fired by code actions (eg removing whitespace on save)
-        // which would results in 2 parallel task executions when formatting on save (FixAll)
         if (
           e.contentChanges.length &&
           vscode.window.activeTextEditor?.document === e.document &&
@@ -55,9 +54,18 @@ export class SpotlessDiagnostics {
       }
     );
 
+    const onDidChangeActiveTextEditor = vscode.window.onDidChangeActiveTextEditor(
+      (editor?: vscode.TextEditor) => {
+        if (editor) {
+          void this.runDiagnostics(editor.document);
+        }
+      }
+    );
+
     this.context.subscriptions.push(
       onReady,
       onDidChangeTextDocument,
+      onDidChangeActiveTextEditor,
       this.diagnosticCollection
     );
   }
