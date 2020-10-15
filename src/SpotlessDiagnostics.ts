@@ -8,6 +8,7 @@ import { Spotless } from './Spotless';
 import { logger } from './logger';
 import { debounce } from './util';
 import { SpotlessRunner } from './SpotlessRunner';
+import { AsyncWait } from './AsyncWait';
 
 const DIAGNOSTICS_UPDATES_DEBOUNCE_MS = 0;
 
@@ -17,18 +18,16 @@ export interface SpotlessDiff {
   differences: Difference[];
 }
 
-export class SpotlessDiagnostics {
+export class SpotlessDiagnostics extends AsyncWait<void> {
   private diagnosticCollection: vscode.DiagnosticCollection;
-  private getDiffPromise: Promise<SpotlessDiff> | undefined;
-  private currentDiff: SpotlessDiff | undefined;
   private diagnosticMap: Map<string, vscode.Diagnostic[]> = new Map();
-  private isStale = false;
 
   constructor(
     private readonly context: vscode.ExtensionContext,
     private readonly spotless: Spotless,
     private readonly spotlessRunner: SpotlessRunner
   ) {
+    super();
     this.diagnosticCollection = vscode.languages.createDiagnosticCollection(
       'java'
     );
@@ -74,43 +73,24 @@ export class SpotlessDiagnostics {
     void this.runDiagnostics(document);
   }
 
-  public async runDiagnostics(
+  public runDiagnostics(
     document: vscode.TextDocument,
     cancellationToken?: vscode.CancellationToken
-  ): Promise<SpotlessDiff | undefined> {
+  ): void {
+    // TODO: support other language types
     if (document.languageId.toLowerCase() !== this.diagnosticCollection.name) {
       return;
     }
-    // There's already a diagnostic session running, mark the current one as stale
-    if (this.getDiffPromise) {
-      this.isStale = true;
-    } else {
-      try {
-        this.getDiffPromise = this.getDiff(document, cancellationToken);
-        const diff = await this.getDiffPromise;
-        this.getDiffPromise = undefined;
-        // if this diagnostic session is stale (a new one started before this one completed)
-        // then run the diagnostics again
-        if (this.isStale) {
-          this.isStale = false;
-          return this.runDiagnostics(document, cancellationToken);
-        }
-        this.updateDiagnostics(document, diff);
-        return diff;
-      } catch (e) {
-        logger.error(
-          `Unable to update diagnostics for ${this.diagnosticCollection.name}: ${e.message}`
-        );
-        this.getDiffPromise = undefined;
-      }
-    }
+    this.waitAndRun(async () => {
+      const diff = await this.getDiff(document, cancellationToken);
+      this.updateDiagnostics(document, diff);
+    });
   }
 
   public updateDiagnostics(
     document: vscode.TextDocument,
     diff: SpotlessDiff
   ): void {
-    this.currentDiff = diff;
     this.diagnosticCollection.clear();
     const diagnosticMap = this.getDiagnosticMap(document, diff);
     let total = 0;
@@ -121,10 +101,6 @@ export class SpotlessDiagnostics {
     logger.info(
       `Updated diagnostics (name: ${this.diagnosticCollection.name}) (total: ${total})`
     );
-  }
-
-  public getCurrentDiff(): SpotlessDiff | undefined {
-    return this.currentDiff;
   }
 
   private getDiagnosticMap(
