@@ -1,13 +1,13 @@
 import * as vscode from 'vscode';
 
 import { logger } from './logger';
-import { Spotless } from './Spotless';
+import { SpotlessRunner } from './SpotlessRunner';
 
 const noChanges: vscode.TextEdit[] = [];
 
 export class DocumentFormattingEditProvider
   implements vscode.DocumentFormattingEditProvider {
-  constructor(private readonly spotless: Spotless) {}
+  constructor(private readonly spotlessRunner: SpotlessRunner) {}
 
   async provideDocumentFormattingEdits(
     document: vscode.TextDocument,
@@ -15,7 +15,10 @@ export class DocumentFormattingEditProvider
     cancellationToken: vscode.CancellationToken
   ): Promise<vscode.TextEdit[]> {
     try {
-      const newText = await this.spotless.apply(document, cancellationToken);
+      const newText = await this.spotlessRunner.run(
+        document,
+        cancellationToken
+      );
       if (!newText) {
         return noChanges;
       }

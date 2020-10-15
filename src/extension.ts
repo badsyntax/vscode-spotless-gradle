@@ -64,7 +64,7 @@ export async function activate(
     fixAllCodeActionsCommand
   );
   const documentFormattingEditProvider = new DocumentFormattingEditProvider(
-    spotless
+    spotlessRunner
   );
 
   const knownLanguages = await vscode.languages.getLanguages();
