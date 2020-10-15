@@ -47,7 +47,12 @@ export async function activate(
 
   const gradleApi = gradleTasksExtension.exports as GradleApi;
   const spotless = new Spotless(gradleApi);
-  const fixAllCodeActionProvider = new FixAllCodeActionProvider(spotless);
+  const spotlessDiagnostics = new SpotlessDiagnostics(context, spotless);
+
+  const fixAllCodeActionProvider = new FixAllCodeActionProvider(
+    spotless,
+    spotlessDiagnostics
+  );
   const documentFormattingEditProvider = new DocumentFormattingEditProvider(
     spotless
   );
@@ -61,7 +66,6 @@ export async function activate(
     scheme: 'file',
   }));
 
-  const spotlessDiagnostics = new SpotlessDiagnostics(context, spotless);
   spotlessDiagnostics.register();
 
   context.subscriptions.push(

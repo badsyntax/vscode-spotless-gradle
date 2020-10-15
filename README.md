@@ -5,12 +5,13 @@
 [![Build & Publish](https://github.com/badsyntax/vscode-spotless-gradle/workflows/Build%20&%20Publish/badge.svg)](https://github.com/badsyntax/vscode-spotless-gradle/actions?query=workflow%3A"Build+%26+Publish")
 [![GitHub bug issues](https://img.shields.io/github/issues/badsyntax/vscode-spotless-gradle/bug?label=bug%20reports)](https://github.com/badsyntax/vscode-spotless-gradle/issues?q=is%3Aissue+is%3Aopen+label%3Abug)
 
-A VS Code extension to format your code using [Spotless](https://github.com/diffplug/spotless) (via Gradle).
+A VS Code extension to lint & format your code using [Spotless](https://github.com/diffplug/spotless) (via Gradle).
 
 ![Spotless Gradle Screencast](images/spotless-gradle-screencast.gif)
 
 ## Features
 
+- Provides diagnostics to show invalid formatting (with quick fixes)
 - Provides a Spotless fixAll code action (`Format on Save`)
 - Provides a Spotless formatter (`Format Document`)
 
@@ -27,9 +28,27 @@ For `scala`, `kotlin`, `kotlinscript`, `vue` & `graphql` languages, you'll need 
 
 ## Usage
 
-Before using this extension, ensure you've [configured Spotless](https://github.com/diffplug/spotless/tree/master/plugin-gradle) correctly in your Gradle build file.
+Before using this extension ensure you've [configured Spotless](https://github.com/diffplug/spotless/tree/master/plugin-gradle) correctly in your Gradle build file.
 
-### Format on Save
+### Diagnostics
+
+Diagnostics are reported by generating a diff from the `spotlessApply` result.
+
+Quick fixes can be used to fix separate parts of the document.
+
+### Formatting
+
+Formatting uses diagnostic information (if available) to quick format your code. You can help ensure diagnostic information is available by disabling `files.trimTrailingWhitespace` in your settings.json:
+
+TODO
+
+```json
+"[java]": {
+  "files.trimTrailingWhitespace": false
+}
+```
+
+#### Format on Save
 
 Enable Spotless fixes on file save in `settings.json`:
 
@@ -41,7 +60,7 @@ Enable Spotless fixes on file save in `settings.json`:
 }
 ```
 
-### Format Document
+#### Format Document
 
 The `Format Document` feature can be accessed via the vscode `Command Palette`.
 

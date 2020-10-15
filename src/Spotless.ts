@@ -31,10 +31,12 @@ export class Spotless {
     cancellationToken?: vscode.CancellationToken
   ): Promise<string | null> {
     if (document.isClosed || document.isUntitled) {
-      throw new Error('Document is closed or not saved, skipping formatting');
+      throw new Error(
+        'Document is closed or not saved, skipping spotlessApply'
+      );
     }
+    const basename = path.basename(document.uri.fsPath);
     const sanitizedPath = sanitizePath(document.uri.fsPath);
-
     const args = [
       'spotlessApply',
       `-PspotlessIdeHook=${sanitizedPath}`,
@@ -42,7 +44,6 @@ export class Spotless {
       '-PspotlessIdeHookUseStdOut',
       '--quiet',
     ];
-
     const workspaceFolder = getWorkspaceFolder(document.uri);
     const cancelledDeferred = new Deferred();
 
@@ -74,6 +75,8 @@ export class Spotless {
       },
     };
 
+    logger.info(`Running spotlessApply on ${basename}`);
+
     const runBuild = this.gradleApi.runBuild(runBuildOpts);
 
     await Promise.race([runBuild, cancelledDeferred.promise]);
@@ -84,7 +87,6 @@ export class Spotless {
       const trimmedStdErr = stdErr.trim();
 
       if (SPOTLESS_STATUSES.includes(trimmedStdErr)) {
-        const basename = path.basename(document.uri.fsPath);
         logger.info(`${basename}: ${trimmedStdErr}`);
       }
       if (trimmedStdErr === SPOTLESS_STATUS_IS_DIRTY) {

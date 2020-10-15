@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { logger } from './logger';
 import { Spotless } from './Spotless';
+import { SpotlessDiagnostics } from './SpotlessDiagnostics';
 
 const noChanges: vscode.CodeAction[] = [];
 
@@ -13,7 +14,10 @@ export class FixAllCodeActionProvider implements vscode.CodeActionProvider {
     providedCodeActionKinds: [FixAllCodeActionProvider.fixAllCodeActionKind],
   };
 
-  constructor(private readonly spotless: Spotless) {}
+  constructor(
+    private readonly spotless: Spotless,
+    private readonly spotlessDiagnostics: SpotlessDiagnostics
+  ) {}
 
   public async provideCodeActions(
     document: vscode.TextDocument,
@@ -33,8 +37,11 @@ export class FixAllCodeActionProvider implements vscode.CodeActionProvider {
     }
 
     try {
-      const newText = await this.spotless.apply(document, cancellationToken);
-      if (!newText) {
+      const formattedChanges = await this.getChanges(
+        document,
+        cancellationToken
+      );
+      if (!formattedChanges) {
         return noChanges;
       }
       const range = new vscode.Range(
@@ -47,13 +54,30 @@ export class FixAllCodeActionProvider implements vscode.CodeActionProvider {
         FixAllCodeActionProvider.fixAllCodeActionKind
       );
       action.edit = new vscode.WorkspaceEdit();
-      action.edit.replace(document.uri, range, newText);
+      action.edit.replace(document.uri, range, formattedChanges);
       action.isPreferred = true;
+
+      logger.info('Created fixAll code action');
 
       return [action];
     } catch (e) {
       logger.error(`Unable to apply code action: ${e.message}`);
       return noChanges;
+    }
+  }
+
+  private getChanges(
+    document: vscode.TextDocument,
+    cancellationToken: vscode.CancellationToken
+  ): Promise<string | null> {
+    const source = document.getText();
+    const currentDiff = this.spotlessDiagnostics.getCurrentDiff();
+    // TODO: source can be different if other code actions modify the document first
+    // Use a different approach to ensuring the currentDiff is not stale
+    if (currentDiff && currentDiff.source === source) {
+      return Promise.resolve(currentDiff.formattedSource);
+    } else {
+      return this.spotless.apply(document, cancellationToken);
     }
   }
 }

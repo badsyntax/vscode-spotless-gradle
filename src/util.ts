@@ -1,7 +1,5 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
-import { Difference, generateDifferences } from 'prettier-linter-helpers';
-import { SpotlessDiff } from './SpotlessDiagnostics';
 
 export function sanitizePath(fsPath: string): string {
   if (process.platform === 'win32') {
@@ -20,46 +18,6 @@ export function getWorkspaceFolder(uri: vscode.Uri): vscode.WorkspaceFolder {
     );
   }
   return workspaceFolder;
-}
-
-export function getRange(
-  document: vscode.TextDocument,
-  difference: Difference
-): vscode.Range {
-  if (difference.operation === generateDifferences.INSERT) {
-    const start = document.positionAt(difference.offset);
-    return new vscode.Range(
-      start.line,
-      start.character,
-      start.line,
-      start.character + 1
-    );
-  }
-  const start = document.positionAt(difference.offset);
-  const end = document.positionAt(
-    difference.offset + difference.deleteText!.length
-  );
-  return new vscode.Range(start.line, start.character, end.line, end.character);
-}
-
-export function getDiagnosticMap(
-  diff: SpotlessDiff,
-  document: vscode.TextDocument
-): Map<string, vscode.Diagnostic[]> {
-  const diagnosticMap: Map<string, vscode.Diagnostic[]> = new Map();
-  diff.differences.forEach((difference) => {
-    const canonicalFile = document.uri.toString();
-    const range = getRange(document, difference);
-    if (range) {
-      let diagnostics = diagnosticMap.get(canonicalFile);
-      if (!diagnostics) {
-        diagnostics = [];
-      }
-      diagnostics.push(new vscode.Diagnostic(range, difference.operation));
-      diagnosticMap.set(canonicalFile, diagnostics);
-    }
-  });
-  return diagnosticMap;
 }
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -82,10 +40,6 @@ export function createDecorator(
     }
     descriptor[fnKey!] = mapFn(fn, key);
   };
-}
-
-export interface DebounceReducer<T> {
-  (previousValue: T, ...args: any[]): T;
 }
 
 export function debounce(delay: number): Function {
