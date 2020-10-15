@@ -7,8 +7,9 @@ import {
 import { Spotless } from './Spotless';
 import { logger } from './logger';
 import { debounce } from './util';
+import { SpotlessRunner } from './SpotlessRunner';
 
-export const DIAGNOSTICS_UPDATES_DEBOUNCE_MS = 360;
+const DIAGNOSTICS_UPDATES_DEBOUNCE_MS = 0;
 
 export interface SpotlessDiff {
   source: string;
@@ -20,10 +21,13 @@ export class SpotlessDiagnostics {
   private diagnosticCollection: vscode.DiagnosticCollection;
   private getDiffPromise: Promise<SpotlessDiff> | undefined;
   private currentDiff: SpotlessDiff | undefined;
+  private diagnosticMap: Map<string, vscode.Diagnostic[]> = new Map();
+  private isStale = false;
 
   constructor(
     private readonly context: vscode.ExtensionContext,
-    private readonly spotless: Spotless
+    private readonly spotless: Spotless,
+    private readonly spotlessRunner: SpotlessRunner
   ) {
     this.diagnosticCollection = vscode.languages.createDiagnosticCollection(
       'java'
@@ -34,12 +38,18 @@ export class SpotlessDiagnostics {
     const onReady = this.spotless.onReady(() => {
       const activeDocument = vscode.window.activeTextEditor?.document;
       if (activeDocument) {
-        void this.runDiagnostics(activeDocument, undefined, true);
+        void this.runDiagnostics(activeDocument);
       }
     });
     const onDidChangeTextDocument = vscode.workspace.onDidChangeTextDocument(
       (e: vscode.TextDocumentChangeEvent) => {
-        if (e.contentChanges.length) {
+        // This handler can be fired by code actions (eg removing whitespace on save)
+        // which would results in 2 parallel task executions when formatting on save (FixAll)
+        if (
+          e.contentChanges.length &&
+          vscode.window.activeTextEditor?.document === e.document &&
+          e.document.languageId.toLowerCase() === this.diagnosticCollection.name
+        ) {
           void this.handleChangeTextDocument(e.document);
         }
       }
@@ -54,33 +64,34 @@ export class SpotlessDiagnostics {
 
   @debounce(DIAGNOSTICS_UPDATES_DEBOUNCE_MS)
   async handleChangeTextDocument(document: vscode.TextDocument): Promise<void> {
-    if (
-      vscode.window.activeTextEditor?.document === document &&
-      document.languageId.toLowerCase() === this.diagnosticCollection.name
-    ) {
-      void this.runDiagnostics(document);
-    }
+    // TODO: prevent diagnostics if run after applying formatting
+    void this.runDiagnostics(document);
   }
 
   public async runDiagnostics(
     document: vscode.TextDocument,
-    cancellationToken?: vscode.CancellationToken,
-    force?: boolean
+    cancellationToken?: vscode.CancellationToken
   ): Promise<SpotlessDiff | undefined> {
-    if (!force && !document.isDirty) {
-      this.resetDiagnostics(document);
+    // There's already a diagnostic session running, mark the current one as stale
+    if (this.getDiffPromise) {
+      this.isStale = true;
     } else {
       try {
-        this.getDiffPromise =
-          this.getDiffPromise || this.getDiff(document, cancellationToken);
+        this.getDiffPromise = this.getDiff(document, cancellationToken);
         const diff = await this.getDiffPromise;
+        this.getDiffPromise = undefined;
+        // if this diagnostic session is stale (a new one started before this one completed)
+        // then run the diagnostics again
+        if (this.isStale) {
+          this.isStale = false;
+          return this.runDiagnostics(document, cancellationToken);
+        }
         this.updateDiagnostics(document, diff);
-        return this.currentDiff;
+        return diff;
       } catch (e) {
         logger.error(
           `Unable to update diagnostics for ${this.diagnosticCollection.name}: ${e.message}`
         );
-      } finally {
         this.getDiffPromise = undefined;
       }
     }
@@ -107,30 +118,16 @@ export class SpotlessDiagnostics {
     return this.currentDiff;
   }
 
-  public resetDiagnostics(document: vscode.TextDocument): void {
-    const diff: SpotlessDiff = {
-      differences: [],
-      formattedSource: document.getText(),
-      source: document.getText(),
-    };
-    this.updateDiagnostics(document, diff);
-  }
-
   private getDiagnosticMap(
     document: vscode.TextDocument,
     diff: SpotlessDiff
   ): Map<string, vscode.Diagnostic[]> {
-    const diagnosticMap: Map<string, vscode.Diagnostic[]> = new Map();
-    diff.differences.forEach((difference) => {
-      const canonicalFile = document.uri.toString();
-      const diagnostics = diagnosticMap.get(canonicalFile) || [];
-      const diagnostic = this.getDiagnostic(document, difference);
-      if (diagnostic) {
-        diagnostics.push(diagnostic);
-      }
-      diagnosticMap.set(canonicalFile, diagnostics);
-    });
-    return diagnosticMap;
+    const canonicalFile = document.uri.toString();
+    const diagnostics: vscode.Diagnostic[] = diff.differences
+      .map((difference) => this.getDiagnostic(document, difference))
+      .filter(Boolean);
+    this.diagnosticMap.set(canonicalFile, diagnostics);
+    return this.diagnosticMap;
   }
 
   private getDiagnostic(
@@ -188,7 +185,7 @@ export class SpotlessDiagnostics {
   ): Promise<SpotlessDiff> {
     const source = document.getText();
     const formattedSource =
-      (await this.spotless.apply(document, cancellationToken)) || source;
+      (await this.spotlessRunner.run(document, cancellationToken)) || source;
     const differences = generateDifferences(source, formattedSource);
     return {
       source,

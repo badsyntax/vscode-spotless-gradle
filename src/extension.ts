@@ -13,6 +13,7 @@ import {
 } from './constants';
 import { DependencyChecker } from './DependencyChecker';
 import { SpotlessDiagnostics } from './SpotlessDiagnostics';
+import { SpotlessRunner } from './SpotlessRunner';
 
 export interface ExtensionApi {
   logger: Logger;
@@ -47,10 +48,15 @@ export async function activate(
 
   const gradleApi = gradleTasksExtension.exports as GradleApi;
   const spotless = new Spotless(gradleApi);
-  const spotlessDiagnostics = new SpotlessDiagnostics(context, spotless);
+  const spotlessRunner = new SpotlessRunner(spotless);
+  const spotlessDiagnostics = new SpotlessDiagnostics(
+    context,
+    spotless,
+    spotlessRunner
+  );
 
   const fixAllCodeActionProvider = new FixAllCodeActionProvider(
-    spotless,
+    spotlessRunner,
     spotlessDiagnostics
   );
   const documentFormattingEditProvider = new DocumentFormattingEditProvider(

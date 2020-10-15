@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { logger } from './logger';
-import { Spotless } from './Spotless';
 import { SpotlessDiagnostics } from './SpotlessDiagnostics';
+import { SpotlessRunner } from './SpotlessRunner';
 
 const noChanges: vscode.CodeAction[] = [];
 
@@ -15,7 +15,7 @@ export class FixAllCodeActionProvider implements vscode.CodeActionProvider {
   };
 
   constructor(
-    private readonly spotless: Spotless,
+    private readonly spotlessRunner: SpotlessRunner,
     private readonly spotlessDiagnostics: SpotlessDiagnostics
   ) {}
 
@@ -37,11 +37,11 @@ export class FixAllCodeActionProvider implements vscode.CodeActionProvider {
     }
 
     try {
-      const formattedChanges = await this.getChanges(
+      const spotlessChanges = await this.getSpotlessChanges(
         document,
         cancellationToken
       );
-      if (!formattedChanges) {
+      if (!spotlessChanges) {
         return noChanges;
       }
       const range = new vscode.Range(
@@ -54,7 +54,7 @@ export class FixAllCodeActionProvider implements vscode.CodeActionProvider {
         FixAllCodeActionProvider.fixAllCodeActionKind
       );
       action.edit = new vscode.WorkspaceEdit();
-      action.edit.replace(document.uri, range, formattedChanges);
+      action.edit.replace(document.uri, range, spotlessChanges);
       action.isPreferred = true;
 
       logger.info('Created fixAll code action');
@@ -66,18 +66,18 @@ export class FixAllCodeActionProvider implements vscode.CodeActionProvider {
     }
   }
 
-  private getChanges(
+  private getSpotlessChanges(
     document: vscode.TextDocument,
     cancellationToken: vscode.CancellationToken
   ): Promise<string | null> {
     const source = document.getText();
     const currentDiff = this.spotlessDiagnostics.getCurrentDiff();
-    // TODO: source can be different if other code actions modify the document first
-    // Use a different approach to ensuring the currentDiff is not stale
+    // Source can be different if other code actions modify the document first (eg remove whitespace on save)
+    // TODO: Use a different approach to ensuring the currentDiff is not stale
     if (currentDiff && currentDiff.source === source) {
       return Promise.resolve(currentDiff.formattedSource);
     } else {
-      return this.spotless.apply(document, cancellationToken);
+      return this.spotlessRunner.run(document, cancellationToken);
     }
   }
 }
