@@ -11,6 +11,11 @@ jobs:
     name: Analyze
     runs-on: ubuntu-latest
 
+    strategy:
+      fail-fast: false
+      matrix:
+        language: ['javascript']
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -20,6 +25,8 @@ jobs:
         if: ${{ github.event_name == 'pull_request' }}
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v1
+        with:
+          languages: ${{ matrix.language }}
       - name: Use Node 12.16.2
         uses: actions/setup-node@v1
         with:
