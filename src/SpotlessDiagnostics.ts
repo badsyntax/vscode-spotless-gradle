@@ -121,7 +121,9 @@ export class SpotlessDiagnostics extends AsyncWait<void> {
   ): vscode.Diagnostic {
     const range = this.getRange(document, difference);
     const message = this.getMessage(difference);
-    return new vscode.Diagnostic(range, message);
+    const diagnostic = new vscode.Diagnostic(range, message);
+    diagnostic.source = 'spotless-gradle';
+    return diagnostic;
   }
 
   private getMessage(difference: Difference): string {

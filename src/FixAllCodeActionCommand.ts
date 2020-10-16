@@ -27,7 +27,7 @@ export class FixAllCodeActionsCommand implements Command {
       );
       const workspaceEdit = new vscode.WorkspaceEdit();
       workspaceEdit.replace(document.uri, range, spotlessChanges);
-      vscode.workspace.applyEdit(workspaceEdit);
+      await vscode.workspace.applyEdit(workspaceEdit);
     } catch (e) {
       logger.error(`Unable to apply workspace edits: ${e.message}`);
     }
