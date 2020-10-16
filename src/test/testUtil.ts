@@ -50,3 +50,38 @@ export async function formatFileWithCommand(
     await vscode.commands.executeCommand('editor.action.formatDocument');
   });
 }
+
+export function waitForDiagnostics(
+  message: string,
+  source = 'spotless-gradle'
+): Promise<void> {
+  return new Promise(async (resolve) => {
+    const disposable = vscode.languages.onDidChangeDiagnostics(() => {
+      const diagnostics = vscode.languages.getDiagnostics(
+        vscode.window.activeTextEditor!.document.uri
+      );
+      const hasSpotlessDiagnostic = diagnostics.find(
+        (diagnostic) =>
+          diagnostic.source === source && diagnostic.message === message
+      );
+      if (hasSpotlessDiagnostic) {
+        disposable.dispose();
+        resolve();
+      }
+    });
+  });
+}
+
+export function waitFor(func: () => boolean): Promise<void> {
+  const interval = 50;
+  return new Promise((resolve) => {
+    async function check(): Promise<void> {
+      if (func()) {
+        resolve();
+      } else {
+        setTimeout(check, interval);
+      }
+    }
+    check();
+  });
+}

@@ -14,10 +14,6 @@ describe('Formatting', () => {
     SPOTLESS_GRADLE_EXTENSION_ID
   )!.exports as ExtensionApi;
 
-  describe.skip('Diagnostics', () => {
-    // TODO
-  });
-
   afterEach((done) => {
     sinon.restore();
     // This helps clear the nodejs async queue to fix flaky macos CI tests
@@ -44,7 +40,7 @@ describe('Formatting', () => {
       fs.writeFileSync(appFilePath, appFileContents, 'utf8');
     };
 
-    describe('Java', function () {
+    describe('Java', () => {
       const appFilePath = path.resolve(javaBasePath, 'App.java');
       const appFileContents = fs.readFileSync(appFilePath, 'utf8');
       const helloFilePath = path.resolve(javaBasePath, 'Hello.java');
@@ -57,10 +53,6 @@ describe('Formatting', () => {
         formattedAppFilePath,
         'utf8'
       );
-
-      // VS Code will cancel the formatting when formatting immediately
-      // after opening a document. So we have to keep retrying.
-      this.retries(5);
 
       afterEach(async () => {
         await reset(appFilePath, appFileContents);
@@ -177,10 +169,6 @@ describe('Formatting', () => {
         );
         await vscode.window.showTextDocument(document);
         await vscode.commands.executeCommand('editor.action.formatDocument');
-        assert.ok(
-          loggerSpy.calledWith(sinon.match('Unable to provide diagnostics')),
-          'Spotless diagnostics error not logged'
-        );
         assert.ok(
           loggerSpy.calledWith(sinon.match('Unable to apply formatting')),
           'Spotless formatting error not logged'
