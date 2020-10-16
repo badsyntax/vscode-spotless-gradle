@@ -6,14 +6,10 @@ import * as fs from 'fs';
 import * as sinon from 'sinon';
 import * as assert from 'assert';
 import { formatFileWithCommand, formatFileOnSave } from '../testUtil';
-import { DependencyChecker } from '../../DependencyChecker';
-import {
-  GRADLE_TASKS_EXTENSION_ID,
-  SPOTLESS_GRADLE_EXTENSION_ID,
-} from '../../constants';
+import { SPOTLESS_GRADLE_EXTENSION_ID } from '../../constants';
 import { ExtensionApi } from '../../extension';
 
-describe('Extension Test Suite', () => {
+describe('Formatting', () => {
   const { logger, spotless } = vscode.extensions.getExtension(
     SPOTLESS_GRADLE_EXTENSION_ID
   )!.exports as ExtensionApi;
@@ -23,6 +19,7 @@ describe('Extension Test Suite', () => {
   });
 
   afterEach((done) => {
+    sinon.restore();
     // FIX: test to see if this helps macos on ci
     setTimeout(done, 100);
   });
@@ -45,7 +42,6 @@ describe('Extension Test Suite', () => {
         'workbench.action.closeActiveEditor'
       );
       fs.writeFileSync(appFilePath, appFileContents, 'utf8');
-      sinon.restore();
     };
 
     describe('Java', function () {
@@ -182,8 +178,12 @@ describe('Extension Test Suite', () => {
         await vscode.window.showTextDocument(document);
         await vscode.commands.executeCommand('editor.action.formatDocument');
         assert.ok(
+          loggerSpy.calledWith(sinon.match('Unable to provide diagnostics')),
+          'Spotless diagnostics error not logged'
+        );
+        assert.ok(
           loggerSpy.calledWith(sinon.match('Unable to apply formatting')),
-          'Spotless error not logged'
+          'Spotless formatting error not logged'
         );
       });
     });
@@ -197,10 +197,6 @@ describe('Extension Test Suite', () => {
       '../../../test-fixtures/gradle-project/src/main/resources/language-types'
     );
     const files = fs.readdirSync(basePath);
-
-    afterEach(() => {
-      sinon.restore();
-    });
 
     files.forEach((file) => {
       describe(file, () => {
@@ -216,80 +212,6 @@ describe('Extension Test Suite', () => {
           );
         });
       });
-    });
-  });
-
-  describe('Dependency checks', () => {
-    afterEach(async () => {
-      sinon.restore();
-    });
-
-    it('should match patch versions', async () => {
-      sinon.stub(vscode.extensions, 'getExtension').callsFake(() => {
-        return {
-          id: GRADLE_TASKS_EXTENSION_ID,
-          packageJSON: {
-            version: '1.0.2',
-          },
-          isActive: true,
-        } as vscode.Extension<any>;
-      });
-      const dependencyChecker = new DependencyChecker({
-        extensionDependencies: [GRADLE_TASKS_EXTENSION_ID],
-        extensionDependenciesCompatibility: {
-          [GRADLE_TASKS_EXTENSION_ID]: '^1.0.1',
-        },
-      });
-      const isValid = await dependencyChecker.check();
-      assert.ok(isValid, 'Dependencies do not match');
-    });
-
-    it('should match minor versions', async () => {
-      sinon.stub(vscode.extensions, 'getExtension').callsFake(() => {
-        return {
-          id: GRADLE_TASKS_EXTENSION_ID,
-          packageJSON: {
-            version: '1.1.0',
-          },
-          isActive: true,
-        } as vscode.Extension<any>;
-      });
-      const dependencyChecker = new DependencyChecker({
-        extensionDependencies: [GRADLE_TASKS_EXTENSION_ID],
-        extensionDependenciesCompatibility: {
-          [GRADLE_TASKS_EXTENSION_ID]: '^1.0.1',
-        },
-      });
-      const isValid = await dependencyChecker.check();
-      assert.ok(isValid, 'Dependencies do not match');
-    });
-
-    it('should not match major versions', async () => {
-      const errorSpy = sinon.spy(vscode.window, 'showErrorMessage');
-      sinon.stub(vscode.extensions, 'getExtension').callsFake(() => {
-        return {
-          id: GRADLE_TASKS_EXTENSION_ID,
-          packageJSON: {
-            version: '2.0.0',
-          },
-          isActive: true,
-        } as vscode.Extension<any>;
-      });
-      const dependencyChecker = new DependencyChecker({
-        extensionDependencies: [GRADLE_TASKS_EXTENSION_ID],
-        extensionDependenciesCompatibility: {
-          [GRADLE_TASKS_EXTENSION_ID]: '^1.0.1',
-        },
-      });
-      const isValid = await dependencyChecker.check();
-      assert.equal(isValid, false, 'Dependencies match');
-      assert.ok(
-        errorSpy.calledWith(
-          'Extension versions are incompatible: richardwillis.vscode-gradle@^1.0.1. Install those specific versions or update this extension.',
-          'Install Compatible Versions' as vscode.MessageOptions
-        ),
-        'Error message not shown'
-      );
     });
   });
 });

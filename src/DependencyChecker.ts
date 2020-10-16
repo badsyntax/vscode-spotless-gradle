@@ -84,8 +84,8 @@ export class DependencyChecker {
       .map((extension) => `${extension.id}@${extension.required}`)
       .join(', ');
     const message = [
-      `Extension versions are incompatible: ${requiredVersions}.`,
-      'Install those specific versions or update this extension.',
+      `Dependant extension versions are incompatible: ${requiredVersions}.`,
+      'Update those extensions to use this version of Spotless Gradle.',
     ].join(' ');
     const input = await vscode.window.showErrorMessage(
       message,

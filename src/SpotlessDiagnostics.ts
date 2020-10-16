@@ -82,8 +82,12 @@ export class SpotlessDiagnostics extends AsyncWait<void> {
       return;
     }
     this.waitAndRun(async () => {
-      const diff = await this.getDiff(document, cancellationToken);
-      this.updateDiagnostics(document, diff);
+      try {
+        const diff = await this.getDiff(document, cancellationToken);
+        this.updateDiagnostics(document, diff);
+      } catch (e) {
+        logger.error(`Unable to provide diagnostics: ${e.message}`);
+      }
     });
   }
 
