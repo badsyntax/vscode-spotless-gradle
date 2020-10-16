@@ -54,7 +54,6 @@
     "vscode:prepublish": "npm run compile:prod",
     "build": "npm run compile:dev",
     "lint": "eslint src --ext ts",
-    "pretest": "npm run compile:all && npm run lint",
     "test": "node ./out/test/runTest.js",
     "install:ext": "code --install-extension vscode-spotless-gradle-0.0.0.vsix --force",
     "preinstall:ext": "npm run package",

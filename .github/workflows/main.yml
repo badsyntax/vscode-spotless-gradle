@@ -31,8 +31,6 @@ jobs:
         run: npm ci
       - name: Lint extension
         run: npm run lint
-      - name: Build extension
-        run: npm run build
       - name: Prepare Gradle
         uses: eskatos/gradle-command-action@v1
         with:
@@ -51,8 +49,9 @@ jobs:
         run: |
           Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
         if: matrix.os == 'ubuntu-latest'
-      - name: Test extension
+      - name: Build & test extension
         run: |
+          npm run compile:all
           npm run test
         env:
           DISPLAY: ':99.0'

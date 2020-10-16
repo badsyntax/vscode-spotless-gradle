@@ -20,7 +20,7 @@ describe('Formatting', () => {
 
   afterEach((done) => {
     sinon.restore();
-    // FIX: test to see if this helps macos on ci
+    // This helps clear the nodejs async queue to fix flaky macos CI tests
     setTimeout(done, 100);
   });
 

@@ -7,10 +7,8 @@ import { DependencyChecker } from '../../DependencyChecker';
 import { GRADLE_TASKS_EXTENSION_ID } from '../../constants';
 
 describe('Depedency checker', () => {
-  afterEach((done) => {
+  afterEach(() => {
     sinon.restore();
-    // FIX: test to see if this helps macos on ci
-    setTimeout(done, 100);
   });
 
   it('should match patch versions', async () => {
