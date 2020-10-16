@@ -59,7 +59,21 @@
     "workspaceContains:gradlew.bat"
   ],
   "main": "./dist/extension",
-  "contributes": {},
+  "contributes": {
+    "configuration": {
+      "id": "spotlessGradle",
+      "type": "object",
+      "title": "Spotless Gradle",
+      "properties": {
+        "spotlessGradle.languages": {
+          "type": "array",
+          "default": null,
+          "scope": "window",
+          "description": "A list of languages you want to run Spotless on. Set to null to run on all languages supported by Spotless."
+        }
+      }
+    }
+  },
   "scripts": {
     "vscode:prepublish": "npm run compile:prod",
     "build": "npm run compile:dev",

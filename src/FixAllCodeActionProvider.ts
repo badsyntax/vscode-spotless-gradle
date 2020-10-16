@@ -3,7 +3,8 @@ import { FixAllCodeActionsCommand } from './FixAllCodeActionCommand';
 
 const noChanges: vscode.CodeAction[] = [];
 
-export class FixAllCodeActionProvider implements vscode.CodeActionProvider {
+export class FixAllCodeActionProvider
+  implements vscode.CodeActionProvider, vscode.Disposable {
   public static readonly fixAllCodeActionKind = vscode.CodeActionKind.SourceFixAll.append(
     'spotlessGradle'
   );
@@ -12,24 +13,26 @@ export class FixAllCodeActionProvider implements vscode.CodeActionProvider {
     providedCodeActionKinds: [FixAllCodeActionProvider.fixAllCodeActionKind],
   };
 
-  constructor(
-    private readonly context: vscode.ExtensionContext,
-    private readonly fixAllCodeActionsCommand: FixAllCodeActionsCommand,
-    private readonly documentSelector: vscode.DocumentSelector
-  ) {}
+  private disposable: vscode.Disposable | undefined;
+
+  constructor(private documentSelector: vscode.DocumentSelector) {}
 
   public register(): void {
-    this.context.subscriptions.push(
-      vscode.commands.registerCommand(
-        this.fixAllCodeActionsCommand.id,
-        this.fixAllCodeActionsCommand.execute
-      ),
-      vscode.languages.registerCodeActionsProvider(
-        this.documentSelector,
-        this,
-        FixAllCodeActionProvider.metadata
-      )
+    this.disposable = vscode.languages.registerCodeActionsProvider(
+      this.documentSelector,
+      this,
+      FixAllCodeActionProvider.metadata
     );
+  }
+
+  public dispose(): void {
+    this.disposable?.dispose();
+  }
+
+  public setDocumentSelector(documentSelector: vscode.DocumentSelector): void {
+    this.documentSelector = documentSelector;
+    this.dispose();
+    this.register();
   }
 
   public provideCodeActions(

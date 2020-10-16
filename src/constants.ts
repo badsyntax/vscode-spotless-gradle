@@ -1,4 +1,4 @@
-export const SUPPORTED_LANGUAGES = [
+export const ALL_SUPPORTED_LANGUAGES = [
   'java',
   'kotlinscript',
   'kotlin',

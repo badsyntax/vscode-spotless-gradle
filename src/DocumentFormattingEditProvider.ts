@@ -6,20 +6,29 @@ import { SpotlessRunner } from './SpotlessRunner';
 const noChanges: vscode.TextEdit[] = [];
 
 export class DocumentFormattingEditProvider
-  implements vscode.DocumentFormattingEditProvider {
+  implements vscode.DocumentFormattingEditProvider, vscode.Disposable {
+  private disposable: vscode.Disposable | undefined;
+
   constructor(
-    private readonly context: vscode.ExtensionContext,
     private readonly spotlessRunner: SpotlessRunner,
-    private readonly documentSelector: vscode.DocumentSelector
+    private documentSelector: vscode.DocumentSelector
   ) {}
 
   public register(): void {
-    this.context.subscriptions.push(
-      vscode.languages.registerDocumentFormattingEditProvider(
-        this.documentSelector,
-        this
-      )
+    this.disposable = vscode.languages.registerDocumentFormattingEditProvider(
+      this.documentSelector,
+      this
     );
+  }
+
+  public dispose(): void {
+    this.disposable?.dispose();
+  }
+
+  public setDocumentSelector(documentSelector: vscode.DocumentSelector): void {
+    this.documentSelector = documentSelector;
+    this.dispose();
+    this.register();
   }
 
   async provideDocumentFormattingEdits(

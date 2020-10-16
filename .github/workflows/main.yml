@@ -46,6 +46,9 @@ jobs:
           build-root-directory: test-fixtures/gradle-project
           wrapper-directory: test-fixtures/gradle-project
           wrapper-cache-enabled: false
+      - name: Install test-fixtures NPM packages
+        run: |
+          npm ci --prefix test-fixtures/gradle-project
       - name: Start Xvfb
         run: |
           Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &

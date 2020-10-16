@@ -1,6 +1,5 @@
 import * as vscode from 'vscode';
 import { Command } from './Command';
-import { hasSpotlessTaskForLanguage } from './Features';
 import { logger } from './logger';
 import { SpotlessRunner } from './SpotlessRunner';
 
@@ -8,17 +7,21 @@ export class FixAllCodeActionsCommand implements Command {
   public static readonly Id = 'vscode-spotless-gradle.fixAllCodeActions';
   public readonly id = FixAllCodeActionsCommand.Id;
 
-  constructor(private readonly spotlessRunner: SpotlessRunner) {}
+  constructor(
+    private readonly context: vscode.ExtensionContext,
+    private readonly spotlessRunner: SpotlessRunner
+  ) {}
+
+  public register(): void {
+    this.context.subscriptions.push(
+      vscode.commands.registerCommand(this.id, this.execute)
+    );
+  }
 
   public execute = async (
     document: vscode.TextDocument,
     cancellationToken: vscode.CancellationToken
   ): Promise<void> => {
-    if (!(await hasSpotlessTaskForLanguage(document.languageId))) {
-      // TODO: move this logic to the documentSelectors
-      // logger.warning(`Skipping code actions, no spotless task found for: ${document.languageId}`);
-      return;
-    }
     try {
       const spotlessChanges = await this.getSpotlessChanges(
         document,

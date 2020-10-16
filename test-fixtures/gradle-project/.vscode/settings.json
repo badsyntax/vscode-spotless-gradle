@@ -66,5 +66,6 @@
   },
   "[objective-cpp]": {
     "editor.defaultFormatter": "richardwillis.vscode-spotless-gradle"
-  }
+  },
+  "spotlessGradle.languages": null
 }

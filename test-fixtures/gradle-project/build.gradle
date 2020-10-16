@@ -28,4 +28,8 @@ spotless {
     excludeJava()
     greclipse()
   }
+  typescript {
+    target 'src/**/*.ts'
+    prettier()
+  }
 }
