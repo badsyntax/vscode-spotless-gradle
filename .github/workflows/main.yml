@@ -10,7 +10,7 @@ on:
 jobs:
   build-and-test:
     runs-on: ${{ matrix.os }}
-    name: "Build & Analyse (${{ matrix.os }} - Java ${{ matrix.java-version }} - Node ${{ matrix.node-version }})"
+    name: 'Build & Analyse (${{ matrix.os }} - Java ${{ matrix.java-version }} - Node ${{ matrix.node-version }})'
     strategy:
       matrix:
         node-version: ['12.16.2']

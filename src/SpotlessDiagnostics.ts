@@ -6,11 +6,8 @@ import {
 } from 'prettier-linter-helpers';
 import { Spotless } from './Spotless';
 import { logger } from './logger';
-import { debounce } from './util';
 import { SpotlessRunner } from './SpotlessRunner';
 import { AsyncWait } from './AsyncWait';
-
-const DIAGNOSTICS_UPDATES_DEBOUNCE_MS = 0;
 
 export interface SpotlessDiff {
   source: string;
@@ -68,7 +65,6 @@ export class SpotlessDiagnostics extends AsyncWait<void> {
     );
   }
 
-  @debounce(DIAGNOSTICS_UPDATES_DEBOUNCE_MS)
   async handleChangeTextDocument(document: vscode.TextDocument): Promise<void> {
     void this.runDiagnostics(document);
   }
