@@ -3,6 +3,7 @@
 [![Marketplace Version](https://vsmarketplacebadge.apphb.com/version-short/richardwillis.vscode-spotless-gradle.svg)](https://marketplace.visualstudio.com/items?itemName=richardwillis.vscode-spotless-gradle)
 [![Visual Studio Marketplace Installs](https://img.shields.io/visual-studio-marketplace/i/richardwillis.vscode-spotless-gradle)](https://marketplace.visualstudio.com/items?itemName=richardwillis.vscode-spotless-gradle)
 [![Build & Publish](https://github.com/badsyntax/vscode-spotless-gradle/workflows/Build%20&%20Publish/badge.svg)](https://github.com/badsyntax/vscode-spotless-gradle/actions?query=workflow%3A"Build+%26+Publish")
+[![CodeQL](https://github.com/badsyntax/vscode-spotless-gradle/workflows/CodeQL/badge.svg)](https://github.com/badsyntax/vscode-spotless-gradle/actions?query=workflow%3ACodeQL)
 [![GitHub bug issues](https://img.shields.io/github/issues/badsyntax/vscode-spotless-gradle/bug?label=bug%20reports)](https://github.com/badsyntax/vscode-spotless-gradle/issues?q=is%3Aissue+is%3Aopen+label%3Abug)
 
 A VS Code extension to lint & format your code using [Spotless](https://github.com/diffplug/spotless) (via Gradle).
