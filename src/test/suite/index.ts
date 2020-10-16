@@ -6,7 +6,7 @@ export function run(): Promise<void> {
   const mocha = new Mocha({
     ui: 'bdd',
     color: true,
-    timeout: 20000,
+    timeout: 8000,
     bail: true,
   });
 

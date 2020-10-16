@@ -22,6 +22,11 @@ describe('Extension Test Suite', () => {
     // TODO
   });
 
+  afterEach((done) => {
+    // FIX: test to see if this helps macos on ci
+    setTimeout(done, 100);
+  });
+
   describe('Running Spotless', () => {
     const javaBasePath = path.resolve(
       __dirname,
@@ -177,7 +182,7 @@ describe('Extension Test Suite', () => {
         await vscode.window.showTextDocument(document);
         await vscode.commands.executeCommand('editor.action.formatDocument');
         assert.ok(
-          loggerSpy.calledWith('Unable to apply formatting:', sinon.match.any),
+          loggerSpy.calledWith(sinon.match('Unable to apply formatting')),
           'Spotless error not logged'
         );
       });
