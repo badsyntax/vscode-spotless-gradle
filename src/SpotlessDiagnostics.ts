@@ -9,6 +9,7 @@ import { logger } from './logger';
 import { SpotlessRunner } from './SpotlessRunner';
 import { AsyncWait } from './AsyncWait';
 import { getConfigDiagnostics } from './config';
+import { FixAllCodeActionsCommand } from './FixAllCodeActionCommand';
 
 export interface SpotlessDiff {
   source: string;
@@ -16,9 +17,20 @@ export interface SpotlessDiff {
   differences: Difference[];
 }
 
-export class SpotlessDiagnostics extends AsyncWait<void> {
+export class SpotlessDiagnostics
+  extends AsyncWait<void>
+  implements vscode.CodeActionProvider {
+  public static readonly quickFixCodeActionKind = vscode.CodeActionKind.QuickFix.append(
+    'spotlessGradle'
+  );
+  public static metadata: vscode.CodeActionProviderMetadata = {
+    providedCodeActionKinds: [SpotlessDiagnostics.quickFixCodeActionKind],
+  };
+
   private diagnosticCollection: vscode.DiagnosticCollection;
   private diagnosticMap: Map<string, vscode.Diagnostic[]> = new Map();
+  private diagnosticCode = 0;
+  private diagnosticDifferenceMap: Map<number, Difference> = new Map();
 
   constructor(
     private readonly context: vscode.ExtensionContext,
@@ -59,16 +71,24 @@ export class SpotlessDiagnostics extends AsyncWait<void> {
       }
     );
 
+    const codeActionsProvider = vscode.languages.registerCodeActionsProvider(
+      this.documentSelector,
+      this,
+      SpotlessDiagnostics.metadata
+    );
+
     this.context.subscriptions.push(
       onReady,
       onDidChangeTextDocument,
       onDidChangeActiveTextEditor,
+      codeActionsProvider,
       this.diagnosticCollection
     );
   }
 
   public reset(): void {
     this.diagnosticCollection.clear();
+    this.diagnosticDifferenceMap.clear();
   }
 
   public setDocumentSelector(
@@ -107,15 +127,15 @@ export class SpotlessDiagnostics extends AsyncWait<void> {
     document: vscode.TextDocument,
     diff: SpotlessDiff
   ): void {
-    this.diagnosticCollection.clear();
+    this.reset();
     const diagnosticMap = this.getDiagnosticMap(document, diff);
-    let total = 0;
+    let totalDiagnostics = 0;
     diagnosticMap.forEach((diags, file) => {
       this.diagnosticCollection.set(vscode.Uri.parse(file), diags);
-      total += diags.length;
+      totalDiagnostics += diags.length;
     });
     logger.info(
-      `Updated diagnostics (language: ${document.languageId}) (total: ${total})`
+      `Updated diagnostics (language: ${document.languageId}) (total: ${totalDiagnostics})`
     );
   }
 
@@ -139,6 +159,8 @@ export class SpotlessDiagnostics extends AsyncWait<void> {
     const message = this.getMessage(difference);
     const diagnostic = new vscode.Diagnostic(range, message);
     diagnostic.source = 'spotless-gradle';
+    diagnostic.code = this.diagnosticCode++;
+    this.diagnosticDifferenceMap.set(diagnostic.code, difference);
     return diagnostic;
   }
 
@@ -195,5 +217,82 @@ export class SpotlessDiagnostics extends AsyncWait<void> {
       formattedSource,
       differences,
     };
+  }
+
+  public provideCodeActions(
+    document: vscode.TextDocument,
+    range: vscode.Range | vscode.Selection
+  ): vscode.CodeAction[] {
+    let totalDiagnostics = 0;
+    const codeActions: vscode.CodeAction[] = [];
+    this.diagnosticCollection.forEach(
+      (uri: vscode.Uri, diagnostics: readonly vscode.Diagnostic[]) => {
+        if (document.uri.fsPath !== uri.fsPath) {
+          return;
+        }
+        diagnostics.forEach((diagnostic: vscode.Diagnostic) => {
+          totalDiagnostics += 1;
+          if (
+            typeof diagnostic.code !== 'number' ||
+            !range.isEqual(diagnostic.range)
+          ) {
+            return;
+          }
+          const diagnosticDifference = this.diagnosticDifferenceMap.get(
+            diagnostic.code
+          );
+          if (!diagnosticDifference) {
+            return;
+          }
+          codeActions.push(
+            this.getQuickFixCodeAction(
+              document.uri,
+              diagnostic,
+              diagnosticDifference
+            )
+          );
+        });
+      }
+    );
+    if (totalDiagnostics > 1) {
+      codeActions.push(this.getQuickFixAllProblemsCodeAction(document));
+    }
+    return codeActions;
+  }
+
+  private getQuickFixCodeAction(
+    uri: vscode.Uri,
+    diagnostic: vscode.Diagnostic,
+    difference: Difference
+  ): vscode.CodeAction {
+    const action = new vscode.CodeAction(
+      'Fix this spotless-gradle problem',
+      SpotlessDiagnostics.quickFixCodeActionKind
+    );
+    action.edit = new vscode.WorkspaceEdit();
+    if (difference.operation === generateDifferences.INSERT) {
+      action.edit.insert(uri, diagnostic.range.start, difference.insertText!);
+    } else if (difference.operation === generateDifferences.REPLACE) {
+      action.edit.replace(uri, diagnostic.range, difference.insertText!);
+    } else if (difference.operation === generateDifferences.DELETE) {
+      action.edit.delete(uri, diagnostic.range);
+    }
+    return action;
+  }
+
+  private getQuickFixAllProblemsCodeAction(
+    document: vscode.TextDocument
+  ): vscode.CodeAction {
+    const title = 'Fix all spotless-gradle problems';
+    const action = new vscode.CodeAction(
+      title,
+      SpotlessDiagnostics.quickFixCodeActionKind
+    );
+    action.command = {
+      title,
+      command: FixAllCodeActionsCommand.Id,
+      arguments: [document],
+    };
+    return action;
   }
 }

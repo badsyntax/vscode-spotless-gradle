@@ -20,14 +20,14 @@ export class FixAllCodeActionsCommand implements Command {
 
   public execute = async (
     document: vscode.TextDocument,
-    cancellationToken: vscode.CancellationToken
+    cancellationToken?: vscode.CancellationToken
   ): Promise<void> => {
     try {
       const spotlessChanges = await this.getSpotlessChanges(
         document,
         cancellationToken
       );
-      if (!spotlessChanges || cancellationToken.isCancellationRequested) {
+      if (!spotlessChanges || cancellationToken?.isCancellationRequested) {
         return;
       }
       const range = new vscode.Range(
@@ -44,7 +44,7 @@ export class FixAllCodeActionsCommand implements Command {
 
   private getSpotlessChanges(
     document: vscode.TextDocument,
-    cancellationToken: vscode.CancellationToken
+    cancellationToken?: vscode.CancellationToken
   ): Promise<string | null> {
     return this.spotlessRunner.run(document, cancellationToken);
   }
