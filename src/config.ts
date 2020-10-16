@@ -2,8 +2,16 @@ import * as vscode from 'vscode';
 
 export function getConfigLanguages(
   workspaceFolder: vscode.WorkspaceFolder
-): string[] | null {
+): string[] {
   return vscode.workspace
     .getConfiguration('spotlessGradle', workspaceFolder.uri)
-    .get<string[] | null>('languages', null);
+    .get<string[]>('languages', []);
+}
+
+export function getConfigDiagnostics(
+  workspaceFolder: vscode.WorkspaceFolder
+): boolean {
+  return vscode.workspace
+    .getConfiguration('spotlessGradle', workspaceFolder.uri)
+    .get<boolean>('diagnostics', true);
 }

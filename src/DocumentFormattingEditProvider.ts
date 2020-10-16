@@ -10,9 +10,12 @@ export class DocumentFormattingEditProvider
   private disposable: vscode.Disposable | undefined;
 
   constructor(
+    private readonly context: vscode.ExtensionContext,
     private readonly spotlessRunner: SpotlessRunner,
     private documentSelector: vscode.DocumentSelector
-  ) {}
+  ) {
+    this.context.subscriptions.push(this);
+  }
 
   public register(): void {
     this.disposable = vscode.languages.registerDocumentFormattingEditProvider(

@@ -8,6 +8,7 @@ import { Spotless } from './Spotless';
 import { logger } from './logger';
 import { SpotlessRunner } from './SpotlessRunner';
 import { AsyncWait } from './AsyncWait';
+import { getConfigDiagnostics } from './config';
 
 export interface SpotlessDiff {
   source: string;
@@ -66,6 +67,10 @@ export class SpotlessDiagnostics extends AsyncWait<void> {
     );
   }
 
+  public reset(): void {
+    this.diagnosticCollection.clear();
+  }
+
   public setDocumentSelector(
     documentSelector: Array<vscode.DocumentFilter>
   ): void {
@@ -83,7 +88,8 @@ export class SpotlessDiagnostics extends AsyncWait<void> {
     if (
       !this.documentSelector.find(
         (selector) => selector.language === document.languageId
-      )
+      ) ||
+      !getConfigDiagnostics(vscode.workspace.getWorkspaceFolder(document.uri)!)
     ) {
       return;
     }

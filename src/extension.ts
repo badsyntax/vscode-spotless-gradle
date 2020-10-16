@@ -28,7 +28,10 @@ async function getDocumentSelector(): Promise<Array<vscode.DocumentFilter>> {
     new Set(
       (vscode.workspace.workspaceFolders || [])
         .map((workspaceFolder) => {
-          return getConfigLanguages(workspaceFolder) || ALL_SUPPORTED_LANGUAGES;
+          const configLanguages = getConfigLanguages(workspaceFolder);
+          return configLanguages && configLanguages.length
+            ? configLanguages
+            : ALL_SUPPORTED_LANGUAGES;
         })
         .flat()
     )
@@ -46,7 +49,6 @@ export async function activate(
     vscode.window.createOutputChannel(OUTPUT_CHANNEL_ID)
   );
 
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
   const packageJson = JSON.parse(
     fs.readFileSync(path.join(context.extensionPath, 'package.json'), 'utf8')
   );
@@ -81,9 +83,11 @@ export async function activate(
   );
 
   const fixAllCodeActionProvider = new FixAllCodeActionProvider(
+    context,
     documentSelector
   );
   const documentFormattingEditProvider = new DocumentFormattingEditProvider(
+    context,
     spotlessRunner,
     documentSelector
   );
@@ -93,20 +97,20 @@ export async function activate(
   fixAllCodeActionProvider.register();
   documentFormattingEditProvider.register();
 
-  vscode.workspace.onDidChangeConfiguration(
-    async (event: vscode.ConfigurationChangeEvent) => {
-      if (event.affectsConfiguration('spotlessGradle.languages')) {
-        const documentSelector = await getDocumentSelector();
-        spotlessDiagnostics.setDocumentSelector(documentSelector);
-        fixAllCodeActionProvider.setDocumentSelector(documentSelector);
-        documentFormattingEditProvider.setDocumentSelector(documentSelector);
-      }
-    }
-  );
-
   context.subscriptions.push(
-    documentFormattingEditProvider,
-    fixAllCodeActionProvider
+    vscode.workspace.onDidChangeConfiguration(
+      async (event: vscode.ConfigurationChangeEvent) => {
+        if (event.affectsConfiguration('spotlessGradle.languages')) {
+          const documentSelector = await getDocumentSelector();
+          spotlessDiagnostics.setDocumentSelector(documentSelector);
+          fixAllCodeActionProvider.setDocumentSelector(documentSelector);
+          documentFormattingEditProvider.setDocumentSelector(documentSelector);
+        }
+        if (event.affectsConfiguration('spotlessGradle.diagnostics')) {
+          spotlessDiagnostics.reset();
+        }
+      }
+    )
   );
 
   return { logger, spotless };
