@@ -38,7 +38,7 @@ describe('Formatting', () => {
       fs.writeFileSync(appFilePath, appFileContents, 'utf8');
     };
 
-    describe('Java', () => {
+    describe('Java', function () {
       const appFilePath = path.resolve(javaBasePath, 'App.java');
       const appFileContents = fs.readFileSync(appFilePath, 'utf8');
       const helloFilePath = path.resolve(javaBasePath, 'Hello.java');
@@ -51,6 +51,9 @@ describe('Formatting', () => {
         formattedAppFilePath,
         'utf8'
       );
+
+      // VS Code might choose to cancel the formatting
+      this.retries(5);
 
       afterEach(async () => {
         await reset(appFilePath, appFileContents);
@@ -108,8 +111,7 @@ describe('Formatting', () => {
         'utf8'
       );
 
-      // VS Code will cancel the formatting when formatting immediately
-      // after opening a document. So we have to keep retrying.
+      // VS Code might choose to cancel the formatting
       this.retries(5);
 
       afterEach(async () => {
