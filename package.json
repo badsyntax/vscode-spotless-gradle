@@ -28,16 +28,26 @@
     "richardwillis.vscode-gradle": "^3.5.1"
   },
   "categories": [
-    "Formatters"
+    "Formatters",
+    "Linters"
   ],
   "keywords": [
     "spotless",
+    "formatter",
+    "linter",
+    "format",
+    "lint",
     "gradle",
     "java",
     "groovy",
     "scala",
     "kotlin",
     "python",
+    "black",
+    "javascript",
+    "prettier",
+    "clang",
+    "clang-format",
     "c",
     "cpp",
     "csharp",
