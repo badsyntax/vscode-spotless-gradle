@@ -8,6 +8,7 @@ import { Spotless } from './Spotless';
 import { logger } from './logger';
 import { SpotlessRunner } from './SpotlessRunner';
 import { AsyncWait } from './AsyncWait';
+import { hasSpotlessTaskForLanguage } from './Features';
 
 export interface SpotlessDiff {
   source: string;
@@ -22,11 +23,12 @@ export class SpotlessDiagnostics extends AsyncWait<void> {
   constructor(
     private readonly context: vscode.ExtensionContext,
     private readonly spotless: Spotless,
-    private readonly spotlessRunner: SpotlessRunner
+    private readonly spotlessRunner: SpotlessRunner,
+    private readonly languages: string[]
   ) {
     super();
     this.diagnosticCollection = vscode.languages.createDiagnosticCollection(
-      'java'
+      'spotless-gradle'
     );
   }
 
@@ -69,12 +71,16 @@ export class SpotlessDiagnostics extends AsyncWait<void> {
     void this.runDiagnostics(document);
   }
 
-  public runDiagnostics(
+  public async runDiagnostics(
     document: vscode.TextDocument,
     cancellationToken?: vscode.CancellationToken
-  ): void {
-    // TODO: support other language types
-    if (document.languageId.toLowerCase() !== this.diagnosticCollection.name) {
+  ): Promise<void> {
+    if (!this.languages.includes(document.languageId)) {
+      return;
+    }
+    if (!(await hasSpotlessTaskForLanguage(document.languageId))) {
+      // TODO: move this logic to the documentSelectors
+      // logger.warning(`Skipping diagnostics, no spotless task found for: ${document.languageId}`);
       return;
     }
     this.waitAndRun(async () => {
@@ -99,7 +105,7 @@ export class SpotlessDiagnostics extends AsyncWait<void> {
       total += diags.length;
     });
     logger.info(
-      `Updated diagnostics (name: ${this.diagnosticCollection.name}) (total: ${total})`
+      `Updated diagnostics (language: ${document.languageId}) (total: ${total})`
     );
   }
 

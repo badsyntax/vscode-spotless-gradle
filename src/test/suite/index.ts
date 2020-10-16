@@ -6,7 +6,7 @@ export function run(): Promise<void> {
   const mocha = new Mocha({
     ui: 'bdd',
     color: true,
-    timeout: 10000,
+    timeout: 60000, // the time it takes for vscode-gradle to load the gradle project, then run the tests
     bail: true,
   });
 

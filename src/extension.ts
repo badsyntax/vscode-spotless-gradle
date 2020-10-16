@@ -41,11 +41,20 @@ export async function activate(
   const gradleTasksExtension = vscode.extensions.getExtension(
     GRADLE_TASKS_EXTENSION_ID
   );
-  // vscode should be checking this for us (via `extensionDependencies`), but
-  // we're also doing this as a type-check.
   if (!gradleTasksExtension || !gradleTasksExtension.isActive) {
-    throw new Error('Gradle Tasks extension is not active');
+    throw new Error('Gradle Tasks extension is not installed/active');
   }
+
+  const knownLanguages = await vscode.languages.getLanguages();
+
+  // TODO:
+  const spotlessLanguages = SUPPORTED_LANGUAGES.filter((language) =>
+    knownLanguages.includes(language)
+  );
+  const documentSelector = spotlessLanguages.map((language) => ({
+    language,
+    scheme: 'file',
+  }));
 
   const gradleApi = gradleTasksExtension.exports as GradleApi;
   const spotless = new Spotless(gradleApi);
@@ -54,41 +63,26 @@ export async function activate(
   const spotlessDiagnostics = new SpotlessDiagnostics(
     context,
     spotless,
-    spotlessRunner
+    spotlessRunner,
+    spotlessLanguages
   );
 
   const fixAllCodeActionsCommand = new FixAllCodeActionsCommand(spotlessRunner);
 
   const fixAllCodeActionProvider = new FixAllCodeActionProvider(
     context,
-    fixAllCodeActionsCommand
+    fixAllCodeActionsCommand,
+    documentSelector
   );
   const documentFormattingEditProvider = new DocumentFormattingEditProvider(
-    spotlessRunner
+    context,
+    spotlessRunner,
+    documentSelector
   );
-
-  const knownLanguages = await vscode.languages.getLanguages();
-  const spotlessLanguages = SUPPORTED_LANGUAGES.filter((language) =>
-    knownLanguages.includes(language)
-  );
-  const documentSelectors = spotlessLanguages.map((language) => ({
-    language,
-    scheme: 'file',
-  }));
 
   spotlessDiagnostics.register();
-
-  context.subscriptions.push(
-    vscode.languages.registerCodeActionsProvider(
-      documentSelectors,
-      fixAllCodeActionProvider,
-      FixAllCodeActionProvider.metadata
-    ),
-    vscode.languages.registerDocumentFormattingEditProvider(
-      documentSelectors,
-      documentFormattingEditProvider
-    )
-  );
+  fixAllCodeActionProvider.register();
+  documentFormattingEditProvider.register();
 
   return { logger, spotless };
 }

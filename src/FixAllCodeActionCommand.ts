@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import { Command } from './Command';
+import { hasSpotlessTaskForLanguage } from './Features';
 import { logger } from './logger';
 import { SpotlessRunner } from './SpotlessRunner';
 
@@ -13,6 +14,11 @@ export class FixAllCodeActionsCommand implements Command {
     document: vscode.TextDocument,
     cancellationToken: vscode.CancellationToken
   ): Promise<void> => {
+    if (!(await hasSpotlessTaskForLanguage(document.languageId))) {
+      // TODO: move this logic to the documentSelectors
+      // logger.warning(`Skipping code actions, no spotless task found for: ${document.languageId}`);
+      return;
+    }
     try {
       const spotlessChanges = await this.getSpotlessChanges(
         document,

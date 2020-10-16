@@ -56,7 +56,9 @@ describe('Diagnostics', () => {
         await waitForDiagnosticsOnDocumentOpen(appFilePath);
         assert.ok(loggerSpy.calledWith('App.java: IS DIRTY'));
         assert.ok(
-          loggerSpy.calledWith('Updated diagnostics (name: java) (total: 1)')
+          loggerSpy.calledWith(
+            'Updated diagnostics (language: java) (total: 1)'
+          )
         );
       });
 
@@ -70,34 +72,38 @@ describe('Diagnostics', () => {
         await waitForDiagnostics('Delete ··');
         assert.ok(loggerSpy.calledWith('App.java: IS DIRTY'));
         assert.ok(
-          loggerSpy.calledWith('Updated diagnostics (name: java) (total: 2)')
+          loggerSpy.calledWith(
+            'Updated diagnostics (language: java) (total: 2)'
+          )
         );
       });
     });
 
     describe('Error path', () => {
-      const invalidFilePath = path.resolve(javaBasePath, 'AppInvalid.java');
+      describe('Invalid supported files', () => {
+        const invalidFilePath = path.resolve(javaBasePath, 'AppInvalid.java');
 
-      before(() => {
-        fs.copyFileSync(
-          path.resolve(javaBasePath, 'AppInvalid.java.txt'),
-          invalidFilePath
-        );
-      });
+        before(() => {
+          fs.copyFileSync(
+            path.resolve(javaBasePath, 'AppInvalid.java.txt'),
+            invalidFilePath
+          );
+        });
 
-      after(() => {
-        fs.unlinkSync(invalidFilePath);
-      });
+        after(() => {
+          fs.unlinkSync(invalidFilePath);
+        });
 
-      it('should log errors when linting invalid Java files', async () => {
-        const loggerSpy = sinon.spy(logger, 'error');
-        const document = await vscode.workspace.openTextDocument(
-          invalidFilePath
-        );
-        await vscode.window.showTextDocument(document);
-        waitFor((): boolean =>
-          loggerSpy.calledWith(sinon.match('Unable to provide diagnostics'))
-        );
+        it('should log errors when linting invalid Java files', async () => {
+          const loggerSpy = sinon.spy(logger, 'error');
+          const document = await vscode.workspace.openTextDocument(
+            invalidFilePath
+          );
+          await vscode.window.showTextDocument(document);
+          waitFor((): boolean =>
+            loggerSpy.calledWith(sinon.match('Unable to provide diagnostics'))
+          );
+        });
       });
     });
   });

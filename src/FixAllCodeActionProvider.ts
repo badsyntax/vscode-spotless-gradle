@@ -14,12 +14,20 @@ export class FixAllCodeActionProvider implements vscode.CodeActionProvider {
 
   constructor(
     private readonly context: vscode.ExtensionContext,
-    private readonly fixAllCodeActionsCommand: FixAllCodeActionsCommand
-  ) {
+    private readonly fixAllCodeActionsCommand: FixAllCodeActionsCommand,
+    private readonly documentSelector: vscode.DocumentSelector
+  ) {}
+
+  public register(): void {
     this.context.subscriptions.push(
       vscode.commands.registerCommand(
         this.fixAllCodeActionsCommand.id,
         this.fixAllCodeActionsCommand.execute
+      ),
+      vscode.languages.registerCodeActionsProvider(
+        this.documentSelector,
+        this,
+        FixAllCodeActionProvider.metadata
       )
     );
   }

@@ -7,7 +7,20 @@ const noChanges: vscode.TextEdit[] = [];
 
 export class DocumentFormattingEditProvider
   implements vscode.DocumentFormattingEditProvider {
-  constructor(private readonly spotlessRunner: SpotlessRunner) {}
+  constructor(
+    private readonly context: vscode.ExtensionContext,
+    private readonly spotlessRunner: SpotlessRunner,
+    private readonly documentSelector: vscode.DocumentSelector
+  ) {}
+
+  public register(): void {
+    this.context.subscriptions.push(
+      vscode.languages.registerDocumentFormattingEditProvider(
+        this.documentSelector,
+        this
+      )
+    );
+  }
 
   async provideDocumentFormattingEdits(
     document: vscode.TextDocument,

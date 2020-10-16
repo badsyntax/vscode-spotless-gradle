@@ -53,6 +53,7 @@ describe('Formatting', () => {
       );
 
       // VS Code might choose to cancel the formatting
+      this.timeout(8000);
       this.retries(5);
 
       afterEach(async () => {
@@ -112,6 +113,7 @@ describe('Formatting', () => {
       );
 
       // VS Code might choose to cancel the formatting
+      this.timeout(8000);
       this.retries(5);
 
       afterEach(async () => {
