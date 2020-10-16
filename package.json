@@ -53,7 +53,11 @@
   "scripts": {
     "vscode:prepublish": "npm run compile:prod",
     "build": "npm run compile:dev",
-    "lint": "eslint src --ext ts",
+    "lint": "npm run lint:prettier && npm run lint:eslint",
+    "lint:fix": "npm run lint:fix:prettier && npm run lint:eslint -- --fix",
+    "lint:prettier": "prettier --check \"**/*.{ts,js,json,svg,md,yml}\"",
+    "lint:fix:prettier": "prettier --write '**/*.{ts,js,json,svg,md,yml}'",
+    "lint:eslint": "eslint . --ext .ts",
     "test": "node ./out/test/runTest.js",
     "install:ext": "code --install-extension vscode-spotless-gradle-0.0.0.vsix --force",
     "preinstall:ext": "npm run package",

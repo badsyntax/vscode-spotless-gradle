@@ -3,3 +3,5 @@ node_modules
 out/
 package-lock.json
 *nls.*.json
+dist/
+test-fixtures/
