@@ -26,6 +26,7 @@ jobs:
           node-version: 12.16.2
       - name: Build
         run: |
+          npm ci
           npm run compile:all
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v1
