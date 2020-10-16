@@ -27,7 +27,7 @@ jobs:
         with:
           java-version: ${{ matrix.java-version }}
           architecture: x64
-      - name: Install npm packages
+      - name: Install NPM Packages
         run: npm ci
       - name: Lint extension
         run: npm run lint
@@ -49,12 +49,19 @@ jobs:
         run: |
           Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
         if: matrix.os == 'ubuntu-latest'
-      - name: Build & test extension
+      - name: Build & Test Extension
         run: |
           npm run compile:all
           npm run test
         env:
           DISPLAY: ':99.0'
+      - name: Stop Gradle daemon
+        uses: eskatos/gradle-command-action@v1
+        with:
+          arguments: --stop
+          build-root-directory: test-fixtures/gradle-project
+          wrapper-directory: test-fixtures/gradle-project
+          wrapper-cache-enabled: false
 
   publish:
     name: Publish extension
