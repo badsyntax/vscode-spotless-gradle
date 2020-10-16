@@ -23,10 +23,8 @@ describe('Diagnostics', () => {
     SPOTLESS_GRADLE_EXTENSION_ID
   )!.exports as ExtensionApi;
 
-  afterEach((done) => {
+  afterEach(() => {
     sinon.restore();
-    // This helps clear the nodejs async queue to fix flaky macos CI tests
-    setTimeout(done, 100);
   });
 
   describe('Running Spotless', () => {

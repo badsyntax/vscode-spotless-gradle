@@ -7,10 +7,8 @@ import { DependencyChecker } from '../../DependencyChecker';
 import { GRADLE_TASKS_EXTENSION_ID } from '../../constants';
 
 describe('Dependency checker', () => {
-  afterEach((done) => {
+  afterEach(() => {
     sinon.restore();
-    // This helps clear the nodejs async queue to fix flaky macos CI tests
-    setTimeout(done, 100);
   });
 
   it('should match patch versions', async () => {
