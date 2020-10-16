@@ -6,7 +6,7 @@ import * as assert from 'assert';
 import { DependencyChecker } from '../../DependencyChecker';
 import { GRADLE_TASKS_EXTENSION_ID } from '../../constants';
 
-describe('Depedency checker', () => {
+describe('Dependency checker', () => {
   afterEach(() => {
     sinon.restore();
   });

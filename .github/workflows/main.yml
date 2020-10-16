@@ -9,11 +9,11 @@ on:
 
 jobs:
   build-and-test:
-    name: Build & Analyse
     runs-on: ${{ matrix.os }}
+    name: "Build & Analyse (${{ matrix.os }} - Java ${{ matrix.java-version }} - Node ${{ matrix.node-version }})"
     strategy:
       matrix:
-        node-version: [12.16.2]
+        node-version: ['12.16.2']
         java-version: ['11']
         os: [ubuntu-latest, windows-latest, macos-latest]
     steps:
