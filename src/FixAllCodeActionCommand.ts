@@ -27,7 +27,11 @@ export class FixAllCodeActionsCommand implements Command {
         document,
         cancellationToken
       );
-      if (!spotlessChanges || cancellationToken?.isCancellationRequested) {
+      if (cancellationToken?.isCancellationRequested) {
+        logger.warning('Spotless formatting cancelled');
+        return;
+      }
+      if (!spotlessChanges) {
         return;
       }
       const range = new vscode.Range(

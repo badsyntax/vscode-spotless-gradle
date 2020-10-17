@@ -45,6 +45,7 @@ export class SpotlessDiagnostics
     private documentSelector: Array<vscode.DocumentFilter>
   ) {
     super();
+    this.context.subscriptions.push(this);
     this.diagnosticCollection = vscode.languages.createDiagnosticCollection(
       DIAGNOSTICS_ID
     );

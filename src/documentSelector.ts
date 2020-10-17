@@ -7,7 +7,7 @@ import {
 } from './config';
 import { ALL_SUPPORTED_LANGUAGES } from './constants';
 
-async function getDocumentSelector(
+export async function getDocumentSelector(
   supportedLanguages: string[]
 ): Promise<Array<vscode.DocumentFilter>> {
   const knownLanguages = await vscode.languages.getLanguages();

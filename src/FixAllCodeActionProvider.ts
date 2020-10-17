@@ -15,7 +15,12 @@ export class FixAllCodeActionProvider
 
   private codeActionsProvider: vscode.Disposable | undefined;
 
-  constructor(private documentSelector: vscode.DocumentSelector) {}
+  constructor(
+    private context: vscode.ExtensionContext,
+    private documentSelector: vscode.DocumentSelector
+  ) {
+    this.context.subscriptions.push(this);
+  }
 
   public register(): void {
     this.codeActionsProvider = vscode.languages.registerCodeActionsProvider(
