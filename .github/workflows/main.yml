@@ -9,13 +9,14 @@ on:
 
 jobs:
   build-and-test:
-    name: Build & Analyse
     runs-on: ${{ matrix.os }}
+    name: 'Build & Analyse (${{ matrix.os }} - Java ${{ matrix.java-version }} - Node ${{ matrix.node-version }})'
     strategy:
       matrix:
-        node-version: [12.16.2]
+        node-version: ['12.16.2']
         java-version: ['11']
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        os: [ubuntu-latest, windows-latest]
+        # os: [ubuntu-latest, windows-latest, macos-latest]
     steps:
       - uses: actions/checkout@v1
       - name: Use Node ${{ matrix.node-version }}
@@ -27,12 +28,10 @@ jobs:
         with:
           java-version: ${{ matrix.java-version }}
           architecture: x64
-      - name: Install npm packages
+      - name: Install NPM Packages
         run: npm ci
       - name: Lint extension
         run: npm run lint
-      - name: Build extension
-        run: npm run build
       - name: Prepare Gradle
         uses: eskatos/gradle-command-action@v1
         with:
@@ -47,15 +46,26 @@ jobs:
           build-root-directory: test-fixtures/gradle-project
           wrapper-directory: test-fixtures/gradle-project
           wrapper-cache-enabled: false
+      - name: Install test-fixtures NPM packages
+        run: |
+          npm ci --prefix test-fixtures/gradle-project
       - name: Start Xvfb
         run: |
           Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
         if: matrix.os == 'ubuntu-latest'
-      - name: Test extension
+      - name: Build & Test Extension
         run: |
+          npm run compile:all
           npm run test
         env:
           DISPLAY: ':99.0'
+      - name: Stop Gradle daemon
+        uses: eskatos/gradle-command-action@v1
+        with:
+          arguments: --stop
+          build-root-directory: test-fixtures/gradle-project
+          wrapper-directory: test-fixtures/gradle-project
+          wrapper-cache-enabled: false
 
   publish:
     name: Publish extension

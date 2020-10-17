@@ -27,7 +27,7 @@
         "--disable-extension=esbenp.prettier-vscode",
         "${workspaceFolder}/test-fixtures/gradle-project"
       ],
-      "outFiles": ["${workspaceFolder}/out/test/**/*.js"],
+      "outFiles": ["${workspaceFolder}/out/**/*.js"],
       "preLaunchTask": "npm: compile:all"
     }
   ]

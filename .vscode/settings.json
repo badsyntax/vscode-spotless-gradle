@@ -11,8 +11,5 @@
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": true
   },
-  "cSpell.words": [
-    "Pspotless",
-    "spotless"
-  ]
+  "cSpell.words": ["Pspotless", "linting", "spotless"]
 }

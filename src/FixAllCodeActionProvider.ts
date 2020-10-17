@@ -1,10 +1,10 @@
 import * as vscode from 'vscode';
-import { logger } from './logger';
-import { Spotless } from './Spotless';
+import { FixAllCodeActionsCommand } from './FixAllCodeActionCommand';
 
 const noChanges: vscode.CodeAction[] = [];
 
-export class FixAllCodeActionProvider implements vscode.CodeActionProvider {
+export class FixAllCodeActionProvider
+  implements vscode.CodeActionProvider, vscode.Disposable {
   public static readonly fixAllCodeActionKind = vscode.CodeActionKind.SourceFixAll.append(
     'spotlessGradle'
   );
@@ -13,47 +13,53 @@ export class FixAllCodeActionProvider implements vscode.CodeActionProvider {
     providedCodeActionKinds: [FixAllCodeActionProvider.fixAllCodeActionKind],
   };
 
-  constructor(private readonly spotless: Spotless) {}
+  private codeActionsProvider: vscode.Disposable | undefined;
 
-  public async provideCodeActions(
+  constructor(private documentSelector: vscode.DocumentSelector) {}
+
+  public register(): void {
+    this.codeActionsProvider = vscode.languages.registerCodeActionsProvider(
+      this.documentSelector,
+      this,
+      FixAllCodeActionProvider.metadata
+    );
+  }
+
+  public dispose(): void {
+    this.codeActionsProvider?.dispose();
+  }
+
+  public setDocumentSelector(documentSelector: vscode.DocumentSelector): void {
+    this.documentSelector = documentSelector;
+    this.dispose();
+    this.register();
+  }
+
+  public provideCodeActions(
     document: vscode.TextDocument,
     _range: vscode.Range | vscode.Selection,
     context: vscode.CodeActionContext,
     cancellationToken: vscode.CancellationToken
-  ): Promise<vscode.CodeAction[]> {
+  ): vscode.CodeAction[] {
     if (!context.only) {
       return noChanges;
     }
-
     if (
       !context.only.contains(FixAllCodeActionProvider.fixAllCodeActionKind) &&
       !FixAllCodeActionProvider.fixAllCodeActionKind.contains(context.only)
     ) {
       return noChanges;
     }
-
-    try {
-      const newText = await this.spotless.apply(document, cancellationToken);
-      if (!newText) {
-        return noChanges;
-      }
-      const range = new vscode.Range(
-        document.positionAt(0),
-        document.positionAt(document.getText().length)
-      );
-      const title = 'Format code using Spotless';
-      const action = new vscode.CodeAction(
-        title,
-        FixAllCodeActionProvider.fixAllCodeActionKind
-      );
-      action.edit = new vscode.WorkspaceEdit();
-      action.edit.replace(document.uri, range, newText);
-      action.isPreferred = true;
-
-      return [action];
-    } catch (e) {
-      logger.error('Unable to apply code action:', e.message);
-      return noChanges;
-    }
+    const title = 'Format code using Spotless';
+    const action = new vscode.CodeAction(
+      title,
+      FixAllCodeActionProvider.fixAllCodeActionKind
+    );
+    action.command = {
+      title,
+      command: FixAllCodeActionsCommand.Id,
+      arguments: [document, cancellationToken],
+    };
+    return [action];
   }
 }

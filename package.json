@@ -25,19 +25,29 @@
     "richardwillis.vscode-gradle"
   ],
   "extensionDependenciesCompatibility": {
-    "richardwillis.vscode-gradle": "^3.0.1"
+    "richardwillis.vscode-gradle": "^3.5.1"
   },
   "categories": [
-    "Formatters"
+    "Formatters",
+    "Linters"
   ],
   "keywords": [
     "spotless",
+    "formatter",
+    "linter",
+    "format",
+    "lint",
     "gradle",
     "java",
     "groovy",
     "scala",
     "kotlin",
     "python",
+    "black",
+    "javascript",
+    "prettier",
+    "clang",
+    "clang-format",
     "c",
     "cpp",
     "csharp",
@@ -49,12 +59,35 @@
     "workspaceContains:gradlew.bat"
   ],
   "main": "./dist/extension",
-  "contributes": {},
+  "contributes": {
+    "configuration": {
+      "id": "spotlessGradle",
+      "type": "object",
+      "title": "Spotless Gradle",
+      "properties": {
+        "spotlessGradle.format": {
+          "type": "boolean",
+          "default": true,
+          "scope": "language-overridable",
+          "description": "Enable/disable formatting"
+        },
+        "spotlessGradle.diagnostics": {
+          "type": "boolean",
+          "default": true,
+          "scope": "language-overridable",
+          "description": "Enable/disable diagnostics"
+        }
+      }
+    }
+  },
   "scripts": {
     "vscode:prepublish": "npm run compile:prod",
     "build": "npm run compile:dev",
-    "lint": "eslint src --ext ts",
-    "pretest": "npm run compile:all && npm run lint",
+    "lint": "npm run lint:prettier && npm run lint:eslint",
+    "lint:fix": "npm run lint:fix:prettier && npm run lint:eslint -- --fix",
+    "lint:prettier": "prettier --check \"**/*.{ts,js,json,svg,md,yml}\"",
+    "lint:fix:prettier": "prettier --write '**/*.{ts,js,json,svg,md,yml}'",
+    "lint:eslint": "eslint . --ext .ts",
     "test": "node ./out/test/runTest.js",
     "install:ext": "code --install-extension vscode-spotless-gradle-0.0.0.vsix --force",
     "preinstall:ext": "npm run package",
@@ -73,29 +106,32 @@
     "@types/glob": "^7.1.3",
     "@types/mocha": "^8.0.3",
     "@types/node": "^12.12.67",
+    "@types/prettier-linter-helpers": "^1.0.0",
     "@types/sinon": "^9.0.8",
     "@types/vscode": "^1.45.0",
-    "@typescript-eslint/eslint-plugin": "^4.4.0",
-    "@typescript-eslint/parser": "^4.4.0",
+    "@typescript-eslint/eslint-plugin": "^4.4.1",
+    "@typescript-eslint/parser": "^4.4.1",
     "eslint": "^7.11.0",
     "eslint-config-prettier": "^6.12.0",
     "eslint-plugin-prettier": "^3.1.4",
+    "eslint-plugin-sonarjs": "^0.5.0",
     "fs-extra": "^9.0.1",
     "glob": "^7.1.6",
     "mocha": "^8.2.0",
     "prettier": "^2.1.2",
     "sinon": "^9.2.0",
-    "snyk": "^1.413.2",
-    "ts-loader": "^8.0.4",
+    "snyk": "^1.413.3",
+    "ts-loader": "^8.0.5",
     "typescript": "^4.0.3",
     "vsce": "^1.81.1",
     "vscode-test": "^1.4.0",
-    "webpack": "^5.0.0",
+    "webpack": "^5.1.0",
     "webpack-cli": "^4.0.0"
   },
   "dependencies": {
+    "prettier-linter-helpers": "^1.0.0",
     "semver": "^7.3.2",
-    "vscode-gradle": "^3.5.0"
+    "vscode-gradle": "^3.5.1"
   },
   "snyk": true
 }

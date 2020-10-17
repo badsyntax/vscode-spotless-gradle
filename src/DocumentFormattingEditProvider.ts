@@ -1,13 +1,35 @@
 import * as vscode from 'vscode';
 
 import { logger } from './logger';
-import { Spotless } from './Spotless';
+import { SpotlessRunner } from './SpotlessRunner';
 
 const noChanges: vscode.TextEdit[] = [];
 
 export class DocumentFormattingEditProvider
-  implements vscode.DocumentFormattingEditProvider {
-  constructor(private readonly spotless: Spotless) {}
+  implements vscode.DocumentFormattingEditProvider, vscode.Disposable {
+  private documentFormattingEditProvider: vscode.Disposable | undefined;
+
+  constructor(
+    private readonly spotlessRunner: SpotlessRunner,
+    private documentSelector: vscode.DocumentSelector
+  ) {}
+
+  public register(): void {
+    this.documentFormattingEditProvider = vscode.languages.registerDocumentFormattingEditProvider(
+      this.documentSelector,
+      this
+    );
+  }
+
+  public dispose(): void {
+    this.documentFormattingEditProvider?.dispose();
+  }
+
+  public setDocumentSelector(documentSelector: vscode.DocumentSelector): void {
+    this.documentSelector = documentSelector;
+    this.dispose();
+    this.register();
+  }
 
   async provideDocumentFormattingEdits(
     document: vscode.TextDocument,
@@ -15,7 +37,10 @@ export class DocumentFormattingEditProvider
     cancellationToken: vscode.CancellationToken
   ): Promise<vscode.TextEdit[]> {
     try {
-      const newText = await this.spotless.apply(document, cancellationToken);
+      const newText = await this.spotlessRunner.run(
+        document,
+        cancellationToken
+      );
       if (!newText) {
         return noChanges;
       }
@@ -25,7 +50,7 @@ export class DocumentFormattingEditProvider
       );
       return [new vscode.TextEdit(range, newText)];
     } catch (e) {
-      logger.error('Unable to apply formatting:', e.message);
+      logger.error(`Unable to apply formatting: ${e.message}`);
       return noChanges;
     }
   }

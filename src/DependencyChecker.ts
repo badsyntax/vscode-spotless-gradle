@@ -64,7 +64,7 @@ export class DependencyChecker {
     return extensions.map((extensionDependency) => {
       const extensionVersion = extensionDependency.packageJSON.version;
       const requiredVersion = compatibleVersions![extensionDependency.id];
-      const version: ExtensionVersion = {
+      return {
         id: extensionDependency.id,
         required: requiredVersion,
         compatible:
@@ -74,7 +74,6 @@ export class DependencyChecker {
             semver.validRange(requiredVersion)
           ),
       };
-      return version;
     });
   }
 
@@ -85,8 +84,8 @@ export class DependencyChecker {
       .map((extension) => `${extension.id}@${extension.required}`)
       .join(', ');
     const message = [
-      `Extension versions are incompatible: ${requiredVersions}.`,
-      'Install those specific versions or update this extension.',
+      `Dependant extension versions are incompatible: ${requiredVersions}.`,
+      'Update those extensions to use this version of Spotless Gradle.',
     ].join(' ');
     const input = await vscode.window.showErrorMessage(
       message,

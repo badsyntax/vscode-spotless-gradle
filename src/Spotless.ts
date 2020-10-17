@@ -1,14 +1,9 @@
 import * as path from 'path';
 import * as util from 'util';
 import * as vscode from 'vscode';
-import {
-  ExtensionApi as GradleApi,
-  RunTaskOpts,
-  CancelTaskOpts,
-  Output,
-} from 'vscode-gradle';
+import { ExtensionApi as GradleApi, Output, RunBuildOpts } from 'vscode-gradle';
 import { logger } from './logger';
-import { sanitizePath } from './util';
+import { getWorkspaceFolder, sanitizePath } from './util';
 import {
   SPOTLESS_STATUSES,
   SPOTLESS_STATUS_IS_DIRTY,
@@ -19,43 +14,41 @@ import { Deferred } from './Deferred';
 export class Spotless {
   constructor(private readonly gradleApi: GradleApi) {}
 
-  public cancel(document: vscode.TextDocument): Promise<void> {
-    const workspaceFolder = this.getWorkspaceFolder(document.uri);
-    const cancelTaskOpts: CancelTaskOpts = {
-      projectFolder: workspaceFolder.uri.fsPath,
-      taskName: 'spotlessApply',
-    };
-    return this.gradleApi.cancelRunTask(cancelTaskOpts);
+  public onReady(callback: () => void): vscode.Disposable {
+    return this.gradleApi.onReady(callback);
   }
 
   public async apply(
     document: vscode.TextDocument,
-    cancellationToken: vscode.CancellationToken
+    cancellationToken?: vscode.CancellationToken
   ): Promise<string | null> {
     if (document.isClosed || document.isUntitled) {
-      throw new Error('Document is closed or not saved, skipping formatting');
+      throw new Error(
+        'Document is closed or not saved, skipping spotlessApply'
+      );
     }
-    const workspaceFolder = this.getWorkspaceFolder(document.uri);
+    const basename = path.basename(document.uri.fsPath);
+    const sanitizedPath = sanitizePath(document.uri.fsPath);
+    const args = [
+      'spotlessApply',
+      `-PspotlessIdeHook=${sanitizedPath}`,
+      '-PspotlessIdeHookUseStdIn',
+      '-PspotlessIdeHookUseStdOut',
+      '--quiet',
+    ];
+    const workspaceFolder = getWorkspaceFolder(document.uri);
     const cancelledDeferred = new Deferred();
 
-    cancellationToken.onCancellationRequested(() => {
-      this.cancel(document);
-      cancelledDeferred.resolve();
-    });
+    cancellationToken?.onCancellationRequested(() =>
+      cancelledDeferred.resolve()
+    );
 
     let stdOut = '';
     let stdErr = '';
-    const sanitizedPath = sanitizePath(document.uri.fsPath);
 
-    const runTaskOpts: RunTaskOpts = {
+    const runBuildOpts: RunBuildOpts = {
       projectFolder: workspaceFolder.uri.fsPath,
-      taskName: 'spotlessApply',
-      args: [
-        `-PspotlessIdeHook=${sanitizedPath}`,
-        '-PspotlessIdeHookUseStdIn',
-        '-PspotlessIdeHookUseStdOut',
-        '--quiet',
-      ],
+      args,
       input: document.getText(),
       showOutputColors: false,
       onOutput: (output: Output) => {
@@ -73,17 +66,18 @@ export class Spotless {
       },
     };
 
-    const runTask = this.gradleApi.runTask(runTaskOpts);
+    logger.info(`Running spotlessApply on ${basename}`);
 
-    await Promise.race([runTask, cancelledDeferred.promise]);
+    const runBuild = this.gradleApi.runBuild(runBuildOpts);
 
-    if (cancellationToken.isCancellationRequested) {
+    await Promise.race([runBuild, cancelledDeferred.promise]);
+
+    if (cancellationToken?.isCancellationRequested) {
       logger.warning('Spotless formatting cancelled');
     } else {
       const trimmedStdErr = stdErr.trim();
 
       if (SPOTLESS_STATUSES.includes(trimmedStdErr)) {
-        const basename = path.basename(document.uri.fsPath);
         logger.info(`${basename}: ${trimmedStdErr}`);
       }
       if (trimmedStdErr === SPOTLESS_STATUS_IS_DIRTY) {
@@ -94,15 +88,5 @@ export class Spotless {
       }
     }
     return null;
-  }
-
-  private getWorkspaceFolder(uri: vscode.Uri): vscode.WorkspaceFolder {
-    const workspaceFolder = vscode.workspace.getWorkspaceFolder(uri);
-    if (!workspaceFolder) {
-      throw new Error(
-        `Unable to find workspace folder for ${path.basename(uri.fsPath)}`
-      );
-    }
-    return workspaceFolder;
   }
 }

@@ -3,8 +3,10 @@
   "extends": [
     "plugin:@typescript-eslint/recommended",
     "prettier/@typescript-eslint",
-    "plugin:prettier/recommended"
+    "plugin:prettier/recommended",
+    "plugin:sonarjs/recommended"
   ],
+  "plugins": ["sonarjs"],
   "parserOptions": { "ecmaVersion": 2018, "sourceType": "module" },
   "rules": {
     "@typescript-eslint/no-use-before-define": "off",
