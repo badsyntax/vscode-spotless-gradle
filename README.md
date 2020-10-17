@@ -31,37 +31,20 @@ Before using this extension, ensure you've [configured Spotless](https://github.
 
 ### Enabling Spotless
 
-Spotless is enabled by default. Configure this with the `spotlessGradle.enabled` setting:
+Spotless formatting & diagnostics are enabled by default. Change the settings to adjust this behaviour:
 
 ```json
 {
-  "spotlessGradle.enabled": false,
-  "[java]": {
-    "spotlessGradle.enabled": true
-  }
-}
-```
-
-### Diagnostics
-
-Diagnostics are enabled by default. Configure this with the `spotlessGradle.diagnostics` setting:
-
-```json
-{
+  "spotlessGradle.format": false,
   "spotlessGradle.diagnostics": false,
   "[java]": {
+    "spotlessGradle.format": true,
     "spotlessGradle.diagnostics": true
   }
 }
 ```
 
-#### Quick Fixes
-
-Quick fixes can be used to fix parts of the document.
-
-### Format on Save
-
-Enable Spotless fixes on file save in `settings.json`:
+#### Format on Save
 
 ```json
 {
@@ -73,11 +56,9 @@ Enable Spotless fixes on file save in `settings.json`:
 }
 ```
 
-### Format Document
+#### Format Document
 
-The `Format Document` feature can be accessed via the vscode `Command Palette`.
-
-If there are multiple formatters for a language type, set Spotless to be the default in `settings.json`:
+If there are multiple formatters for a language type, set Spotless to be the default:
 
 ```json
 {

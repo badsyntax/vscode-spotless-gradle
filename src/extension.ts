@@ -6,44 +6,16 @@ import { FixAllCodeActionProvider } from './FixAllCodeActionProvider';
 import { logger, Logger } from './logger';
 import { DocumentFormattingEditProvider } from './DocumentFormattingEditProvider';
 import { Spotless } from './Spotless';
-import {
-  GRADLE_TASKS_EXTENSION_ID,
-  ALL_SUPPORTED_LANGUAGES,
-  OUTPUT_CHANNEL_ID,
-} from './constants';
+import { GRADLE_TASKS_EXTENSION_ID, OUTPUT_CHANNEL_ID } from './constants';
 import { DependencyChecker } from './DependencyChecker';
 import { SpotlessDiagnostics } from './SpotlessDiagnostics';
 import { SpotlessRunner } from './SpotlessRunner';
 import { FixAllCodeActionsCommand } from './FixAllCodeActionCommand';
-import { getConfigIsEnabled, getConfigLangOverrideIsEnabled } from './config';
+import { getDocumentSelector } from './documentSelector';
 
 export interface ExtensionApi {
   logger: Logger;
   spotless: Spotless;
-}
-
-async function getDocumentSelector(): Promise<Array<vscode.DocumentFilter>> {
-  const knownLanguages = await vscode.languages.getLanguages();
-  const spotlessLanguages = Array.from(
-    new Set(
-      (vscode.workspace.workspaceFolders || [])
-        .map((workspaceFolder) => {
-          const isEnabled = getConfigIsEnabled(workspaceFolder);
-          return ALL_SUPPORTED_LANGUAGES.filter((language) => {
-            return getConfigLangOverrideIsEnabled(
-              workspaceFolder,
-              language,
-              isEnabled
-            );
-          });
-        })
-        .flat()
-    )
-  ).filter((language) => knownLanguages.includes(language));
-  return spotlessLanguages.map((language) => ({
-    language,
-    scheme: 'file',
-  }));
 }
 
 export async function activate(
@@ -105,7 +77,10 @@ export async function activate(
   context.subscriptions.push(
     vscode.workspace.onDidChangeConfiguration(
       async (event: vscode.ConfigurationChangeEvent) => {
-        if (event.affectsConfiguration('spotlessGradle.enabled')) {
+        if (
+          event.affectsConfiguration('spotlessGradle.format') ||
+          event.affectsConfiguration('spotlessGradle.diagnostics')
+        ) {
           const documentSelector = await getDocumentSelector();
           spotlessDiagnostics.setDocumentSelector(documentSelector);
           fixAllCodeActionProvider.setDocumentSelector(documentSelector);

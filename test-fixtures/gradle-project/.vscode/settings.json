@@ -4,8 +4,8 @@
     "source.fixAll.spotlessGradle": true
   },
   "java.format.enabled": false,
-  "spotlessGradle.diagnostics": true,
-  "spotlessGradle.enabled": true,
+  "spotlessGradle.diagnostics": false,
+  "spotlessGradle.format": true,
   "[java]": {
     "editor.defaultFormatter": "richardwillis.vscode-spotless-gradle",
     "spotlessGradle.diagnostics": true

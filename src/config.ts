@@ -1,21 +1,21 @@
 import * as vscode from 'vscode';
 
-export function getConfigIsEnabled(
+export function getConfigFormat(
   workspaceFolder: vscode.WorkspaceFolder
 ): boolean {
   return vscode.workspace
     .getConfiguration('spotlessGradle', workspaceFolder.uri)
-    .get<boolean>('enabled', true);
+    .get<boolean>('format', true);
 }
 
-export function getConfigLangOverrideIsEnabled(
+export function getConfigLangOverrideFormat(
   workspaceFolder: vscode.WorkspaceFolder,
   language: string,
   defaultValue: boolean
 ): boolean | undefined {
   return (
     vscode.workspace.getConfiguration(`[${language}]`, workspaceFolder.uri)[
-      'spotlessGradle.enabled'
+      'spotlessGradle.format'
     ] ?? defaultValue
   );
 }
