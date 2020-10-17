@@ -86,6 +86,7 @@ export async function activate(
     context,
     documentSelector
   );
+
   const documentFormattingEditProvider = new DocumentFormattingEditProvider(
     context,
     spotlessRunner,

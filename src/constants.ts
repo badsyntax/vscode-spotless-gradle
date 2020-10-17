@@ -29,6 +29,8 @@ export const SPOTLESS_GRADLE_EXTENSION_ID =
   'richardwillis.vscode-spotless-gradle';
 
 export const OUTPUT_CHANNEL_ID = 'Spotless Gradle';
+export const DIAGNOSTICS_ID = 'Spotless';
+export const DIAGNOSTICS_SOURCE_ID = 'gradle';
 
 export const SPOTLESS_STATUS_IS_CLEAN = 'IS CLEAN';
 export const SPOTLESS_STATUS_DID_NOT_CONVERGE = 'DID NOT CONVERGE';

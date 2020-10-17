@@ -7,7 +7,7 @@ const noChanges: vscode.TextEdit[] = [];
 
 export class DocumentFormattingEditProvider
   implements vscode.DocumentFormattingEditProvider, vscode.Disposable {
-  private disposable: vscode.Disposable | undefined;
+  private documentFormattingEditProvider: vscode.Disposable | undefined;
 
   constructor(
     private readonly context: vscode.ExtensionContext,
@@ -18,14 +18,14 @@ export class DocumentFormattingEditProvider
   }
 
   public register(): void {
-    this.disposable = vscode.languages.registerDocumentFormattingEditProvider(
+    this.documentFormattingEditProvider = vscode.languages.registerDocumentFormattingEditProvider(
       this.documentSelector,
       this
     );
   }
 
   public dispose(): void {
-    this.disposable?.dispose();
+    this.documentFormattingEditProvider?.dispose();
   }
 
   public setDocumentSelector(documentSelector: vscode.DocumentSelector): void {

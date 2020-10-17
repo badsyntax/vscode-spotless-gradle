@@ -10,6 +10,7 @@ import { SpotlessRunner } from './SpotlessRunner';
 import { AsyncWait } from './AsyncWait';
 import { getConfigDiagnostics } from './config';
 import { FixAllCodeActionsCommand } from './FixAllCodeActionCommand';
+import { DIAGNOSTICS_ID, DIAGNOSTICS_SOURCE_ID } from './constants';
 
 export interface SpotlessDiff {
   source: string;
@@ -19,7 +20,7 @@ export interface SpotlessDiff {
 
 export class SpotlessDiagnostics
   extends AsyncWait<void>
-  implements vscode.CodeActionProvider {
+  implements vscode.CodeActionProvider, vscode.Disposable {
   public static readonly quickFixCodeActionKind = vscode.CodeActionKind.QuickFix.append(
     'spotlessGradle'
   );
@@ -28,9 +29,11 @@ export class SpotlessDiagnostics
   };
 
   private diagnosticCollection: vscode.DiagnosticCollection;
-  private diagnosticMap: Map<string, vscode.Diagnostic[]> = new Map();
-  private diagnosticCode = 0;
-  private diagnosticDifferenceMap: Map<number, Difference> = new Map();
+  private diagnosticDifferenceMap: Map<
+    vscode.Diagnostic,
+    Difference
+  > = new Map();
+  private codeActionsProvider: vscode.Disposable | undefined;
 
   constructor(
     private readonly context: vscode.ExtensionContext,
@@ -40,50 +43,18 @@ export class SpotlessDiagnostics
   ) {
     super();
     this.diagnosticCollection = vscode.languages.createDiagnosticCollection(
-      'spotless-gradle'
+      DIAGNOSTICS_ID
     );
   }
 
   public register(): void {
-    const onReady = this.spotless.onReady(() => {
-      const activeDocument = vscode.window.activeTextEditor?.document;
-      if (activeDocument) {
-        void this.runDiagnostics(activeDocument);
-      }
-    });
+    this.registerCodeActionsProvider();
+    this.registerEditorEvents();
+  }
 
-    const onDidChangeTextDocument = vscode.workspace.onDidChangeTextDocument(
-      (e: vscode.TextDocumentChangeEvent) => {
-        if (
-          e.contentChanges.length &&
-          vscode.window.activeTextEditor?.document === e.document
-        ) {
-          void this.handleChangeTextDocument(e.document);
-        }
-      }
-    );
-
-    const onDidChangeActiveTextEditor = vscode.window.onDidChangeActiveTextEditor(
-      (editor?: vscode.TextEditor) => {
-        if (editor) {
-          void this.runDiagnostics(editor.document);
-        }
-      }
-    );
-
-    const codeActionsProvider = vscode.languages.registerCodeActionsProvider(
-      this.documentSelector,
-      this,
-      SpotlessDiagnostics.metadata
-    );
-
-    this.context.subscriptions.push(
-      onReady,
-      onDidChangeTextDocument,
-      onDidChangeActiveTextEditor,
-      codeActionsProvider,
-      this.diagnosticCollection
-    );
+  public dispose(): void {
+    this.diagnosticCollection.dispose();
+    this.codeActionsProvider?.dispose();
   }
 
   public reset(): void {
@@ -95,9 +66,12 @@ export class SpotlessDiagnostics
     documentSelector: Array<vscode.DocumentFilter>
   ): void {
     this.documentSelector = documentSelector;
+    this.reset();
+    this.codeActionsProvider?.dispose();
+    this.registerCodeActionsProvider();
   }
 
-  async handleChangeTextDocument(document: vscode.TextDocument): Promise<void> {
+  private handleChangeTextDocument(document: vscode.TextDocument): void {
     void this.runDiagnostics(document);
   }
 
@@ -127,28 +101,67 @@ export class SpotlessDiagnostics
     document: vscode.TextDocument,
     diff: SpotlessDiff
   ): void {
-    this.reset();
-    const diagnosticMap = this.getDiagnosticMap(document, diff);
-    let totalDiagnostics = 0;
-    diagnosticMap.forEach((diags, file) => {
-      this.diagnosticCollection.set(vscode.Uri.parse(file), diags);
-      totalDiagnostics += diags.length;
-    });
+    const diagnostics = this.getDiagnostics(document, diff);
+    this.diagnosticCollection.set(document.uri, diagnostics);
     logger.info(
-      `Updated diagnostics (language: ${document.languageId}) (total: ${totalDiagnostics})`
+      `Updated diagnostics (language: ${document.languageId}) (total: ${diagnostics.length})`
     );
   }
 
-  private getDiagnosticMap(
+  private registerEditorEvents(): void {
+    const onReady = this.spotless.onReady(() => {
+      const activeDocument = vscode.window.activeTextEditor?.document;
+      if (activeDocument) {
+        void this.runDiagnostics(activeDocument);
+      }
+    });
+
+    const onDidChangeTextDocument = vscode.workspace.onDidChangeTextDocument(
+      (e: vscode.TextDocumentChangeEvent) => {
+        if (
+          e.contentChanges.length &&
+          vscode.window.activeTextEditor?.document === e.document
+        ) {
+          this.handleChangeTextDocument(e.document);
+        }
+      }
+    );
+
+    const onDidChangeActiveTextEditor = vscode.window.onDidChangeActiveTextEditor(
+      (editor?: vscode.TextEditor) => {
+        if (editor) {
+          void this.runDiagnostics(editor.document);
+        }
+      }
+    );
+
+    this.context.subscriptions.push(
+      onReady,
+      onDidChangeTextDocument,
+      onDidChangeActiveTextEditor,
+      this.diagnosticCollection
+    );
+  }
+
+  private registerCodeActionsProvider(): void {
+    this.codeActionsProvider = vscode.languages.registerCodeActionsProvider(
+      this.documentSelector,
+      this,
+      SpotlessDiagnostics.metadata
+    );
+  }
+
+  private getDiagnostics(
     document: vscode.TextDocument,
     diff: SpotlessDiff
-  ): Map<string, vscode.Diagnostic[]> {
-    const canonicalFile = document.uri.toString();
-    const diagnostics: vscode.Diagnostic[] = diff.differences
-      .map((difference) => this.getDiagnostic(document, difference))
-      .filter(Boolean);
-    this.diagnosticMap.set(canonicalFile, diagnostics);
-    return this.diagnosticMap;
+  ): vscode.Diagnostic[] {
+    const diagnostics: vscode.Diagnostic[] = [];
+    for (const difference of diff.differences) {
+      const diagnostic = this.getDiagnostic(document, difference);
+      this.diagnosticDifferenceMap.set(diagnostic, difference);
+      diagnostics.push(diagnostic);
+    }
+    return diagnostics;
   }
 
   private getDiagnostic(
@@ -158,9 +171,8 @@ export class SpotlessDiagnostics
     const range = this.getRange(document, difference);
     const message = this.getMessage(difference);
     const diagnostic = new vscode.Diagnostic(range, message);
-    diagnostic.source = 'spotless-gradle';
-    diagnostic.code = this.diagnosticCode++;
-    this.diagnosticDifferenceMap.set(diagnostic.code, difference);
+    diagnostic.source = DIAGNOSTICS_ID;
+    diagnostic.code = DIAGNOSTICS_SOURCE_ID;
     return diagnostic;
   }
 
@@ -232,30 +244,20 @@ export class SpotlessDiagnostics
         }
         diagnostics.forEach((diagnostic: vscode.Diagnostic) => {
           totalDiagnostics += 1;
-          if (
-            typeof diagnostic.code !== 'number' ||
-            !range.isEqual(diagnostic.range)
-          ) {
+          if (!range.isEqual(diagnostic.range)) {
             return;
           }
-          const diagnosticDifference = this.diagnosticDifferenceMap.get(
-            diagnostic.code
-          );
-          if (!diagnosticDifference) {
-            return;
-          }
+          const difference = this.diagnosticDifferenceMap.get(diagnostic);
           codeActions.push(
-            this.getQuickFixCodeAction(
-              document.uri,
-              diagnostic,
-              diagnosticDifference
-            )
+            this.getQuickFixCodeAction(document.uri, diagnostic, difference!)
           );
         });
       }
     );
     if (totalDiagnostics > 1) {
-      codeActions.push(this.getQuickFixAllProblemsCodeAction(document));
+      codeActions.push(
+        this.getQuickFixAllProblemsCodeAction(document, totalDiagnostics)
+      );
     }
     return codeActions;
   }
@@ -266,7 +268,7 @@ export class SpotlessDiagnostics
     difference: Difference
   ): vscode.CodeAction {
     const action = new vscode.CodeAction(
-      'Fix this spotless-gradle problem',
+      `Fix this ${DIAGNOSTICS_ID} problem`,
       SpotlessDiagnostics.quickFixCodeActionKind
     );
     action.edit = new vscode.WorkspaceEdit();
@@ -281,9 +283,10 @@ export class SpotlessDiagnostics
   }
 
   private getQuickFixAllProblemsCodeAction(
-    document: vscode.TextDocument
+    document: vscode.TextDocument,
+    totalDiagnostics: number
   ): vscode.CodeAction {
-    const title = 'Fix all spotless-gradle problems';
+    const title = `Fix all ${DIAGNOSTICS_ID} problems (${totalDiagnostics})`;
     const action = new vscode.CodeAction(
       title,
       SpotlessDiagnostics.quickFixCodeActionKind

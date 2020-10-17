@@ -1,5 +1,6 @@
 import * as fs from 'fs';
 import * as vscode from 'vscode';
+import { DIAGNOSTICS_ID } from '../constants';
 
 export async function formatFileOnSave(
   appFilePath: string
@@ -53,7 +54,7 @@ export async function formatFileWithCommand(
 
 export function waitForDiagnostics(
   message: string,
-  source = 'spotless-gradle'
+  source = DIAGNOSTICS_ID
 ): Promise<void> {
   return new Promise(async (resolve) => {
     const disposable = vscode.languages.onDidChangeDiagnostics(() => {

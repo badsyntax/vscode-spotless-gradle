@@ -186,7 +186,7 @@ describe('Formatting', () => {
       const resetConfig = async (): Promise<void> =>
         await vscode.workspace
           .getConfiguration('spotlessGradle')
-          .update('languages', null);
+          .update('languages', []);
 
       // VS Code might choose to cancel the formatting
       this.timeout(6000);

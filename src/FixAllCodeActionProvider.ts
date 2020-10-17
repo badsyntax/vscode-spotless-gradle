@@ -13,7 +13,7 @@ export class FixAllCodeActionProvider
     providedCodeActionKinds: [FixAllCodeActionProvider.fixAllCodeActionKind],
   };
 
-  private disposable: vscode.Disposable | undefined;
+  private codeActionsProvider: vscode.Disposable | undefined;
 
   constructor(
     private readonly context: vscode.ExtensionContext,
@@ -23,7 +23,7 @@ export class FixAllCodeActionProvider
   }
 
   public register(): void {
-    this.disposable = vscode.languages.registerCodeActionsProvider(
+    this.codeActionsProvider = vscode.languages.registerCodeActionsProvider(
       this.documentSelector,
       this,
       FixAllCodeActionProvider.metadata
@@ -31,7 +31,7 @@ export class FixAllCodeActionProvider
   }
 
   public dispose(): void {
-    this.disposable?.dispose();
+    this.codeActionsProvider?.dispose();
   }
 
   public setDocumentSelector(documentSelector: vscode.DocumentSelector): void {
