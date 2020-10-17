@@ -21,7 +21,7 @@ Supports all languages that Spotless supports.
 ## Requirements
 
 - [VS Code >= 1.45.0](https://code.visualstudio.com/download)
-- [Gradle Tasks](https://marketplace.visualstudio.com/items?itemName=richardwillis.vscode-gradle)
+- [Gradle Tasks => 3.5.1](https://marketplace.visualstudio.com/items?itemName=richardwillis.vscode-gradle)
 - [Spotless Gradle Plugin >= 3.30.0](https://github.com/diffplug/spotless/tree/master/plugin-gradle)
 - [Java >= 8](https://adoptopenjdk.net/)
 
