@@ -8,7 +8,7 @@
 
 A VS Code extension to lint & format your code using [Spotless](https://github.com/diffplug/spotless) (via Gradle).
 
-<img width="800" src="./images/spotless-gradle-screencast.gif" width="800" alt="Spotless Gradle Screencast" />
+<img src="./images/spotless-gradle-screencast.gif" width="800" alt="Spotless Gradle Screencast" />
 
 ## Features
 
