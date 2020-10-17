@@ -4,11 +4,15 @@
     "source.fixAll.spotlessGradle": true
   },
   "java.format.enabled": false,
-  "spotlessGradle.diagnostics": false,
-  "spotlessGradle.format": true,
+  "typescript.validate.enable": false,
+  "typescript.format.enable": false,
+  "javascript.validate.enable": false,
+  "javascript.format.enable": false,
+  "spotlessGradle.diagnostics.enable": false,
+  "spotlessGradle.format.enable": true,
   "[java]": {
     "editor.defaultFormatter": "richardwillis.vscode-spotless-gradle",
-    "spotlessGradle.diagnostics": true
+    "spotlessGradle.diagnostics.enable": true
   },
   "[kotlinscript]": {
     "editor.defaultFormatter": "richardwillis.vscode-spotless-gradle"
@@ -21,7 +25,7 @@
   },
   "[groovy]": {
     "editor.defaultFormatter": "richardwillis.vscode-spotless-gradle",
-    "spotlessGradle.diagnostics": true
+    "spotlessGradle.diagnostics.enable": true
   },
   "[javascript]": {
     "editor.defaultFormatter": "richardwillis.vscode-spotless-gradle"
@@ -31,7 +35,7 @@
   },
   "[typescript]": {
     "editor.defaultFormatter": "richardwillis.vscode-spotless-gradle",
-    "spotlessGradle.diagnostics": true
+    "spotlessGradle.diagnostics.enable": true
   },
   "[typescriptreact]": {
     "editor.defaultFormatter": "richardwillis.vscode-spotless-gradle"

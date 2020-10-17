@@ -65,13 +65,13 @@
       "type": "object",
       "title": "Spotless Gradle",
       "properties": {
-        "spotlessGradle.format": {
+        "spotlessGradle.format.enable": {
           "type": "boolean",
           "default": true,
           "scope": "language-overridable",
           "description": "Enable/disable formatting"
         },
-        "spotlessGradle.diagnostics": {
+        "spotlessGradle.diagnostics.enable": {
           "type": "boolean",
           "default": true,
           "scope": "language-overridable",

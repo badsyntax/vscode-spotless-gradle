@@ -1,5 +1,10 @@
 import * as vscode from 'vscode';
 import { ExtensionApi as GradleApi } from 'vscode-gradle';
+import {
+  CONFIG_FORMAT_ENABLE,
+  CONFIG_DIAGNOSTICS_ENABLE,
+  CONFIG_NAMESPACE,
+} from './constants';
 import { DocumentFormattingEditProvider } from './DocumentFormattingEditProvider';
 import {
   getFormatDocumentSelector,
@@ -51,12 +56,20 @@ export class FeatureManager {
   ): Promise<void> => {
     if (this.featuresEnabled) {
       if (
-        event.affectsConfiguration('spotlessGradle.format') ||
-        event.affectsConfiguration('spotlessGradle.diagnostics')
+        event.affectsConfiguration(
+          `${CONFIG_NAMESPACE}.${CONFIG_FORMAT_ENABLE}`
+        ) ||
+        event.affectsConfiguration(
+          `${CONFIG_NAMESPACE}.${CONFIG_DIAGNOSTICS_ENABLE}`
+        )
       ) {
         this.setEnabledLanguages();
       }
-      if (event.affectsConfiguration('spotlessGradle.diagnostics')) {
+      if (
+        event.affectsConfiguration(
+          `${CONFIG_NAMESPACE}.${CONFIG_DIAGNOSTICS_ENABLE}`
+        )
+      ) {
         this.spotlessDiagnostics.reset();
       }
     }

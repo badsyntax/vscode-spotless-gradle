@@ -35,11 +35,11 @@ Spotless formatting & diagnostics are enabled by default. Change the settings to
 
 ```json
 {
-  "spotlessGradle.format": false,
-  "spotlessGradle.diagnostics": false,
+  "spotlessGradle.format.enable": false,
+  "spotlessGradle.diagnostics.enable": false,
   "[java]": {
-    "spotlessGradle.format": true,
-    "spotlessGradle.diagnostics": true
+    "spotlessGradle.format.enable": true,
+    "spotlessGradle.diagnostics.enable": true
   }
 }
 ```

@@ -1,34 +1,39 @@
 import * as vscode from 'vscode';
+import {
+  CONFIG_DIAGNOSTICS_ENABLE,
+  CONFIG_FORMAT_ENABLE,
+  CONFIG_NAMESPACE,
+} from './constants';
 
-export function getConfigFormat(
+export function getConfigFormatEnable(
   workspaceFolder: vscode.WorkspaceFolder
 ): boolean {
   return vscode.workspace
-    .getConfiguration('spotlessGradle', workspaceFolder.uri)
-    .get<boolean>('format', true);
+    .getConfiguration(CONFIG_NAMESPACE, workspaceFolder.uri)
+    .get<boolean>(CONFIG_FORMAT_ENABLE, true);
 }
 
-export function getConfigLangOverrideFormat(
+export function getConfigLangOverrideFormatEnable(
   workspaceFolder: vscode.WorkspaceFolder,
   language: string,
   defaultValue: boolean
 ): boolean | undefined {
   return (
     vscode.workspace.getConfiguration(`[${language}]`, workspaceFolder.uri)[
-      'spotlessGradle.format'
+      `${CONFIG_NAMESPACE}.${CONFIG_FORMAT_ENABLE}`
     ] ?? defaultValue
   );
 }
 
-export function getConfigDiagnostics(
+export function getConfigDiagnosticsEnable(
   workspaceFolder: vscode.WorkspaceFolder
 ): boolean {
   return vscode.workspace
-    .getConfiguration('spotlessGradle', workspaceFolder.uri)
-    .get<boolean>('diagnostics', true);
+    .getConfiguration(CONFIG_NAMESPACE, workspaceFolder.uri)
+    .get<boolean>(CONFIG_DIAGNOSTICS_ENABLE, true);
 }
 
-export function getConfigLangOverrideDiagnostics(
+export function getConfigLangOverrideDiagnosticsEnable(
   workspaceFolder: vscode.WorkspaceFolder,
   language: string,
   defaultValue: boolean
@@ -36,6 +41,6 @@ export function getConfigLangOverrideDiagnostics(
   const diagnostics = vscode.workspace.getConfiguration(
     `[${language}]`,
     workspaceFolder.uri
-  )['spotlessGradle.diagnostics'];
+  )[`${CONFIG_NAMESPACE}.${CONFIG_DIAGNOSTICS_ENABLE}`];
   return diagnostics ?? defaultValue;
 }

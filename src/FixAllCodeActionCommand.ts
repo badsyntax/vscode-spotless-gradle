@@ -27,10 +27,6 @@ export class FixAllCodeActionsCommand implements Command {
         document,
         cancellationToken
       );
-      if (cancellationToken?.isCancellationRequested) {
-        logger.warning('Spotless formatting cancelled');
-        return;
-      }
       if (!spotlessChanges) {
         return;
       }

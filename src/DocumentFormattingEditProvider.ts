@@ -44,10 +44,6 @@ export class DocumentFormattingEditProvider
         document,
         cancellationToken
       );
-      if (cancellationToken?.isCancellationRequested) {
-        logger.warning('Spotless formatting cancelled');
-        return noChanges;
-      }
       if (!spotlessChanges) {
         return noChanges;
       }

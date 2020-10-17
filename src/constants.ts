@@ -44,3 +44,7 @@ export const SPOTLESS_STATUSES = [
 
 export const INSTALL_COMPATIBLE_EXTENSION_VERSIONS =
   'Install Compatible Versions';
+
+export const CONFIG_NAMESPACE = 'spotlessGradle';
+export const CONFIG_FORMAT_ENABLE = 'format.enable';
+export const CONFIG_DIAGNOSTICS_ENABLE = 'diagnostics.enable';
