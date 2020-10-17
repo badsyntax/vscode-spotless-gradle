@@ -15,7 +15,7 @@ import { DependencyChecker } from './DependencyChecker';
 import { SpotlessDiagnostics } from './SpotlessDiagnostics';
 import { SpotlessRunner } from './SpotlessRunner';
 import { FixAllCodeActionsCommand } from './FixAllCodeActionCommand';
-import { getConfigLanguages } from './config';
+import { getConfigIsEnabled, getConfigLangOverrideIsEnabled } from './config';
 
 export interface ExtensionApi {
   logger: Logger;
@@ -28,10 +28,14 @@ async function getDocumentSelector(): Promise<Array<vscode.DocumentFilter>> {
     new Set(
       (vscode.workspace.workspaceFolders || [])
         .map((workspaceFolder) => {
-          const configLanguages = getConfigLanguages(workspaceFolder);
-          return configLanguages && configLanguages.length
-            ? configLanguages
-            : ALL_SUPPORTED_LANGUAGES;
+          const isEnabled = getConfigIsEnabled(workspaceFolder);
+          return ALL_SUPPORTED_LANGUAGES.filter((language) => {
+            return getConfigLangOverrideIsEnabled(
+              workspaceFolder,
+              language,
+              isEnabled
+            );
+          });
         })
         .flat()
     )
@@ -101,7 +105,7 @@ export async function activate(
   context.subscriptions.push(
     vscode.workspace.onDidChangeConfiguration(
       async (event: vscode.ConfigurationChangeEvent) => {
-        if (event.affectsConfiguration('spotlessGradle.languages')) {
+        if (event.affectsConfiguration('spotlessGradle.enabled')) {
           const documentSelector = await getDocumentSelector();
           spotlessDiagnostics.setDocumentSelector(documentSelector);
           fixAllCodeActionProvider.setDocumentSelector(documentSelector);

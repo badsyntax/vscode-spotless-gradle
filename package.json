@@ -65,16 +65,16 @@
       "type": "object",
       "title": "Spotless Gradle",
       "properties": {
-        "spotlessGradle.languages": {
-          "type": "array",
-          "default": [],
-          "scope": "window",
-          "description": "An array of languages to run Spotless on. Set to an empty array to run on all languages supported by Spotless."
+        "spotlessGradle.enabled": {
+          "type": "boolean",
+          "default": true,
+          "scope": "language-overridable",
+          "description": "Enable/disable Spotless"
         },
         "spotlessGradle.diagnostics": {
           "type": "boolean",
           "default": true,
-          "scope": "window",
+          "scope": "language-overridable",
           "description": "Enable/disable diagnostics"
         }
       }

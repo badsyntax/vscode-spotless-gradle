@@ -5,16 +5,21 @@ import * as sinon from 'sinon';
 import * as assert from 'assert';
 import { SPOTLESS_GRADLE_EXTENSION_ID } from '../../constants';
 import { ExtensionApi } from '../../extension';
-import { waitFor, waitForDiagnostics } from '../testUtil';
+import {
+  javaAppFileContents,
+  javaAppFilePath,
+  javaBasePath,
+  waitFor,
+  waitForDiagnostics,
+} from '../testUtil';
 
 async function waitForDiagnosticsOnDocumentOpen(
-  appFilePath: string
+  appFilePath: string,
+  message: string
 ): Promise<vscode.TextDocument> {
   const document = await vscode.workspace.openTextDocument(appFilePath);
   await vscode.window.showTextDocument(document);
-  await waitForDiagnostics(
-    'Replace public·static·void·main(String[]·args)·{System.out.println("app");} with ⏎··public·static·void·main(String[]·args)·{⏎····System.out.println("app");⏎··}⏎'
-  );
+  await waitForDiagnostics(message);
   return document;
 }
 
@@ -28,11 +33,6 @@ describe('Diagnostics', () => {
   });
 
   describe('Running Spotless', () => {
-    const javaBasePath = path.resolve(
-      __dirname,
-      '../../../test-fixtures/gradle-project/src/main/java/gradle/project'
-    );
-
     const reset = async (
       appFilePath: string,
       appFileContents: string
@@ -44,16 +44,16 @@ describe('Diagnostics', () => {
     };
 
     describe('Java', function () {
-      const appFilePath = path.resolve(javaBasePath, 'App.java');
-      const appFileContents = fs.readFileSync(appFilePath, 'utf8');
-
       afterEach(async () => {
-        await reset(appFilePath, appFileContents);
+        await reset(javaAppFilePath, javaAppFileContents);
       });
 
       it('should provide spotless diagnostics when opening a text document', async () => {
         const loggerSpy = sinon.spy(logger, 'info');
-        await waitForDiagnosticsOnDocumentOpen(appFilePath);
+        await waitForDiagnosticsOnDocumentOpen(
+          javaAppFilePath,
+          'Replace public·static·void·main(String[]·args)·{System.out.println("app");} with ⏎··public·static·void·main(String[]·args)·{⏎····System.out.println("app");⏎··}⏎'
+        );
         assert.ok(loggerSpy.calledWith('App.java: IS DIRTY'));
         assert.ok(
           loggerSpy.calledWith(
@@ -65,7 +65,10 @@ describe('Diagnostics', () => {
       it('should provide spotless diagnostics when changing a text document', async () => {
         const loggerSpy = sinon.spy(logger, 'info');
 
-        const document = await waitForDiagnosticsOnDocumentOpen(appFilePath);
+        const document = await waitForDiagnosticsOnDocumentOpen(
+          javaAppFilePath,
+          'Replace public·static·void·main(String[]·args)·{System.out.println("app");} with ⏎··public·static·void·main(String[]·args)·{⏎····System.out.println("app");⏎··}⏎'
+        );
         const workspaceEdit = new vscode.WorkspaceEdit();
         workspaceEdit.insert(document.uri, new vscode.Position(0, 0), '  ');
         await vscode.workspace.applyEdit(workspaceEdit);

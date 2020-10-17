@@ -4,8 +4,11 @@
     "source.fixAll.spotlessGradle": true
   },
   "java.format.enabled": false,
+  "spotlessGradle.diagnostics": false,
+  "spotlessGradle.enabled": true,
   "[java]": {
-    "editor.defaultFormatter": "richardwillis.vscode-spotless-gradle"
+    "editor.defaultFormatter": "richardwillis.vscode-spotless-gradle",
+    "spotlessGradle.diagnostics": true
   },
   "[kotlinscript]": {
     "editor.defaultFormatter": "richardwillis.vscode-spotless-gradle"
@@ -17,7 +20,8 @@
     "editor.defaultFormatter": "richardwillis.vscode-spotless-gradle"
   },
   "[groovy]": {
-    "editor.defaultFormatter": "richardwillis.vscode-spotless-gradle"
+    "editor.defaultFormatter": "richardwillis.vscode-spotless-gradle",
+    "spotlessGradle.diagnostics": true
   },
   "[javascript]": {
     "editor.defaultFormatter": "richardwillis.vscode-spotless-gradle"
@@ -26,7 +30,8 @@
     "editor.defaultFormatter": "richardwillis.vscode-spotless-gradle"
   },
   "[typescript]": {
-    "editor.defaultFormatter": "richardwillis.vscode-spotless-gradle"
+    "editor.defaultFormatter": "richardwillis.vscode-spotless-gradle",
+    "spotlessGradle.diagnostics": true
   },
   "[typescriptreact]": {
     "editor.defaultFormatter": "richardwillis.vscode-spotless-gradle"
@@ -66,7 +71,5 @@
   },
   "[objective-cpp]": {
     "editor.defaultFormatter": "richardwillis.vscode-spotless-gradle"
-  },
-  "spotlessGradle.languages": [],
-  "spotlessGradle.diagnostics": true
+  }
 }

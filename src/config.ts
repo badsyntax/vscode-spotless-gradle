@@ -1,11 +1,23 @@
 import * as vscode from 'vscode';
 
-export function getConfigLanguages(
+export function getConfigIsEnabled(
   workspaceFolder: vscode.WorkspaceFolder
-): string[] {
+): boolean {
   return vscode.workspace
     .getConfiguration('spotlessGradle', workspaceFolder.uri)
-    .get<string[]>('languages', []);
+    .get<boolean>('enabled', true);
+}
+
+export function getConfigLangOverrideIsEnabled(
+  workspaceFolder: vscode.WorkspaceFolder,
+  language: string,
+  defaultValue: boolean
+): boolean | undefined {
+  return (
+    vscode.workspace.getConfiguration(`[${language}]`, workspaceFolder.uri)[
+      'spotlessGradle.enabled'
+    ] ?? defaultValue
+  );
 }
 
 export function getConfigDiagnostics(
@@ -14,4 +26,16 @@ export function getConfigDiagnostics(
   return vscode.workspace
     .getConfiguration('spotlessGradle', workspaceFolder.uri)
     .get<boolean>('diagnostics', true);
+}
+
+export function getConfigLangOverrideDiagnostics(
+  workspaceFolder: vscode.WorkspaceFolder,
+  language: string,
+  defaultValue: boolean
+): boolean | undefined {
+  const diagnostics = vscode.workspace.getConfiguration(
+    `[${language}]`,
+    workspaceFolder.uri
+  )['spotlessGradle.diagnostics'];
+  return diagnostics ?? defaultValue;
 }

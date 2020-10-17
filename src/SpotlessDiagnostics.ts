@@ -8,7 +8,10 @@ import { Spotless } from './Spotless';
 import { logger } from './logger';
 import { SpotlessRunner } from './SpotlessRunner';
 import { AsyncWait } from './AsyncWait';
-import { getConfigDiagnostics } from './config';
+import {
+  getConfigDiagnostics,
+  getConfigLangOverrideDiagnostics,
+} from './config';
 import { FixAllCodeActionsCommand } from './FixAllCodeActionCommand';
 import { DIAGNOSTICS_ID, DIAGNOSTICS_SOURCE_ID } from './constants';
 
@@ -79,11 +82,17 @@ export class SpotlessDiagnostics
     document: vscode.TextDocument,
     cancellationToken?: vscode.CancellationToken
   ): Promise<void> {
+    const workspaceFolder = vscode.workspace.getWorkspaceFolder(document.uri);
     if (
+      !workspaceFolder ||
       !this.documentSelector.find(
         (selector) => selector.language === document.languageId
       ) ||
-      !getConfigDiagnostics(vscode.workspace.getWorkspaceFolder(document.uri)!)
+      !getConfigLangOverrideDiagnostics(
+        workspaceFolder,
+        document.languageId,
+        getConfigDiagnostics(workspaceFolder)
+      )
     ) {
       return;
     }

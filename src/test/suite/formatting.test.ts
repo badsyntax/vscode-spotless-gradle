@@ -5,60 +5,22 @@ import * as path from 'path';
 import * as fs from 'fs';
 import * as sinon from 'sinon';
 import * as assert from 'assert';
-import { formatFileWithCommand, formatFileOnSave, waitFor } from '../testUtil';
+import {
+  formatFileWithCommand,
+  formatFileOnSave,
+  waitFor,
+  javaAppFileContents,
+  javaAppFilePath,
+  groovyAppFileContents,
+  groovyAppFilePath,
+  groovyFormattedAppFileContents,
+  javaFormattedAppFileContents,
+  javaHelloFileContents,
+  javaHelloFilePath,
+  javaBasePath,
+} from '../testUtil';
 import { SPOTLESS_GRADLE_EXTENSION_ID } from '../../constants';
 import { ExtensionApi } from '../../extension';
-
-const javaBasePath = path.resolve(
-  __dirname,
-  '../../../test-fixtures/gradle-project/src/main/java/gradle/project'
-);
-const groovyBasePath = path.resolve(
-  __dirname,
-  '../../../test-fixtures/gradle-project/src/main/groovy/gradle/project'
-);
-const typeScriptBasePath = path.resolve(
-  __dirname,
-  '../../../test-fixtures/gradle-project/src/main/typescript'
-);
-
-const javaAppFilePath = path.resolve(javaBasePath, 'App.java');
-const javaAppFileContents = fs.readFileSync(javaAppFilePath, 'utf8');
-const javaHelloFilePath = path.resolve(javaBasePath, 'Hello.java');
-const javaHelloFileContents = fs.readFileSync(javaHelloFilePath, 'utf8');
-const javaFormattedAppFilePath = path.resolve(
-  javaBasePath,
-  'App.java.formatted.txt'
-);
-const javaFormattedAppFileContents = fs.readFileSync(
-  javaFormattedAppFilePath,
-  'utf8'
-);
-
-const typeScriptAppFilePath = path.resolve(typeScriptBasePath, 'App.ts');
-const typeScriptAppFileContents = fs.readFileSync(
-  typeScriptAppFilePath,
-  'utf8'
-);
-const typeScriptFormattedAppFilePath = path.resolve(
-  typeScriptBasePath,
-  'App.ts.formatted.txt'
-);
-const typeScriptFormattedAppFileContents = fs.readFileSync(
-  typeScriptFormattedAppFilePath,
-  'utf8'
-);
-
-const groovyAppFilePath = path.resolve(groovyBasePath, 'App.groovy');
-const groovyAppFileContents = fs.readFileSync(groovyAppFilePath, 'utf8');
-const groovyFormattedAppFilePath = path.resolve(
-  groovyBasePath,
-  'App.groovy.formatted.txt'
-);
-const groovyFormattedAppFileContents = fs.readFileSync(
-  groovyFormattedAppFilePath,
-  'utf8'
-);
 
 describe('Formatting', () => {
   const { logger, spotless } = vscode.extensions.getExtension(
@@ -177,43 +139,6 @@ describe('Formatting', () => {
         assert.equal(document?.isDirty, true, 'The document was saved');
         assert.ok(
           loggerSpy.calledWith('App.groovy: IS DIRTY'),
-          'Spotless status not logged'
-        );
-      });
-    });
-
-    describe('Languages config', function () {
-      const resetConfig = async (): Promise<void> =>
-        await vscode.workspace
-          .getConfiguration('spotlessGradle')
-          .update('languages', []);
-
-      // VS Code might choose to cancel the formatting
-      this.timeout(6000);
-      this.retries(5);
-
-      before(async () => {
-        await vscode.workspace
-          .getConfiguration('spotlessGradle')
-          .update('languages', ['typescript']);
-      });
-
-      after(async () => {
-        await resetConfig();
-        await reset(javaAppFilePath, javaAppFileContents);
-        await reset(typeScriptAppFilePath, typeScriptAppFileContents);
-      });
-
-      it('should provide diagnostics for languages specified in config', async () => {
-        const loggerSpy = sinon.spy(logger, 'info');
-        const document = await formatFileOnSave(typeScriptAppFilePath);
-        assert.equal(
-          document?.getText(),
-          typeScriptFormattedAppFileContents,
-          'The formatted document does not match the expected formatting'
-        );
-        assert.ok(
-          loggerSpy.calledWith('App.ts: IS DIRTY'),
           'Spotless status not logged'
         );
       });
