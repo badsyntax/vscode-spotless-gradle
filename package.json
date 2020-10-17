@@ -25,7 +25,7 @@
     "richardwillis.vscode-gradle"
   ],
   "extensionDependenciesCompatibility": {
-    "richardwillis.vscode-gradle": "^3.5.1"
+    "richardwillis.vscode-gradle": "^3.5.2"
   },
   "categories": [
     "Formatters",
@@ -65,13 +65,13 @@
       "type": "object",
       "title": "Spotless Gradle",
       "properties": {
-        "spotlessGradle.format": {
+        "spotlessGradle.format.enable": {
           "type": "boolean",
           "default": true,
           "scope": "language-overridable",
           "description": "Enable/disable formatting"
         },
-        "spotlessGradle.diagnostics": {
+        "spotlessGradle.diagnostics.enable": {
           "type": "boolean",
           "default": true,
           "scope": "language-overridable",
@@ -131,7 +131,7 @@
   "dependencies": {
     "prettier-linter-helpers": "^1.0.0",
     "semver": "^7.3.2",
-    "vscode-gradle": "^3.5.1"
+    "vscode-gradle": "^3.5.2"
   },
   "snyk": true
 }

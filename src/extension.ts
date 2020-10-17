@@ -11,10 +11,7 @@ import { DependencyChecker } from './DependencyChecker';
 import { SpotlessDiagnostics } from './SpotlessDiagnostics';
 import { SpotlessRunner } from './SpotlessRunner';
 import { FixAllCodeActionsCommand } from './FixAllCodeActionCommand';
-import {
-  getDiagnosticsDocumentSelector,
-  getFormatDocumentSelector,
-} from './documentSelector';
+import { FeatureManager } from './FeatureManager';
 
 export interface ExtensionApi {
   logger: Logger;
@@ -47,8 +44,8 @@ export async function activate(
   const gradleApi = gradleTasksExtension.exports as GradleApi;
   const spotless = new Spotless(gradleApi);
   const spotlessRunner = new SpotlessRunner(spotless);
-  const formatDocumentSelector = await getFormatDocumentSelector();
-  const diagnosticsDocumentSelector = await getDiagnosticsDocumentSelector();
+  const formatDocumentSelector: vscode.DocumentFilter[] = [];
+  const diagnosticsDocumentSelector: vscode.DocumentFilter[] = [];
 
   const spotlessDiagnostics = new SpotlessDiagnostics(
     context,
@@ -61,47 +58,27 @@ export async function activate(
     context,
     spotlessRunner
   );
+  fixAllCodeActionsCommand.register();
 
   const fixAllCodeActionProvider = new FixAllCodeActionProvider(
+    context,
     formatDocumentSelector
   );
 
   const documentFormattingEditProvider = new DocumentFormattingEditProvider(
+    context,
     spotlessRunner,
     formatDocumentSelector
   );
 
-  fixAllCodeActionsCommand.register();
-  fixAllCodeActionProvider.register();
-  documentFormattingEditProvider.register();
-  spotlessDiagnostics.register();
-
-  const onDidChangeConfiguration = vscode.workspace.onDidChangeConfiguration(
-    async (event: vscode.ConfigurationChangeEvent) => {
-      if (
-        event.affectsConfiguration('spotlessGradle.format') ||
-        event.affectsConfiguration('spotlessGradle.diagnostics')
-      ) {
-        const formatDocumentSelector = await getFormatDocumentSelector();
-        const diagnosticsDocumentSelector = await getDiagnosticsDocumentSelector();
-        spotlessDiagnostics.setDocumentSelector(diagnosticsDocumentSelector);
-        fixAllCodeActionProvider.setDocumentSelector(formatDocumentSelector);
-        documentFormattingEditProvider.setDocumentSelector(
-          formatDocumentSelector
-        );
-      }
-      if (event.affectsConfiguration('spotlessGradle.diagnostics')) {
-        spotlessDiagnostics.reset();
-      }
-    }
-  );
-
-  context.subscriptions.push(
+  const featureManager = new FeatureManager(
+    context,
+    gradleApi,
     fixAllCodeActionProvider,
-    spotlessDiagnostics,
     documentFormattingEditProvider,
-    onDidChangeConfiguration
+    spotlessDiagnostics
   );
+  featureManager.register();
 
   return { logger, spotless };
 }

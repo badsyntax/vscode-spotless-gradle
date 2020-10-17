@@ -10,9 +10,12 @@ export class DocumentFormattingEditProvider
   private documentFormattingEditProvider: vscode.Disposable | undefined;
 
   constructor(
+    private readonly context: vscode.ExtensionContext,
     private readonly spotlessRunner: SpotlessRunner,
     private documentSelector: vscode.DocumentSelector
-  ) {}
+  ) {
+    this.context.subscriptions.push(this);
+  }
 
   public register(): void {
     this.documentFormattingEditProvider = vscode.languages.registerDocumentFormattingEditProvider(
@@ -37,18 +40,18 @@ export class DocumentFormattingEditProvider
     cancellationToken: vscode.CancellationToken
   ): Promise<vscode.TextEdit[]> {
     try {
-      const newText = await this.spotlessRunner.run(
+      const spotlessChanges = await this.spotlessRunner.run(
         document,
         cancellationToken
       );
-      if (!newText) {
+      if (!spotlessChanges) {
         return noChanges;
       }
       const range = new vscode.Range(
         document.positionAt(0),
         document.positionAt(document.getText().length)
       );
-      return [new vscode.TextEdit(range, newText)];
+      return [new vscode.TextEdit(range, spotlessChanges)];
     } catch (e) {
       logger.error(`Unable to apply formatting: ${e.message}`);
       return noChanges;

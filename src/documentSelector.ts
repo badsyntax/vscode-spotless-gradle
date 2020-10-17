@@ -1,13 +1,13 @@
 import * as vscode from 'vscode';
 import {
-  getConfigFormat,
-  getConfigDiagnostics,
-  getConfigLangOverrideFormat,
-  getConfigLangOverrideDiagnostics,
+  getConfigFormatEnable,
+  getConfigLangOverrideFormatEnable,
+  getConfigDiagnosticsEnable,
+  getConfigLangOverrideDiagnosticsEnable,
 } from './config';
 import { ALL_SUPPORTED_LANGUAGES } from './constants';
 
-async function getDocumentSelector(
+export async function getDocumentSelector(
   supportedLanguages: string[]
 ): Promise<Array<vscode.DocumentFilter>> {
   const knownLanguages = await vscode.languages.getLanguages();
@@ -25,12 +25,12 @@ export async function getFormatDocumentSelector(): Promise<
 > {
   const supportedLanguages = (vscode.workspace.workspaceFolders || [])
     .map((workspaceFolder) => {
-      const globalFormat = getConfigFormat(workspaceFolder);
+      const globalFormatEnable = getConfigFormatEnable(workspaceFolder);
       return ALL_SUPPORTED_LANGUAGES.filter((language) => {
-        return getConfigLangOverrideFormat(
+        return getConfigLangOverrideFormatEnable(
           workspaceFolder,
           language,
-          globalFormat
+          globalFormatEnable
         );
       });
     })
@@ -43,12 +43,14 @@ export async function getDiagnosticsDocumentSelector(): Promise<
 > {
   const supportedLanguages = (vscode.workspace.workspaceFolders || [])
     .map((workspaceFolder) => {
-      const globalDiagnostics = getConfigDiagnostics(workspaceFolder);
+      const globalDiagnosticsEnable = getConfigDiagnosticsEnable(
+        workspaceFolder
+      );
       return ALL_SUPPORTED_LANGUAGES.filter((language) => {
-        return getConfigLangOverrideDiagnostics(
+        return getConfigLangOverrideDiagnosticsEnable(
           workspaceFolder,
           language,
-          globalDiagnostics
+          globalDiagnosticsEnable
         );
       });
     })

@@ -27,7 +27,7 @@ export class FixAllCodeActionsCommand implements Command {
         document,
         cancellationToken
       );
-      if (!spotlessChanges || cancellationToken?.isCancellationRequested) {
+      if (!spotlessChanges) {
         return;
       }
       const range = new vscode.Range(

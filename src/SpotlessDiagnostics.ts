@@ -9,8 +9,8 @@ import { logger } from './logger';
 import { SpotlessRunner } from './SpotlessRunner';
 import { AsyncWait } from './AsyncWait';
 import {
-  getConfigDiagnostics,
-  getConfigLangOverrideDiagnostics,
+  getConfigDiagnosticsEnable,
+  getConfigLangOverrideDiagnosticsEnable,
 } from './config';
 import { FixAllCodeActionsCommand } from './FixAllCodeActionCommand';
 import { DIAGNOSTICS_ID, DIAGNOSTICS_SOURCE_ID } from './constants';
@@ -45,6 +45,7 @@ export class SpotlessDiagnostics
     private documentSelector: Array<vscode.DocumentFilter>
   ) {
     super();
+    this.context.subscriptions.push(this);
     this.diagnosticCollection = vscode.languages.createDiagnosticCollection(
       DIAGNOSTICS_ID
     );
@@ -88,10 +89,10 @@ export class SpotlessDiagnostics
       !this.documentSelector.find(
         (selector) => selector.language === document.languageId
       ) ||
-      !getConfigLangOverrideDiagnostics(
+      !getConfigLangOverrideDiagnosticsEnable(
         workspaceFolder,
         document.languageId,
-        getConfigDiagnostics(workspaceFolder)
+        getConfigDiagnosticsEnable(workspaceFolder)
       )
     ) {
       return;
