@@ -74,13 +74,6 @@ export async function activate(
     spotlessDiagnostics
   );
 
-  await featureManager.register();
-  spotless.register();
-  fixAllCodeActionsCommand.register();
-  fixAllCodeActionProvider.register();
-  documentFormattingEditProvider.register();
-  spotlessDiagnostics.register();
-
   context.subscriptions.push(
     spotless,
     spotlessDiagnostics,
@@ -88,6 +81,13 @@ export async function activate(
     documentFormattingEditProvider,
     featureManager
   );
+
+  await featureManager.register();
+  spotless.register();
+  fixAllCodeActionsCommand.register();
+  fixAllCodeActionProvider.register();
+  documentFormattingEditProvider.register();
+  spotlessDiagnostics.register();
 
   return { logger, spotless };
 }
