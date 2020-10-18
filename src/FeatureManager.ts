@@ -1,50 +1,50 @@
 import * as vscode from 'vscode';
-import { ExtensionApi as GradleApi } from 'vscode-gradle';
 import {
   CONFIG_FORMAT_ENABLE,
   CONFIG_DIAGNOSTICS_ENABLE,
   CONFIG_NAMESPACE,
 } from './constants';
+import { Disposables } from './Disposables';
 import { DocumentFormattingEditProvider } from './DocumentFormattingEditProvider';
 import {
   getFormatDocumentSelector,
   getDiagnosticsDocumentSelector,
 } from './documentSelector';
 import { FixAllCodeActionProvider } from './FixAllCodeActionProvider';
+import { Spotless } from './Spotless';
 import { SpotlessDiagnostics } from './SpotlessDiagnostics';
 
-export class FeatureManager {
+export class FeatureManager implements vscode.Disposable {
+  private disposables = new Disposables();
   private featuresEnabled = false;
+  private knownLanguages: string[] = [];
 
   constructor(
-    private readonly context: vscode.ExtensionContext,
-    private readonly gradleApi: GradleApi,
+    private readonly spotless: Spotless,
     private readonly fixAllCodeActionProvider: FixAllCodeActionProvider,
     private readonly documentFormattingEditProvider: DocumentFormattingEditProvider,
     private readonly spotlessDiagnostics: SpotlessDiagnostics
   ) {}
 
-  register(): void {
+  public async register(): Promise<void> {
+    this.knownLanguages = await vscode.languages.getLanguages();
+    this.spotless.onReady(this.onSpotlessReady);
     this.fixAllCodeActionProvider.register();
     this.documentFormattingEditProvider.register();
     this.spotlessDiagnostics.register();
-
-    const onDidChangeConfiguration = vscode.workspace.onDidChangeConfiguration(
-      this.onDidChangeConfigurationHandler
+    this.disposables.add(
+      vscode.workspace.onDidChangeConfiguration(
+        this.onDidChangeConfigurationHandler
+      )
     );
-
-    const onDidLoadTasks = this.gradleApi
-      .getTaskProvider()
-      .onDidLoadTasks(this.onDidLoadTasksHandler);
-
-    this.context.subscriptions.push(onDidChangeConfiguration, onDidLoadTasks);
   }
 
-  onDidLoadTasksHandler = (tasks: vscode.Task[]): void => {
-    this.featuresEnabled = !!tasks.find(
-      (task) => task.name === 'spotlessApply'
-    );
-    if (this.featuresEnabled) {
+  public dispose(): void {
+    this.disposables.dispose();
+  }
+
+  private onSpotlessReady = (isReady: boolean): void => {
+    if (isReady) {
       this.setEnabledLanguages();
     } else {
       this.disableAllLanguages();
@@ -75,22 +75,22 @@ export class FeatureManager {
     }
   };
 
-  async setEnabledLanguages(): Promise<void> {
-    const formatDocumentSelector = await getFormatDocumentSelector();
-    const diagnosticsDocumentSelector = await getDiagnosticsDocumentSelector();
-    this.spotlessDiagnostics.setDocumentSelector(diagnosticsDocumentSelector);
+  private async setEnabledLanguages(): Promise<void> {
+    const formatDocumentSelector = getFormatDocumentSelector(
+      this.knownLanguages
+    );
     this.fixAllCodeActionProvider.setDocumentSelector(formatDocumentSelector);
     this.documentFormattingEditProvider.setDocumentSelector(
       formatDocumentSelector
     );
 
-    const activeDocument = vscode.window.activeTextEditor?.document;
-    if (activeDocument) {
-      this.spotlessDiagnostics.runDiagnostics(activeDocument);
-    }
+    const diagnosticsDocumentSelector = getDiagnosticsDocumentSelector(
+      this.knownLanguages
+    );
+    this.spotlessDiagnostics.setDocumentSelector(diagnosticsDocumentSelector);
   }
 
-  disableAllLanguages(): void {
+  private disableAllLanguages(): void {
     this.spotlessDiagnostics.setDocumentSelector([]);
     this.fixAllCodeActionProvider.setDocumentSelector([]);
     this.documentFormattingEditProvider.setDocumentSelector([]);
