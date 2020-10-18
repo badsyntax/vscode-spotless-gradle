@@ -8,12 +8,9 @@ import { Spotless } from './Spotless';
 import { logger } from './logger';
 import { SpotlessRunner } from './SpotlessRunner';
 import { AsyncWait } from './AsyncWait';
-import {
-  getConfigDiagnosticsEnable,
-  getConfigLangOverrideDiagnosticsEnable,
-} from './config';
 import { FixAllCodeActionsCommand } from './FixAllCodeActionCommand';
 import { DIAGNOSTICS_ID, DIAGNOSTICS_SOURCE_ID } from './constants';
+import { Disposables } from './Disposables';
 
 export interface SpotlessDiff {
   source: string;
@@ -31,6 +28,7 @@ export class SpotlessDiagnostics
     providedCodeActionKinds: [SpotlessDiagnostics.quickFixCodeActionKind],
   };
 
+  private disposables = new Disposables();
   private diagnosticCollection: vscode.DiagnosticCollection;
   private diagnosticDifferenceMap: Map<
     vscode.Diagnostic,
@@ -39,13 +37,11 @@ export class SpotlessDiagnostics
   private codeActionsProvider: vscode.Disposable | undefined;
 
   constructor(
-    private readonly context: vscode.ExtensionContext,
     private readonly spotless: Spotless,
     private readonly spotlessRunner: SpotlessRunner,
     private documentSelector: Array<vscode.DocumentFilter>
   ) {
     super();
-    this.context.subscriptions.push(this);
     this.diagnosticCollection = vscode.languages.createDiagnosticCollection(
       DIAGNOSTICS_ID
     );
@@ -59,6 +55,7 @@ export class SpotlessDiagnostics
   public dispose(): void {
     this.diagnosticCollection.dispose();
     this.codeActionsProvider?.dispose();
+    this.disposables.dispose();
   }
 
   public reset(): void {
@@ -83,28 +80,22 @@ export class SpotlessDiagnostics
     document: vscode.TextDocument,
     cancellationToken?: vscode.CancellationToken
   ): Promise<void> {
-    const workspaceFolder = vscode.workspace.getWorkspaceFolder(document.uri);
-    if (
-      !workspaceFolder ||
-      !this.documentSelector.find(
+    const shouldRunDiagnostics =
+      this.spotless.isReady &&
+      this.documentSelector.find(
         (selector) => selector.language === document.languageId
-      ) ||
-      !getConfigLangOverrideDiagnosticsEnable(
-        workspaceFolder,
-        document.languageId,
-        getConfigDiagnosticsEnable(workspaceFolder)
-      )
-    ) {
-      return;
+      ) &&
+      vscode.workspace.getWorkspaceFolder(document.uri);
+    if (shouldRunDiagnostics) {
+      this.waitAndRun(async () => {
+        try {
+          const diff = await this.getDiff(document, cancellationToken);
+          this.updateDiagnostics(document, diff);
+        } catch (e) {
+          logger.error(`Unable to provide diagnostics: ${e.message}`);
+        }
+      });
     }
-    this.waitAndRun(async () => {
-      try {
-        const diff = await this.getDiff(document, cancellationToken);
-        this.updateDiagnostics(document, diff);
-      } catch (e) {
-        logger.error(`Unable to provide diagnostics: ${e.message}`);
-      }
-    });
   }
 
   public updateDiagnostics(
@@ -119,10 +110,12 @@ export class SpotlessDiagnostics
   }
 
   private registerEditorEvents(): void {
-    const onReady = this.spotless.onReady(() => {
-      const activeDocument = vscode.window.activeTextEditor?.document;
-      if (activeDocument) {
-        void this.runDiagnostics(activeDocument);
+    this.spotless.onReady((isReady: boolean) => {
+      if (isReady) {
+        const activeDocument = vscode.window.activeTextEditor?.document;
+        if (activeDocument) {
+          void this.runDiagnostics(activeDocument);
+        }
       }
     });
 
@@ -145,8 +138,7 @@ export class SpotlessDiagnostics
       }
     );
 
-    this.context.subscriptions.push(
-      onReady,
+    this.disposables.add(
       onDidChangeTextDocument,
       onDidChangeActiveTextEditor,
       this.diagnosticCollection

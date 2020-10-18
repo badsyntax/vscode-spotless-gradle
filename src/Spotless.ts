@@ -10,12 +10,36 @@ import {
   SPOTLESS_STATUS_IS_CLEAN,
 } from './constants';
 import { Deferred } from './Deferred';
+import { Disposables } from './Disposables';
 
 export class Spotless {
+  private disposables = new Disposables();
+  private readyHandlers: Array<(isReady: boolean) => void> = [];
+  public isReady = false;
+
   constructor(private readonly gradleApi: GradleApi) {}
 
-  public onReady(callback: () => void): vscode.Disposable {
-    return this.gradleApi.onReady(callback);
+  public register(): void {
+    this.disposables.add(
+      this.gradleApi
+        .getTaskProvider()
+        .onDidLoadTasks((tasks: vscode.Task[]) => {
+          this.isReady = this.hasSpotlessTask(tasks);
+          this.readyHandlers.forEach((handler) => handler(this.isReady));
+        })
+    );
+  }
+
+  public dispose(): void {
+    this.disposables.dispose();
+  }
+
+  public onReady(callback: (isReady: boolean) => void): void {
+    this.readyHandlers.push(callback);
+  }
+
+  private hasSpotlessTask(tasks: vscode.Task[]): boolean {
+    return !!tasks.find((task) => task.name === 'spotlessApply');
   }
 
   public async apply(

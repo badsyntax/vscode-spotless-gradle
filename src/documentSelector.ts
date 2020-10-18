@@ -7,23 +7,23 @@ import {
 } from './config';
 import { ALL_SUPPORTED_LANGUAGES } from './constants';
 
-export async function getDocumentSelector(
-  supportedLanguages: string[]
-): Promise<Array<vscode.DocumentFilter>> {
-  const knownLanguages = await vscode.languages.getLanguages();
-  const spotlessLanguages = Array.from(
-    new Set(supportedLanguages)
-  ).filter((language) => knownLanguages.includes(language));
-  return spotlessLanguages.map((language) => ({
+export function getDocumentSelector(
+  knownLanguages: string[],
+  spotlessLanguages: string[]
+): Array<vscode.DocumentFilter> {
+  const languages = Array.from(new Set(spotlessLanguages)).filter((language) =>
+    knownLanguages.includes(language)
+  );
+  return languages.map((language) => ({
     language,
     scheme: 'file',
   }));
 }
 
-export async function getFormatDocumentSelector(): Promise<
-  Array<vscode.DocumentFilter>
-> {
-  const supportedLanguages = (vscode.workspace.workspaceFolders || [])
+export function getFormatDocumentSelector(
+  knownLanguages: string[]
+): Array<vscode.DocumentFilter> {
+  const spotlessLanguages = (vscode.workspace.workspaceFolders || [])
     .map((workspaceFolder) => {
       const globalFormatEnable = getConfigFormatEnable(workspaceFolder);
       return ALL_SUPPORTED_LANGUAGES.filter((language) => {
@@ -35,13 +35,13 @@ export async function getFormatDocumentSelector(): Promise<
       });
     })
     .flat();
-  return getDocumentSelector(supportedLanguages);
+  return getDocumentSelector(knownLanguages, spotlessLanguages);
 }
 
-export async function getDiagnosticsDocumentSelector(): Promise<
-  Array<vscode.DocumentFilter>
-> {
-  const supportedLanguages = (vscode.workspace.workspaceFolders || [])
+export function getDiagnosticsDocumentSelector(
+  knownLanguages: string[]
+): Array<vscode.DocumentFilter> {
+  const spotlessLanguages = (vscode.workspace.workspaceFolders || [])
     .map((workspaceFolder) => {
       const globalDiagnosticsEnable = getConfigDiagnosticsEnable(
         workspaceFolder
@@ -55,5 +55,5 @@ export async function getDiagnosticsDocumentSelector(): Promise<
       });
     })
     .flat();
-  return getDocumentSelector(supportedLanguages);
+  return getDocumentSelector(knownLanguages, spotlessLanguages);
 }

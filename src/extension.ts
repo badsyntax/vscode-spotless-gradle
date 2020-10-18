@@ -48,7 +48,6 @@ export async function activate(
   const diagnosticsDocumentSelector: vscode.DocumentFilter[] = [];
 
   const spotlessDiagnostics = new SpotlessDiagnostics(
-    context,
     spotless,
     spotlessRunner,
     diagnosticsDocumentSelector
@@ -58,27 +57,37 @@ export async function activate(
     context,
     spotlessRunner
   );
-  fixAllCodeActionsCommand.register();
 
   const fixAllCodeActionProvider = new FixAllCodeActionProvider(
-    context,
     formatDocumentSelector
   );
 
   const documentFormattingEditProvider = new DocumentFormattingEditProvider(
-    context,
     spotlessRunner,
     formatDocumentSelector
   );
 
   const featureManager = new FeatureManager(
-    context,
-    gradleApi,
+    spotless,
     fixAllCodeActionProvider,
     documentFormattingEditProvider,
     spotlessDiagnostics
   );
-  featureManager.register();
+
+  context.subscriptions.push(
+    spotless,
+    spotlessDiagnostics,
+    fixAllCodeActionProvider,
+    documentFormattingEditProvider,
+    featureManager
+  );
+
+  await featureManager.register();
+  spotless.register();
+  fixAllCodeActionsCommand.register();
+  fixAllCodeActionProvider.register();
+  documentFormattingEditProvider.register();
+  spotlessDiagnostics.register();
 
   return { logger, spotless };
 }
