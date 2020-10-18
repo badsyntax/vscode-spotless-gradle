@@ -16,7 +16,6 @@ import { SpotlessDiagnostics } from './SpotlessDiagnostics';
 
 export class FeatureManager implements vscode.Disposable {
   private disposables = new Disposables();
-  private featuresEnabled = false;
   private knownLanguages: string[] = [];
 
   constructor(
@@ -29,9 +28,6 @@ export class FeatureManager implements vscode.Disposable {
   public async register(): Promise<void> {
     this.knownLanguages = await vscode.languages.getLanguages();
     this.spotless.onReady(this.onSpotlessReady);
-    this.fixAllCodeActionProvider.register();
-    this.documentFormattingEditProvider.register();
-    this.spotlessDiagnostics.register();
     this.disposables.add(
       vscode.workspace.onDidChangeConfiguration(
         this.onDidChangeConfigurationHandler
@@ -54,7 +50,7 @@ export class FeatureManager implements vscode.Disposable {
   private onDidChangeConfigurationHandler = async (
     event: vscode.ConfigurationChangeEvent
   ): Promise<void> => {
-    if (this.featuresEnabled) {
+    if (this.spotless.isReady) {
       if (
         event.affectsConfiguration(
           `${CONFIG_NAMESPACE}.${CONFIG_FORMAT_ENABLE}`

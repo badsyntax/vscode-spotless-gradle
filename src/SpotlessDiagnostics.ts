@@ -8,10 +8,6 @@ import { Spotless } from './Spotless';
 import { logger } from './logger';
 import { SpotlessRunner } from './SpotlessRunner';
 import { AsyncWait } from './AsyncWait';
-import {
-  getConfigDiagnosticsEnable,
-  getConfigLangOverrideDiagnosticsEnable,
-} from './config';
 import { FixAllCodeActionsCommand } from './FixAllCodeActionCommand';
 import { DIAGNOSTICS_ID, DIAGNOSTICS_SOURCE_ID } from './constants';
 import { Disposables } from './Disposables';
@@ -84,29 +80,22 @@ export class SpotlessDiagnostics
     document: vscode.TextDocument,
     cancellationToken?: vscode.CancellationToken
   ): Promise<void> {
-    const workspaceFolder = vscode.workspace.getWorkspaceFolder(document.uri);
-    if (
-      !workspaceFolder ||
-      !this.spotless.isReady ||
-      !this.documentSelector.find(
+    const shouldRunDiagnostics =
+      this.spotless.isReady &&
+      this.documentSelector.find(
         (selector) => selector.language === document.languageId
-      ) ||
-      !getConfigLangOverrideDiagnosticsEnable(
-        workspaceFolder,
-        document.languageId,
-        getConfigDiagnosticsEnable(workspaceFolder)
-      )
-    ) {
-      return;
+      ) &&
+      vscode.workspace.getWorkspaceFolder(document.uri);
+    if (shouldRunDiagnostics) {
+      this.waitAndRun(async () => {
+        try {
+          const diff = await this.getDiff(document, cancellationToken);
+          this.updateDiagnostics(document, diff);
+        } catch (e) {
+          logger.error(`Unable to provide diagnostics: ${e.message}`);
+        }
+      });
     }
-    this.waitAndRun(async () => {
-      try {
-        const diff = await this.getDiff(document, cancellationToken);
-        this.updateDiagnostics(document, diff);
-      } catch (e) {
-        logger.error(`Unable to provide diagnostics: ${e.message}`);
-      }
-    });
   }
 
   public updateDiagnostics(

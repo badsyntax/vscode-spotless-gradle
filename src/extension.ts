@@ -57,7 +57,6 @@ export async function activate(
     context,
     spotlessRunner
   );
-  fixAllCodeActionsCommand.register();
 
   const fixAllCodeActionProvider = new FixAllCodeActionProvider(
     formatDocumentSelector
@@ -74,7 +73,13 @@ export async function activate(
     documentFormattingEditProvider,
     spotlessDiagnostics
   );
-  featureManager.register();
+
+  await featureManager.register();
+  spotless.register();
+  fixAllCodeActionsCommand.register();
+  fixAllCodeActionProvider.register();
+  documentFormattingEditProvider.register();
+  spotlessDiagnostics.register();
 
   context.subscriptions.push(
     spotless,

@@ -17,7 +17,9 @@ export class Spotless {
   private readyHandlers: Array<(isReady: boolean) => void> = [];
   public isReady = false;
 
-  constructor(private readonly gradleApi: GradleApi) {
+  constructor(private readonly gradleApi: GradleApi) {}
+
+  public register(): void {
     this.disposables.add(
       this.gradleApi
         .getTaskProvider()
