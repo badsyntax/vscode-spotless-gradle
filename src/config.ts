@@ -10,7 +10,7 @@ export function getConfigFormatEnable(
 ): boolean {
   return vscode.workspace
     .getConfiguration(CONFIG_NAMESPACE, workspaceFolder.uri)
-    .get<boolean>(CONFIG_FORMAT_ENABLE, true);
+    .get<boolean>(CONFIG_FORMAT_ENABLE, false);
 }
 
 export function getConfigLangOverrideFormatEnable(
@@ -30,7 +30,7 @@ export function getConfigDiagnosticsEnable(
 ): boolean {
   return vscode.workspace
     .getConfiguration(CONFIG_NAMESPACE, workspaceFolder.uri)
-    .get<boolean>(CONFIG_DIAGNOSTICS_ENABLE, true);
+    .get<boolean>(CONFIG_DIAGNOSTICS_ENABLE, false);
 }
 
 export function getConfigLangOverrideDiagnosticsEnable(

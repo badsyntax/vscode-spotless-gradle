@@ -31,12 +31,10 @@ Before using this extension, ensure you've [configured Spotless](https://github.
 
 ### Enabling Spotless
 
-Spotless formatting & diagnostics are enabled by default. Change the settings to adjust this behaviour:
+Spotless formatting & diagnostics are _disabled by default_. Change the settings to adjust this behaviour:
 
 ```json
 {
-  "spotlessGradle.format.enable": false,
-  "spotlessGradle.diagnostics.enable": false,
   "[java]": {
     "spotlessGradle.format.enable": true,
     "spotlessGradle.diagnostics.enable": true
