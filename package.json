@@ -122,7 +122,7 @@
     "sinon": "^9.2.0",
     "snyk": "^1.413.3",
     "ts-loader": "^8.0.5",
-    "typescript": "^4.0.3",
+    "typescript": "^4.0.5",
     "vsce": "^1.81.1",
     "vscode-test": "^1.4.0",
     "webpack": "^5.1.3",
