@@ -130,7 +130,7 @@
   },
   "dependencies": {
     "prettier-linter-helpers": "^1.0.0",
-    "semver": "^7.3.2",
+    "semver": "^7.3.4",
     "vscode-gradle": "^3.5.2"
   },
   "snyk": true
