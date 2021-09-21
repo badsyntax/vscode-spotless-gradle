@@ -7,6 +7,10 @@ export const javaBasePath = path.resolve(
   __dirname,
   '../../test-fixtures/gradle-project/src/main/java/gradle/project'
 );
+export const multiProjectJavaBasePath = path.resolve(
+  __dirname,
+  '../../test-fixtures/gradle-multi-project/src/main/java/gradle/project'
+);
 export const groovyBasePath = path.resolve(
   __dirname,
   '../../test-fixtures/gradle-project/src/main/groovy/gradle/project'
@@ -26,6 +30,18 @@ export const javaFormattedAppFilePath = path.resolve(
 );
 export const javaFormattedAppFileContents = fs.readFileSync(
   javaFormattedAppFilePath,
+  'utf8'
+);
+export const multiProjectJavaAppFilePath = path.resolve(multiProjectJavaBasePath, 'App.java');
+export const multiProjectJavaAppFileContents = fs.readFileSync(multiProjectJavaAppFilePath, 'utf8');
+export const multiProjectJavaHelloFilePath = path.resolve(multiProjectJavaBasePath, 'Hello.java');
+export const multiProjectJavaHelloFileContents = fs.readFileSync(multiProjectJavaHelloFilePath, 'utf8');
+export const multiProjectJavaFormattedAppFilePath = path.resolve(
+  multiProjectJavaBasePath,
+  'App.java.formatted.txt'
+);
+export const multiProjectJavaFormattedAppFileContents = fs.readFileSync(
+  multiProjectJavaFormattedAppFilePath,
   'utf8'
 );
 export const typeScriptAppFilePath = path.resolve(typeScriptBasePath, 'App.ts');
