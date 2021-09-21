@@ -32,10 +32,22 @@ export const javaFormattedAppFileContents = fs.readFileSync(
   javaFormattedAppFilePath,
   'utf8'
 );
-export const multiProjectJavaAppFilePath = path.resolve(multiProjectJavaBasePath, 'App.java');
-export const multiProjectJavaAppFileContents = fs.readFileSync(multiProjectJavaAppFilePath, 'utf8');
-export const multiProjectJavaHelloFilePath = path.resolve(multiProjectJavaBasePath, 'Hello.java');
-export const multiProjectJavaHelloFileContents = fs.readFileSync(multiProjectJavaHelloFilePath, 'utf8');
+export const multiProjectJavaAppFilePath = path.resolve(
+  multiProjectJavaBasePath,
+  'App.java'
+);
+export const multiProjectJavaAppFileContents = fs.readFileSync(
+  multiProjectJavaAppFilePath,
+  'utf8'
+);
+export const multiProjectJavaHelloFilePath = path.resolve(
+  multiProjectJavaBasePath,
+  'Hello.java'
+);
+export const multiProjectJavaHelloFileContents = fs.readFileSync(
+  multiProjectJavaHelloFilePath,
+  'utf8'
+);
 export const multiProjectJavaFormattedAppFilePath = path.resolve(
   multiProjectJavaBasePath,
   'App.java.formatted.txt'

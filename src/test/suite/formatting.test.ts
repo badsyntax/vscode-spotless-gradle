@@ -116,7 +116,10 @@ describe('Formatting', () => {
       this.retries(5);
 
       afterEach(async () => {
-        await reset(multiProjectJavaAppFilePath, multiProjectJavaAppFileContents);
+        await reset(
+          multiProjectJavaAppFilePath,
+          multiProjectJavaAppFileContents
+        );
       });
 
       it('should call spotless.apply when saving a file', async () => {
@@ -154,7 +157,9 @@ describe('Formatting', () => {
 
       it('should run spotless when formatting a file', async () => {
         const loggerSpy = sinon.spy(logger, 'info');
-        const document = await formatFileWithCommand(multiProjectJavaAppFilePath);
+        const document = await formatFileWithCommand(
+          multiProjectJavaAppFilePath
+        );
         assert.equal(
           document?.getText(),
           multiProjectJavaFormattedAppFileContents,

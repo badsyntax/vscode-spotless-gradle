@@ -39,7 +39,10 @@ export class Spotless {
   }
 
   private hasSpotlessTask(tasks: vscode.Task[]): boolean {
-    return !!tasks.find((task) => task.name === 'spotlessApply' || task.name.endsWith(':spotlessApply'));
+    return !!tasks.find(
+      (task) =>
+        task.name === 'spotlessApply' || task.name.endsWith(':spotlessApply')
+    );
   }
 
   public async apply(
