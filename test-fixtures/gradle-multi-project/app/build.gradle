@@ -1,0 +1,22 @@
+plugins {
+    id 'java'
+    id 'application'
+    id 'com.diffplug.spotless' version '5.6.1'
+}
+
+repositories {
+    jcenter()
+}
+
+application {
+    mainClassName = 'gradle.project.App'
+}
+
+spotless {
+  java {
+    googleJavaFormat()
+    removeUnusedImports()
+    trimTrailingWhitespace()
+    targetExclude "build/**"
+  }
+}
