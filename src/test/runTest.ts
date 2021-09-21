@@ -29,14 +29,10 @@ async function main(): Promise<void> {
     const cliPath =
       resolveCliPathFromVSCodeExecutablePath(vscodeExecutablePath);
 
-    cp.spawnSync(
-      cliPath,
-      ['--install-extension', 'richardwillis.vscode-gradle'],
-      {
-        encoding: 'utf-8',
-        stdio: 'inherit',
-      }
-    );
+    cp.spawnSync(cliPath, ['--install-extension', 'vscjava.vscode-gradle'], {
+      encoding: 'utf-8',
+      stdio: 'inherit',
+    });
 
     await runTests({
       vscodeExecutablePath,
