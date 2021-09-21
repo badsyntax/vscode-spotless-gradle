@@ -26,9 +26,8 @@ async function main(): Promise<void> {
 
   try {
     const vscodeExecutablePath = await downloadAndUnzipVSCode(VSCODE_VERSION);
-    const cliPath = resolveCliPathFromVSCodeExecutablePath(
-      vscodeExecutablePath
-    );
+    const cliPath =
+      resolveCliPathFromVSCodeExecutablePath(vscodeExecutablePath);
 
     cp.spawnSync(
       cliPath,
@@ -57,7 +56,7 @@ async function main(): Promise<void> {
       ],
     });
   } catch (err) {
-    console.error('Failed to run tests', err.message);
+    console.error('Failed to run tests', (err as Error).message);
     process.exit(1);
   } finally {
     fs.removeSync(tmpDir);
