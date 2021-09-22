@@ -178,7 +178,7 @@ describe('Formatting', () => {
   describe('Supported language types', async () => {
     const basePath = path.resolve(
       __dirname,
-      '../../../test-fixtures/gradle-project/src/main/resources/language-types'
+      '../../../../../test-fixtures/gradle-project/src/main/resources/language-types'
     );
     const files = fs.readdirSync(basePath);
 
