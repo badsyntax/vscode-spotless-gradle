@@ -18,7 +18,7 @@ function runTestWithGradle(
 ): Promise<number> {
   const extensionTestsPath = path.resolve(
     __dirname,
-    './integration/gradle-project/suite/index'
+    './integration/gradle-project/index'
   );
   const fixturePath = path.resolve(
     __dirname,
@@ -50,7 +50,7 @@ function runTestWithGradleMultiProject(
 ): Promise<number> {
   const extensionTestsPath = path.resolve(
     __dirname,
-    './integration/gradle-multi-project/suite/index'
+    './integration/gradle-multi-project/index'
   );
   const fixturePath = path.resolve(
     __dirname,
