@@ -88,7 +88,7 @@
     "lint:prettier": "prettier --check \"**/*.{ts,js,json,svg,md,yml}\"",
     "lint:fix:prettier": "prettier --write '**/*.{ts,js,json,svg,md,yml}'",
     "lint:eslint": "eslint . --ext .ts",
-    "test": "node ./out/test/runTest.js",
+    "test": "node ./out/test/runTests.js",
     "install:ext": "code --install-extension vscode-spotless-gradle-0.0.0.vsix --force",
     "preinstall:ext": "npm run package",
     "snyk-protect": "snyk protect",

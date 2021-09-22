@@ -18,9 +18,9 @@ import {
   javaHelloFileContents,
   javaHelloFilePath,
   javaBasePath,
-} from '../../../testUtil';
-import { SPOTLESS_GRADLE_EXTENSION_ID } from '../../../../constants';
-import { ExtensionApi } from '../../../../extension';
+} from '../../testUtil';
+import { SPOTLESS_GRADLE_EXTENSION_ID } from '../../../constants';
+import { ExtensionApi } from '../../../extension';
 
 describe('Formatting', () => {
   const { logger, spotless } = vscode.extensions.getExtension(

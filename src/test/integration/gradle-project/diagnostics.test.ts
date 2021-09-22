@@ -3,15 +3,15 @@ import * as path from 'path';
 import * as fs from 'fs';
 import * as sinon from 'sinon';
 import * as assert from 'assert';
-import { SPOTLESS_GRADLE_EXTENSION_ID } from '../../../../constants';
-import { ExtensionApi } from '../../../../extension';
+import { SPOTLESS_GRADLE_EXTENSION_ID } from '../../../constants';
+import { ExtensionApi } from '../../../extension';
 import {
   javaAppFileContents,
   javaAppFilePath,
   javaBasePath,
   waitFor,
   waitForDiagnostics,
-} from '../../../testUtil';
+} from '../../testUtil';
 
 async function waitForDiagnosticsOnDocumentOpen(
   appFilePath: string,

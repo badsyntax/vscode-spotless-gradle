@@ -11,21 +11,41 @@
       "preLaunchTask": "npm: compile:dev"
     },
     {
-      "name": "Extension Tests",
+      "name": "Test gradle-project",
       "type": "extensionHost",
       "request": "launch",
       "runtimeExecutable": "${execPath}",
       "args": [
         "--extensionDevelopmentPath=${workspaceFolder}",
-        "--extensionTestsPath=${workspaceFolder}/out/test/suite/index",
+        "--extensionTestsPath=${workspaceFolder}/out/test/integration/gradle-project/index",
         "--disable-extension=redhat.java",
-        "--disable-extension=vscjava.vscode-java-dependency",
+        "--install-extension vscjava.vscode-gradle",
         "--disable-extension=vscjava.vscode-java-test",
         "--disable-extension=shengchen.vscode-checkstyle",
         "--disable-extension=eamodio.gitlens",
         "--disable-extension=sonarsource.sonarlint-vscode",
         "--disable-extension=esbenp.prettier-vscode",
         "${workspaceFolder}/test-fixtures/gradle-project"
+      ],
+      "outFiles": ["${workspaceFolder}/out/**/*.js"],
+      "preLaunchTask": "npm: compile:all"
+    },
+    {
+      "name": "Test gradle-multi-project",
+      "type": "extensionHost",
+      "request": "launch",
+      "runtimeExecutable": "${execPath}",
+      "args": [
+        "--extensionDevelopmentPath=${workspaceFolder}",
+        "--extensionTestsPath=${workspaceFolder}/out/test/integration/gradle-multi-project/index",
+        "--disable-extension=redhat.java",
+        "--install-extension vscjava.vscode-gradle",
+        "--disable-extension=vscjava.vscode-java-test",
+        "--disable-extension=shengchen.vscode-checkstyle",
+        "--disable-extension=eamodio.gitlens",
+        "--disable-extension=sonarsource.sonarlint-vscode",
+        "--disable-extension=esbenp.prettier-vscode",
+        "${workspaceFolder}/test-fixtures/gradle-multi-project"
       ],
       "outFiles": ["${workspaceFolder}/out/**/*.js"],
       "preLaunchTask": "npm: compile:all"
