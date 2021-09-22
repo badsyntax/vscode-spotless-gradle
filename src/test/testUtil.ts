@@ -9,7 +9,7 @@ export const javaBasePath = path.resolve(
 );
 export const multiProjectJavaBasePath = path.resolve(
   __dirname,
-  '../../test-fixtures/gradle-multi-project/src/main/java/gradle/project'
+  '../../test-fixtures/gradle-multi-project/app/src/main/java/gradle/project'
 );
 export const groovyBasePath = path.resolve(
   __dirname,
