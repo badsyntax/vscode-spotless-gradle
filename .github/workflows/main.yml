@@ -104,9 +104,10 @@ jobs:
       - name: Build & publish extension
         env:
           AZURE_TOKEN: ${{ secrets.AZURE_TOKEN }}
+          OPENVSX_TOKEN: ${{ secrets.OPENVSX_TOKEN }}
         run: |
           tag=${GITHUB_REF#refs/tags/}
           echo "Setting package version $tag"
           npm --no-git-tag-version version "$tag"
           npm run publish -- -p "$AZURE_TOKEN"
-          npx ovsx publish --pat "$VSX_REGISTRY_ACCESS_TOKEN"
+          npx ovsx publish -p "$VSX_REGISTRY_ACCESS_TOKEN"
