@@ -6,8 +6,7 @@ import { SpotlessRunner } from './SpotlessRunner';
 const noChanges: vscode.TextEdit[] = [];
 
 export class DocumentFormattingEditProvider
-  implements vscode.DocumentFormattingEditProvider, vscode.Disposable
-{
+  implements vscode.DocumentFormattingEditProvider, vscode.Disposable {
   private documentFormattingEditProvider: vscode.Disposable | undefined;
 
   constructor(
@@ -16,11 +15,10 @@ export class DocumentFormattingEditProvider
   ) {}
 
   public register(): void {
-    this.documentFormattingEditProvider =
-      vscode.languages.registerDocumentFormattingEditProvider(
-        this.documentSelector,
-        this
-      );
+    this.documentFormattingEditProvider = vscode.languages.registerDocumentFormattingEditProvider(
+      this.documentSelector,
+      this
+    );
   }
 
   public dispose(): void {

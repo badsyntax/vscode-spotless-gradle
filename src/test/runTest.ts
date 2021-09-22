@@ -16,7 +16,10 @@ function runTestWithGradle(
   vscodeExecutablePath: string,
   userDir: string
 ): Promise<number> {
-  const extensionTestsPath = path.resolve(__dirname, './integration/gradle-project/suite/index');
+  const extensionTestsPath = path.resolve(
+    __dirname,
+    './integration/gradle-project/suite/index'
+  );
   const fixturePath = path.resolve(
     __dirname,
     '../../test-fixtures/gradle-project/'
@@ -45,7 +48,10 @@ function runTestWithGradleMultiProject(
   vscodeExecutablePath: string,
   userDir: string
 ): Promise<number> {
-  const extensionTestsPath = path.resolve(__dirname, './integration/gradle-multi-project/suite/index');
+  const extensionTestsPath = path.resolve(
+    __dirname,
+    './integration/gradle-multi-project/suite/index'
+  );
   const fixturePath = path.resolve(
     __dirname,
     '../../test-fixtures/gradle-multi-project/'
@@ -79,14 +85,14 @@ async function main(): Promise<void> {
 
   try {
     const vscodeExecutablePath = await downloadAndUnzipVSCode(VSCODE_VERSION);
-    const cliPath =
-      resolveCliPathFromVSCodeExecutablePath(vscodeExecutablePath);
+    const cliPath = resolveCliPathFromVSCodeExecutablePath(
+      vscodeExecutablePath
+    );
 
     cp.spawnSync(cliPath, ['--install-extension', 'vscjava.vscode-gradle'], {
       encoding: 'utf-8',
       stdio: 'inherit',
     });
-
 
     await runTestWithGradle(vscodeExecutablePath, tmpDir);
     await runTestWithGradleMultiProject(vscodeExecutablePath, tmpDir);

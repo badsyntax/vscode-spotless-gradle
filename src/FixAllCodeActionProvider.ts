@@ -4,10 +4,10 @@ import { FixAllCodeActionsCommand } from './FixAllCodeActionCommand';
 const noChanges: vscode.CodeAction[] = [];
 
 export class FixAllCodeActionProvider
-  implements vscode.CodeActionProvider, vscode.Disposable
-{
-  public static readonly fixAllCodeActionKind =
-    vscode.CodeActionKind.SourceFixAll.append('spotlessGradle');
+  implements vscode.CodeActionProvider, vscode.Disposable {
+  public static readonly fixAllCodeActionKind = vscode.CodeActionKind.SourceFixAll.append(
+    'spotlessGradle'
+  );
 
   public static metadata: vscode.CodeActionProviderMetadata = {
     providedCodeActionKinds: [FixAllCodeActionProvider.fixAllCodeActionKind],

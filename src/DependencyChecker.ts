@@ -58,8 +58,9 @@ export class DependencyChecker {
   private getExtensionVersions(
     extensions: vscode.Extension<any>[]
   ): ExtensionVersion[] {
-    const { extensionDependenciesCompatibility: compatibleVersions } =
-      this.packageJson;
+    const {
+      extensionDependenciesCompatibility: compatibleVersions,
+    } = this.packageJson;
     return extensions.map((extensionDependency) => {
       const extensionVersion = extensionDependency.packageJSON.version;
       const requiredVersion = compatibleVersions![extensionDependency.id];

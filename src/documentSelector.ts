@@ -43,8 +43,9 @@ export function getDiagnosticsDocumentSelector(
 ): Array<vscode.DocumentFilter> {
   const spotlessLanguages = (vscode.workspace.workspaceFolders || [])
     .map((workspaceFolder) => {
-      const globalDiagnosticsEnable =
-        getConfigDiagnosticsEnable(workspaceFolder);
+      const globalDiagnosticsEnable = getConfigDiagnosticsEnable(
+        workspaceFolder
+      );
       return ALL_SUPPORTED_LANGUAGES.filter((language) => {
         return getConfigLangOverrideDiagnosticsEnable(
           workspaceFolder,
