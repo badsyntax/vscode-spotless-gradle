@@ -28,6 +28,7 @@ export class Spotless {
           this.readyHandlers.forEach((handler) => handler(this.isReady));
         })
     );
+    this.gradleApi.getTaskProvider().provideTasks();
   }
 
   public dispose(): void {
