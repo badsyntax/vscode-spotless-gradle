@@ -25,7 +25,7 @@
     "vscjava.vscode-gradle"
   ],
   "extensionDependenciesCompatibility": {
-    "vscjava.vscode-gradle": "^3.5.2"
+    "vscjava.vscode-gradle": "^3.6.2"
   },
   "categories": [
     "Formatters",
