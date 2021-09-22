@@ -3,8 +3,8 @@
 import * as vscode from 'vscode';
 import * as sinon from 'sinon';
 import * as assert from 'assert';
-import { DependencyChecker } from '../../DependencyChecker';
-import { GRADLE_TASKS_EXTENSION_ID } from '../../constants';
+import { DependencyChecker } from '../../../../DependencyChecker';
+import { GRADLE_TASKS_EXTENSION_ID } from '../../../../constants';
 
 describe('Dependency checker', () => {
   afterEach(() => {

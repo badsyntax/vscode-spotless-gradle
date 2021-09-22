@@ -10,14 +10,67 @@ import {
 } from 'vscode-test';
 
 const VSCODE_VERSION = '1.45.0';
+const extensionDevelopmentPath = path.resolve(__dirname, '../..');
 
-async function main(): Promise<void> {
-  const extensionDevelopmentPath = path.resolve(__dirname, '../..');
-  const extensionTestsPath = path.resolve(__dirname, './suite/index');
+function runTestWithGradle(
+  vscodeExecutablePath: string,
+  userDir: string
+): Promise<number> {
+  const extensionTestsPath = path.resolve(__dirname, './integration/gradle-project/suite/index');
   const fixturePath = path.resolve(
     __dirname,
     '../../test-fixtures/gradle-project/'
   );
+
+  return runTests({
+    vscodeExecutablePath,
+    extensionDevelopmentPath,
+    extensionTestsPath,
+    launchArgs: [
+      fixturePath,
+      '--disable-extension=vscjava.vscode-java-pack',
+      '--disable-extension=redhat.java',
+      '--disable-extension=vscjava.vscode-java-dependency',
+      '--disable-extension=vscjava.vscode-java-test',
+      '--disable-extension=shengchen.vscode-checkstyle',
+      '--disable-extension=eamodio.gitlens',
+      '--disable-extension=sonarsource.sonarlint-vscode',
+      '--disable-extension=esbenp.prettier-vscode',
+      `--user-data-dir=${userDir}`,
+    ],
+  });
+}
+
+function runTestWithGradleMultiProject(
+  vscodeExecutablePath: string,
+  userDir: string
+): Promise<number> {
+  const extensionTestsPath = path.resolve(__dirname, './integration/gradle-multi-project/suite/index');
+  const fixturePath = path.resolve(
+    __dirname,
+    '../../test-fixtures/gradle-multi-project/'
+  );
+
+  return runTests({
+    vscodeExecutablePath,
+    extensionDevelopmentPath,
+    extensionTestsPath,
+    launchArgs: [
+      fixturePath,
+      '--disable-extension=vscjava.vscode-java-pack',
+      '--disable-extension=redhat.java',
+      '--disable-extension=vscjava.vscode-java-dependency',
+      '--disable-extension=vscjava.vscode-java-test',
+      '--disable-extension=shengchen.vscode-checkstyle',
+      '--disable-extension=eamodio.gitlens',
+      '--disable-extension=sonarsource.sonarlint-vscode',
+      '--disable-extension=esbenp.prettier-vscode',
+      `--user-data-dir=${userDir}`,
+    ],
+  });
+}
+
+async function main(): Promise<void> {
   const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'vscode-user'));
   fs.copySync(
     path.resolve(__dirname, '../../test-fixtures/vscode-user/User'),
@@ -34,23 +87,9 @@ async function main(): Promise<void> {
       stdio: 'inherit',
     });
 
-    await runTests({
-      vscodeExecutablePath,
-      extensionDevelopmentPath,
-      extensionTestsPath,
-      launchArgs: [
-        fixturePath,
-        '--disable-extension=vscjava.vscode-java-pack',
-        '--disable-extension=redhat.java',
-        '--disable-extension=vscjava.vscode-java-dependency',
-        '--disable-extension=vscjava.vscode-java-test',
-        '--disable-extension=shengchen.vscode-checkstyle',
-        '--disable-extension=eamodio.gitlens',
-        '--disable-extension=sonarsource.sonarlint-vscode',
-        '--disable-extension=esbenp.prettier-vscode',
-        `--user-data-dir=${tmpDir}`,
-      ],
-    });
+
+    await runTestWithGradle(vscodeExecutablePath, tmpDir);
+    await runTestWithGradleMultiProject(vscodeExecutablePath, tmpDir);
   } catch (err) {
     console.error('Failed to run tests', (err as Error).message);
     process.exit(1);
