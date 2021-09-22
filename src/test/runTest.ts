@@ -85,9 +85,8 @@ async function main(): Promise<void> {
 
   try {
     const vscodeExecutablePath = await downloadAndUnzipVSCode(VSCODE_VERSION);
-    const cliPath = resolveCliPathFromVSCodeExecutablePath(
-      vscodeExecutablePath
-    );
+    const cliPath =
+      resolveCliPathFromVSCodeExecutablePath(vscodeExecutablePath);
 
     cp.spawnSync(cliPath, ['--install-extension', 'vscjava.vscode-gradle'], {
       encoding: 'utf-8',
