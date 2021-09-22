@@ -28,6 +28,7 @@ export class Spotless {
           this.readyHandlers.forEach((handler) => handler(this.isReady));
         })
     );
+    this.gradleApi.getTaskProvider().provideTasks();
   }
 
   public dispose(): void {
@@ -39,7 +40,10 @@ export class Spotless {
   }
 
   private hasSpotlessTask(tasks: vscode.Task[]): boolean {
-    return !!tasks.find((task) => task.name === 'spotlessApply');
+    return !!tasks.find(
+      (task) =>
+        task.name === 'spotlessApply' || task.name.endsWith(':spotlessApply')
+    );
   }
 
   public async apply(
