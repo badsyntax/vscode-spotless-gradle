@@ -21,7 +21,7 @@ Supports all languages that Spotless supports.
 ## Requirements
 
 - [VS Code >= 1.45.0](https://code.visualstudio.com/download)
-- [Gradle Tasks >= 3.5.2](https://marketplace.visualstudio.com/items?itemName=richardwillis.vscode-gradle)
+- [Gradle Tasks >= 3.5.2](https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-gradle)
 - [Spotless Gradle Plugin >= 3.30.0](https://github.com/diffplug/spotless/tree/master/plugin-gradle)
 - [Java >= 8](https://adoptopenjdk.net/)
 
@@ -82,7 +82,7 @@ Disable other formatters to improve the performance, for example:
 
 This extension runs the `spotlessApply` Gradle task on the focused file using the Spotless [IDE hook](https://github.com/diffplug/spotless/blob/main/plugin-gradle/IDE_HOOK.md) feature. Untitled/Unsaved files are ignored.
 
-The vscode => Spotless interface is provided by the [Gradle Tasks](https://marketplace.visualstudio.com/items?itemName=richardwillis.vscode-gradle) extension.
+The vscode => Spotless interface is provided by the [Gradle Tasks](https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-gradle) extension.
 
 👉 [Architecture Overview](./ARCHITECTURE.md)
 

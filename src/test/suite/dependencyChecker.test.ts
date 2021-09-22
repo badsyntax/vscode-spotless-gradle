@@ -72,7 +72,7 @@ describe('Dependency checker', () => {
     assert.equal(isValid, false, 'Dependencies match');
     assert.ok(
       errorSpy.calledWith(
-        'Dependant extension versions are incompatible: richardwillis.vscode-gradle@^1.0.1. Update those extensions to use this version of Spotless Gradle.',
+        'Dependant extension versions are incompatible: vscjava.vscode-gradle@^1.0.1. Update those extensions to use this version of Spotless Gradle.',
         'Install Compatible Versions' as vscode.MessageOptions
       ),
       'Error message not shown'

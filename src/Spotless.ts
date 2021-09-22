@@ -64,7 +64,7 @@ export class Spotless {
     const cancelledDeferred = new Deferred();
 
     cancellationToken?.onCancellationRequested(() =>
-      cancelledDeferred.resolve()
+      cancelledDeferred.resolve(undefined)
     );
 
     let stdOut = '';
