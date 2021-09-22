@@ -104,7 +104,7 @@ jobs:
       - name: Build & publish extension
         env:
           AZURE_TOKEN: ${{ secrets.AZURE_TOKEN }}
-          OPENVSX_TOKEN: ${{ secrets.OPENVSX_TOKEN }}
+          OPENVSX_TOKEN: ${{ secrets.VSX_REGISTRY_ACCESS_TOKEN }}
         run: |
           tag=${GITHUB_REF#refs/tags/}
           echo "Setting package version $tag"
