@@ -20,20 +20,18 @@ export interface SpotlessDiff {
 
 export class SpotlessDiagnostics
   extends AsyncWait<void>
-  implements vscode.CodeActionProvider, vscode.Disposable {
-  public static readonly quickFixCodeActionKind = vscode.CodeActionKind.QuickFix.append(
-    'spotlessGradle'
-  );
+  implements vscode.CodeActionProvider, vscode.Disposable
+{
+  public static readonly quickFixCodeActionKind =
+    vscode.CodeActionKind.QuickFix.append('spotlessGradle');
   public static metadata: vscode.CodeActionProviderMetadata = {
     providedCodeActionKinds: [SpotlessDiagnostics.quickFixCodeActionKind],
   };
 
   private disposables = new Disposables();
   private diagnosticCollection: vscode.DiagnosticCollection;
-  private diagnosticDifferenceMap: Map<
-    vscode.Diagnostic,
-    Difference
-  > = new Map();
+  private diagnosticDifferenceMap: Map<vscode.Diagnostic, Difference> =
+    new Map();
   private codeActionsProvider: vscode.Disposable | undefined;
 
   constructor(
@@ -42,9 +40,8 @@ export class SpotlessDiagnostics
     private documentSelector: Array<vscode.DocumentFilter>
   ) {
     super();
-    this.diagnosticCollection = vscode.languages.createDiagnosticCollection(
-      DIAGNOSTICS_ID
-    );
+    this.diagnosticCollection =
+      vscode.languages.createDiagnosticCollection(DIAGNOSTICS_ID);
   }
 
   public register(): void {
@@ -92,7 +89,9 @@ export class SpotlessDiagnostics
           const diff = await this.getDiff(document, cancellationToken);
           this.updateDiagnostics(document, diff);
         } catch (e) {
-          logger.error(`Unable to provide diagnostics: ${e.message}`);
+          logger.error(
+            `Unable to provide diagnostics: ${(e as Error).message}`
+          );
         }
       });
     }
@@ -130,13 +129,14 @@ export class SpotlessDiagnostics
       }
     );
 
-    const onDidChangeActiveTextEditor = vscode.window.onDidChangeActiveTextEditor(
-      (editor?: vscode.TextEditor) => {
-        if (editor) {
-          void this.runDiagnostics(editor.document);
+    const onDidChangeActiveTextEditor =
+      vscode.window.onDidChangeActiveTextEditor(
+        (editor?: vscode.TextEditor) => {
+          if (editor) {
+            void this.runDiagnostics(editor.document);
+          }
         }
-      }
-    );
+      );
 
     this.disposables.add(
       onDidChangeTextDocument,

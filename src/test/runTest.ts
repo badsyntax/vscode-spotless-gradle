@@ -26,18 +26,13 @@ async function main(): Promise<void> {
 
   try {
     const vscodeExecutablePath = await downloadAndUnzipVSCode(VSCODE_VERSION);
-    const cliPath = resolveCliPathFromVSCodeExecutablePath(
-      vscodeExecutablePath
-    );
+    const cliPath =
+      resolveCliPathFromVSCodeExecutablePath(vscodeExecutablePath);
 
-    cp.spawnSync(
-      cliPath,
-      ['--install-extension', 'richardwillis.vscode-gradle'],
-      {
-        encoding: 'utf-8',
-        stdio: 'inherit',
-      }
-    );
+    cp.spawnSync(cliPath, ['--install-extension', 'vscjava.vscode-gradle'], {
+      encoding: 'utf-8',
+      stdio: 'inherit',
+    });
 
     await runTests({
       vscodeExecutablePath,
@@ -57,7 +52,7 @@ async function main(): Promise<void> {
       ],
     });
   } catch (err) {
-    console.error('Failed to run tests', err.message);
+    console.error('Failed to run tests', (err as Error).message);
     process.exit(1);
   } finally {
     fs.removeSync(tmpDir);

@@ -58,21 +58,21 @@ export class DependencyChecker {
   private getExtensionVersions(
     extensions: vscode.Extension<any>[]
   ): ExtensionVersion[] {
-    const {
-      extensionDependenciesCompatibility: compatibleVersions,
-    } = this.packageJson;
+    const { extensionDependenciesCompatibility: compatibleVersions } =
+      this.packageJson;
     return extensions.map((extensionDependency) => {
       const extensionVersion = extensionDependency.packageJSON.version;
       const requiredVersion = compatibleVersions![extensionDependency.id];
+      const validRange = semver.validRange(requiredVersion);
+      if (validRange === null) {
+        throw new Error('Invalid version range');
+      }
       return {
         id: extensionDependency.id,
         required: requiredVersion,
         compatible:
           extensionVersion === '0.0.0' ||
-          semver.satisfies(
-            extensionVersion,
-            semver.validRange(requiredVersion)
-          ),
+          semver.satisfies(extensionVersion, validRange),
       };
     });
   }
