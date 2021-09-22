@@ -46,14 +46,14 @@ jobs:
           build-root-directory: test-fixtures/gradle-project
           wrapper-directory: test-fixtures/gradle-project
           wrapper-cache-enabled: false
-      - name: Prepare Gradle
+      - name: Prepare Gradle (multi-project)
         uses: eskatos/gradle-command-action@v1
         with:
           arguments: build -x spotlessCheck
           build-root-directory: test-fixtures/gradle-multi-project
           wrapper-directory: test-fixtures/gradle-multi-project
           wrapper-cache-enabled: false
-      - name: Prepare Spotless
+      - name: Prepare Spotless (multi-project)
         uses: eskatos/gradle-command-action@v1
         with:
           arguments: spotlessDiagnose
@@ -80,7 +80,7 @@ jobs:
           build-root-directory: test-fixtures/gradle-project
           wrapper-directory: test-fixtures/gradle-project
           wrapper-cache-enabled: false
-      - name: Stop Gradle daemon
+      - name: Stop Gradle daemon (multi-project)
         uses: eskatos/gradle-command-action@v1
         with:
           arguments: --stop
