@@ -18,9 +18,9 @@ import {
   javaHelloFileContents,
   javaHelloFilePath,
   javaBasePath,
-} from '../testUtil';
-import { SPOTLESS_GRADLE_EXTENSION_ID } from '../../constants';
-import { ExtensionApi } from '../../extension';
+} from '../../testUtil';
+import { SPOTLESS_GRADLE_EXTENSION_ID } from '../../../constants';
+import { ExtensionApi } from '../../../extension';
 
 describe('Formatting', () => {
   const { logger, spotless } = vscode.extensions.getExtension(
@@ -178,7 +178,7 @@ describe('Formatting', () => {
   describe('Supported language types', async () => {
     const basePath = path.resolve(
       __dirname,
-      '../../../test-fixtures/gradle-project/src/main/resources/language-types'
+      '../../../../test-fixtures/gradle-project/src/main/resources/language-types'
     );
     const files = fs.readdirSync(basePath);
 

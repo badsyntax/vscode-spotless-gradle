@@ -1,0 +1,13 @@
+{
+  "editor.formatOnSave": false,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.spotlessGradle": true
+  },
+  "java.format.enabled": false,
+  "spotlessGradle.diagnostics.enable": false,
+  "spotlessGradle.format.enable": true,
+  "[java]": {
+    "editor.defaultFormatter": "richardwillis.vscode-spotless-gradle",
+    "spotlessGradle.diagnostics.enable": true
+  }
+}
