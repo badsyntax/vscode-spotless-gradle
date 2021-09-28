@@ -20,7 +20,7 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - name: Use Node ${{ matrix.node-version }}
-        uses: actions/setup-node@v2.4.0
+        uses: actions/setup-node@v2.4.1
         with:
           node-version: ${{ matrix.node-version }}
       - name: Use Java ${{ matrix.java-version }}
@@ -95,7 +95,7 @@ jobs:
     if: github.event_name == 'release' && github.event.action == 'published'
     steps:
       - uses: actions/checkout@v1
-      - uses: actions/setup-node@v2.4.0
+      - uses: actions/setup-node@v2.4.1
         with:
           node-version: 12.16.2
       - name: Install packages
