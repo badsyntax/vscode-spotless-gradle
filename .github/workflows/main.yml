@@ -33,28 +33,28 @@ jobs:
       - name: Lint extension
         run: npm run lint
       - name: Prepare Gradle
-        uses: eskatos/gradle-command-action@v1
+        uses: eskatos/gradle-command-action@v2.0.1
         with:
           arguments: build -x spotlessCheck
           build-root-directory: test-fixtures/gradle-project
           gradle-executable: test-fixtures/gradle-project/gradlew
           distributions-cache-enabled: false
       - name: Prepare Spotless
-        uses: eskatos/gradle-command-action@v1
+        uses: eskatos/gradle-command-action@v2.0.1
         with:
           arguments: spotlessDiagnose
           build-root-directory: test-fixtures/gradle-project
           gradle-executable: test-fixtures/gradle-project/gradlew
           distributions-cache-enabled: false
       - name: Prepare Gradle (multi-project)
-        uses: eskatos/gradle-command-action@v1
+        uses: eskatos/gradle-command-action@v2.0.1
         with:
           arguments: build -x spotlessCheck
           build-root-directory: test-fixtures/gradle-multi-project
           gradle-executable: test-fixtures/gradle-multi-project/gradlew
           distributions-cache-enabled: false
       - name: Prepare Spotless (multi-project)
-        uses: eskatos/gradle-command-action@v1
+        uses: eskatos/gradle-command-action@v2.0.1
         with:
           arguments: spotlessDiagnose
           build-root-directory: test-fixtures/gradle-multi-project
@@ -74,14 +74,14 @@ jobs:
         env:
           DISPLAY: ':99.0'
       - name: Stop Gradle daemon
-        uses: eskatos/gradle-command-action@v1
+        uses: eskatos/gradle-command-action@v2.0.1
         with:
           arguments: --stop
           build-root-directory: test-fixtures/gradle-project
           gradle-executable: test-fixtures/gradle-project/gradlew
           distributions-cache-enabled: false
       - name: Stop Gradle daemon (multi-project)
-        uses: eskatos/gradle-command-action@v1
+        uses: eskatos/gradle-command-action@v2.0.1
         with:
           arguments: --stop
           build-root-directory: test-fixtures/gradle-multi-project
