@@ -62,6 +62,7 @@ export class Spotless {
       `-PspotlessIdeHook=${sanitizedPath}`,
       '-PspotlessIdeHookUseStdIn',
       '-PspotlessIdeHookUseStdOut',
+      '--no-configuration-cache',
       '--quiet',
     ];
     const workspaceFolder = getWorkspaceFolder(document.uri);
