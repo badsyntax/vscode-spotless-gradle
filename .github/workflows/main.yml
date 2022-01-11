@@ -41,7 +41,7 @@ jobs:
       - name: Prepare Spotless
         uses: gradle/gradle-build-action@v2
         with:
-          arguments: spotlessDiagnose
+          arguments: spotlessDiagnose --no-configuration-cache
           build-root-directory: test-fixtures/gradle-project
           gradle-executable: test-fixtures/gradle-project/gradlew
       - name: Prepare Gradle (multi-project)
@@ -53,7 +53,7 @@ jobs:
       - name: Prepare Spotless (multi-project)
         uses: gradle/gradle-build-action@v2
         with:
-          arguments: spotlessDiagnose
+          arguments: spotlessDiagnose --no-configuration-cache
           build-root-directory: test-fixtures/gradle-multi-project
           gradle-executable: test-fixtures/gradle-multi-project/gradlew
       - name: Install test-fixtures NPM packages
