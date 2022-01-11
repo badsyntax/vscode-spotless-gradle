@@ -17,6 +17,10 @@ application {
     mainClassName = 'gradle.project.App'
 }
 
+jar { 
+  duplicatesStrategy(DuplicatesStrategy.EXCLUDE) 
+}
+
 spotless {
   java {
     googleJavaFormat()
