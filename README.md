@@ -22,12 +22,12 @@ Supports all languages that Spotless supports.
 
 - [VS Code >= 1.45.0](https://code.visualstudio.com/download)
 - [Gradle Tasks >= 3.5.2](https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-gradle)
-- [Spotless Gradle Plugin >= 3.30.0](https://github.com/diffplug/spotless/tree/master/plugin-gradle)
+- [Spotless Gradle Plugin >= 3.30.0](https://github.com/diffplug/spotless/tree/main/plugin-gradle)
 - [Java >= 8](https://adoptopenjdk.net/)
 
 ## Usage
 
-Before using this extension, ensure you've [configured Spotless](https://github.com/diffplug/spotless/tree/master/plugin-gradle) correctly in your Gradle build file. (Run `./gradlew spotlessDiagnose` to prepare & validate Spotless.)
+Before using this extension, ensure you've [configured Spotless](https://github.com/diffplug/spotless/tree/main/plugin-gradle) correctly in your Gradle build file. (Run `./gradlew spotlessDiagnose` to prepare & validate Spotless.)
 
 ### Enabling Spotless
 
