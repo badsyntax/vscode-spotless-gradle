@@ -27,6 +27,10 @@
     "editor.defaultFormatter": "richardwillis.vscode-spotless-gradle",
     "spotlessGradle.diagnostics.enable": true
   },
+  "[gradle]": {
+    "editor.defaultFormatter": "richardwillis.vscode-spotless-gradle",
+    "spotlessGradle.diagnostics.enable": true
+  },
   "[javascript]": {
     "editor.defaultFormatter": "richardwillis.vscode-spotless-gradle"
   },
@@ -75,5 +79,6 @@
   },
   "[objective-cpp]": {
     "editor.defaultFormatter": "richardwillis.vscode-spotless-gradle"
-  }
+  },
+  "java.configuration.updateBuildConfiguration": "automatic"
 }
