@@ -27,6 +27,7 @@ jobs:
         uses: actions/setup-java@v2.5.0
         with:
           java-version: ${{ matrix.java-version }}
+          distribution: 'adopt'
           architecture: x64
       - name: Install NPM Packages
         run: npm ci
