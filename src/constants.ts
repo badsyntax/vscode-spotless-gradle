@@ -5,6 +5,7 @@ export const ALL_SUPPORTED_LANGUAGES = [
   'scala',
   'sql',
   'groovy',
+  'gradle',
   'javascript',
   'javascriptreact',
   'typescript',

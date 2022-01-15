@@ -1,39 +1,44 @@
 plugins {
-    id 'java'
-    id 'application'
-    id 'groovy'
-    id 'com.diffplug.spotless' version '6.2.0'
+	id 'java'
+	id 'application'
+	id 'groovy'
+	id 'com.diffplug.spotless' version '6.2.0'
 }
 
 repositories {
-    jcenter()
+	jcenter()
+	mavenCentral()
 }
 
 dependencies {
-  implementation 'org.codehaus.groovy:groovy-all:3.0.9'
+	implementation 'org.codehaus.groovy:groovy-all:3.0.9'
 }
 
 application {
-    mainClassName = 'gradle.project.App'
+	mainClassName = 'gradle.project.App'
 }
 
-jar { 
-  duplicatesStrategy(DuplicatesStrategy.EXCLUDE) 
+jar {
+	duplicatesStrategy(DuplicatesStrategy.EXCLUDE)
 }
 
 spotless {
-  java {
-    googleJavaFormat()
-    removeUnusedImports()
-    trimTrailingWhitespace()
-    targetExclude "build/**"
-  }
-  groovy {
-    excludeJava()
-    greclipse()
-  }
-  typescript {
-    target 'src/**/*.ts'
-    prettier()
-  }
+	java {
+		googleJavaFormat()
+		removeUnusedImports()
+		trimTrailingWhitespace()
+		targetExclude "build/**"
+	}
+	groovy {
+		excludeJava()
+		greclipse()
+	}
+	groovyGradle {
+		target '*.gradle'
+		greclipse()
+	}
+	typescript {
+		target 'src/**/*.ts'
+		prettier()
+	}
 }
