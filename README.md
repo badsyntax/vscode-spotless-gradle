@@ -15,8 +15,7 @@ A VS Code extension to lint & format your code using [Spotless](https://github.c
 - Provides diagnostics to show invalid formatting (with quick fixes)
 - Provides a Spotless fixAll code action (`Format on Save`)
 - Provides a Spotless formatter (`Format Document`)
-
-Supports all languages that Spotless supports.
+- Supports all languages that Spotless supports
 
 ## Requirements
 
@@ -31,7 +30,7 @@ Before using this extension, ensure you've [configured Spotless](https://github.
 
 ### Enabling Spotless
 
-Spotless formatting & diagnostics are _disabled by default_. Change the settings to adjust this behaviour:
+Spotless formatting & diagnostics are _disabled by default_. Change the settings to adjust this behavior:
 
 ```json
 {
@@ -42,11 +41,14 @@ Spotless formatting & diagnostics are _disabled by default_. Change the settings
 }
 ```
 
-#### Format on Save
+#### Formatting
+
+Format on save:
 
 ```json
 {
   "[java]": {
+    "spotlessGradle.format.enable": true,
     "editor.codeActionsOnSave": {
       "source.fixAll.spotlessGradle": true
     }
@@ -54,26 +56,74 @@ Spotless formatting & diagnostics are _disabled by default_. Change the settings
 }
 ```
 
-#### Format Document
-
 If there are multiple formatters for a language type, set Spotless to be the default:
 
 ```json
 {
   "[java]": {
+    "spotlessGradle.format.enable": true,
     "editor.defaultFormatter": "richardwillis.vscode-spotless-gradle"
   }
 }
 ```
-
-### Other Optional Settings
 
 Disable other formatters to improve the performance, for example:
 
 ```json
 {
   "[java]": {
+    "spotlessGradle.format.enable": true,
     "files.trimTrailingWhitespace": false
+  }
+}
+```
+
+### Typical Usage
+
+As Spotless formatting is not a global feature, you should enable Spotless on a per-project basis, which is achieved by adding a `.vscode/settings.json` file to the root of the project
+
+Enable for specific languages:
+
+```json
+{
+  "java.format.enabled": false,
+  "[java]": {
+    "files.trimTrailingWhitespace": false,
+    "spotlessGradle.diagnostics.enable": true,
+    "spotlessGradle.format.enable": true,
+    "editor.defaultFormatter": "richardwillis.vscode-spotless-gradle",
+    "editor.codeActionsOnSave": {
+      "source.fixAll.spotlessGradle": true
+    }
+  },
+  "[gradle]": {
+    "files.trimTrailingWhitespace": false,
+    "spotlessGradle.diagnostics.enable": true,
+    "spotlessGradle.format.enable": true,
+    "editor.defaultFormatter": "richardwillis.vscode-spotless-gradle",
+    "editor.codeActionsOnSave": {
+      "source.fixAll.spotlessGradle": true
+    }
+  }
+}
+```
+
+Enable for all languages:
+
+```json
+{
+  "java.format.enabled": false,
+  "files.trimTrailingWhitespace": false,
+  "spotlessGradle.diagnostics.enable": true,
+  "spotlessGradle.format.enable": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.spotlessGradle": true
+  },
+  "[java]": {
+    "editor.defaultFormatter": "richardwillis.vscode-spotless-gradle"
+  },
+  "[gradle]": {
+    "editor.defaultFormatter": "richardwillis.vscode-spotless-gradle"
   }
 }
 ```
