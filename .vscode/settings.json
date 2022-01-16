@@ -7,9 +7,16 @@
   },
   "typescript.tsc.autoDetect": "off",
   "eslint.validate": ["javascript", "typescript"],
-  "editor.formatOnSave": false,
+  "editor.formatOnSave": true,
   "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": true
+    "source.fixAll.eslint": true,
+    "source.organizeImports": false
   },
-  "cSpell.words": ["Pspotless", "linting", "spotless"]
+  "cSpell.words": [
+    "linting",
+    "Pspotless",
+    "richardwillis",
+    "screencast",
+    "spotless"
+  ]
 }
