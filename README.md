@@ -132,13 +132,13 @@ Enable for all languages:
 
 This extension runs the `spotlessApply` Gradle task on the focused file using the Spotless [IDE hook](https://github.com/diffplug/spotless/blob/main/plugin-gradle/IDE_HOOK.md) feature. Untitled/Unsaved files are ignored.
 
-The vscode => Spotless interface is provided by the [Gradle Tasks](https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-gradle) extension.
+The vscode => Spotless interface is provided by the [Gradle for Java](https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-gradle) extension.
 
 👉 [Architecture Overview](./ARCHITECTURE.md)
 
 ## Troubleshooting
 
-View logs by selecting `Spotless Gradle` and/or `Gradle Tasks` in the output panel.
+View logs by selecting `Spotless Gradle` and/or `Gradle for Java` in the output panel.
 
 ## Support
 

@@ -639,7 +639,7 @@
                   word-wrap: normal;
                 "
               >
-                Gradle Tasks Extension
+                Gradle for Java Extension
               </div>
             </div>
           </div>
@@ -652,7 +652,7 @@
           font-size="12px"
           text-anchor="middle"
         >
-          Gradle Tasks...
+          Gradle for Java...
         </text>
       </switch>
     </g>

@@ -6,7 +6,7 @@ import { FixAllCodeActionProvider } from './FixAllCodeActionProvider';
 import { logger, Logger } from './logger';
 import { DocumentFormattingEditProvider } from './DocumentFormattingEditProvider';
 import { Spotless } from './Spotless';
-import { GRADLE_TASKS_EXTENSION_ID, OUTPUT_CHANNEL_ID } from './constants';
+import { GRADLE_FOR_JAVA_EXTENSION_ID, OUTPUT_CHANNEL_ID } from './constants';
 import { DependencyChecker } from './DependencyChecker';
 import { SpotlessDiagnostics } from './SpotlessDiagnostics';
 import { SpotlessRunner } from './SpotlessRunner';
@@ -34,14 +34,14 @@ export async function activate(
     return;
   }
 
-  const gradleTasksExtension = vscode.extensions.getExtension(
-    GRADLE_TASKS_EXTENSION_ID
+  const gradleForJavaExtension = vscode.extensions.getExtension(
+    GRADLE_FOR_JAVA_EXTENSION_ID
   );
-  if (!gradleTasksExtension || !gradleTasksExtension.isActive) {
-    throw new Error('Gradle Tasks extension is not installed/active');
+  if (!gradleForJavaExtension || !gradleForJavaExtension.isActive) {
+    throw new Error('Gradle for Java extension is not installed/active');
   }
 
-  const gradleApi = gradleTasksExtension.exports as GradleApi;
+  const gradleApi = gradleForJavaExtension.exports as GradleApi;
   const spotless = new Spotless(gradleApi);
   const spotlessRunner = new SpotlessRunner(spotless);
   const formatDocumentSelector: vscode.DocumentFilter[] = [];

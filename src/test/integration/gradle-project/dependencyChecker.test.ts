@@ -4,7 +4,7 @@ import * as vscode from 'vscode';
 import * as sinon from 'sinon';
 import * as assert from 'assert';
 import { DependencyChecker } from '../../../DependencyChecker';
-import { GRADLE_TASKS_EXTENSION_ID } from '../../../constants';
+import { GRADLE_FOR_JAVA_EXTENSION_ID } from '../../../constants';
 
 describe('Dependency checker', () => {
   afterEach(() => {
@@ -14,7 +14,7 @@ describe('Dependency checker', () => {
   it('should match patch versions', async () => {
     sinon.stub(vscode.extensions, 'getExtension').callsFake(() => {
       return {
-        id: GRADLE_TASKS_EXTENSION_ID,
+        id: GRADLE_FOR_JAVA_EXTENSION_ID,
         packageJSON: {
           version: '1.0.2',
         },
@@ -22,9 +22,9 @@ describe('Dependency checker', () => {
       } as vscode.Extension<any>;
     });
     const dependencyChecker = new DependencyChecker({
-      extensionDependencies: [GRADLE_TASKS_EXTENSION_ID],
+      extensionDependencies: [GRADLE_FOR_JAVA_EXTENSION_ID],
       extensionDependenciesCompatibility: {
-        [GRADLE_TASKS_EXTENSION_ID]: '^1.0.1',
+        [GRADLE_FOR_JAVA_EXTENSION_ID]: '^1.0.1',
       },
     });
     const isValid = await dependencyChecker.check();
@@ -34,7 +34,7 @@ describe('Dependency checker', () => {
   it('should match minor versions', async () => {
     sinon.stub(vscode.extensions, 'getExtension').callsFake(() => {
       return {
-        id: GRADLE_TASKS_EXTENSION_ID,
+        id: GRADLE_FOR_JAVA_EXTENSION_ID,
         packageJSON: {
           version: '1.1.0',
         },
@@ -42,9 +42,9 @@ describe('Dependency checker', () => {
       } as vscode.Extension<any>;
     });
     const dependencyChecker = new DependencyChecker({
-      extensionDependencies: [GRADLE_TASKS_EXTENSION_ID],
+      extensionDependencies: [GRADLE_FOR_JAVA_EXTENSION_ID],
       extensionDependenciesCompatibility: {
-        [GRADLE_TASKS_EXTENSION_ID]: '^1.0.1',
+        [GRADLE_FOR_JAVA_EXTENSION_ID]: '^1.0.1',
       },
     });
     const isValid = await dependencyChecker.check();
@@ -55,7 +55,7 @@ describe('Dependency checker', () => {
     const errorSpy = sinon.spy(vscode.window, 'showErrorMessage');
     sinon.stub(vscode.extensions, 'getExtension').callsFake(() => {
       return {
-        id: GRADLE_TASKS_EXTENSION_ID,
+        id: GRADLE_FOR_JAVA_EXTENSION_ID,
         packageJSON: {
           version: '2.0.0',
         },
@@ -63,9 +63,9 @@ describe('Dependency checker', () => {
       } as vscode.Extension<any>;
     });
     const dependencyChecker = new DependencyChecker({
-      extensionDependencies: [GRADLE_TASKS_EXTENSION_ID],
+      extensionDependencies: [GRADLE_FOR_JAVA_EXTENSION_ID],
       extensionDependenciesCompatibility: {
-        [GRADLE_TASKS_EXTENSION_ID]: '^1.0.1',
+        [GRADLE_FOR_JAVA_EXTENSION_ID]: '^1.0.1',
       },
     });
     const isValid = await dependencyChecker.check();

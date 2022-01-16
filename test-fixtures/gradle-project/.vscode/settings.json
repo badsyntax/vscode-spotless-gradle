@@ -13,7 +13,7 @@
   "files.trimTrailingWhitespace": false,
   "[java]": {
     "editor.defaultFormatter": "richardwillis.vscode-spotless-gradle",
-    "spotlessGradle.diagnostics.enable": true,
+    "spotlessGradle.diagnostics.enable": true
   },
   "[kotlinscript]": {
     "editor.defaultFormatter": "richardwillis.vscode-spotless-gradle"

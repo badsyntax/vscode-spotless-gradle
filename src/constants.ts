@@ -25,7 +25,7 @@ export const ALL_SUPPORTED_LANGUAGES = [
   'objective-c',
   'objective-cpp',
 ];
-export const GRADLE_TASKS_EXTENSION_ID = 'vscjava.vscode-gradle';
+export const GRADLE_FOR_JAVA_EXTENSION_ID = 'vscjava.vscode-gradle';
 export const SPOTLESS_GRADLE_EXTENSION_ID =
   'richardwillis.vscode-spotless-gradle';
 
