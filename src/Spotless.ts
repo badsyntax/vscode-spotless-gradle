@@ -1,7 +1,8 @@
 import * as path from 'path';
 import * as util from 'util';
 import * as vscode from 'vscode';
-import { ExtensionApi as GradleApi, Output, RunBuildOpts } from 'vscode-gradle';
+import { ExtensionApi as GradleApi, RunBuildOpts } from 'vscode-gradle';
+import type { Output } from 'vscode-gradle';
 import { logger } from './logger';
 import { getWorkspaceFolder, sanitizePath } from './util';
 import {
@@ -11,6 +12,9 @@ import {
 } from './constants';
 import { Deferred } from './Deferred';
 import { Disposables } from './Disposables';
+
+const OUTPUT_STDOUT = 1;
+const OUTPUT_STDERR = 0;
 
 export class Spotless {
   private disposables = new Disposables();
@@ -85,10 +89,10 @@ export class Spotless {
           output.getOutputBytes_asU8()
         );
         switch (output.getOutputType()) {
-          case Output.OutputType.STDOUT:
+          case OUTPUT_STDOUT:
             stdOut += outputString;
             break;
-          case Output.OutputType.STDERR:
+          case OUTPUT_STDERR:
             stdErr += outputString;
             break;
         }
