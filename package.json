@@ -118,7 +118,7 @@
     "eslint-plugin-sonarjs": "^0.11.0",
     "fs-extra": "^10.0.0",
     "glob": "^7.2.0",
-    "mocha": "^9.2.0",
+    "mocha": "^10.1.0",
     "prettier": "^2.5.1",
     "sinon": "^13.0.1",
     "snyk": "^1.849.0",
