@@ -28,7 +28,7 @@ jobs:
         with:
           languages: ${{ matrix.language }}
       - name: Use Node 12.16.2
-        uses: actions/setup-node@v2.5.1
+        uses: actions/setup-node@v3.6.0
         with:
           node-version: 12.16.2
       - name: Build
