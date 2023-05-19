@@ -78,7 +78,96 @@
           "description": "Enable/disable diagnostics"
         }
       }
-    }
+    },
+    "languages": [
+      {
+        "id": "java",
+        "extensions": [
+          ".java"
+        ]
+      },
+      {
+        "id": "groovy",
+        "extensions": [
+          ".groovy",
+          ".gvy",
+          ".gy",
+          ".gsh"
+        ]
+      },
+      {
+        "id": "kotlin",
+        "extensions": [
+          ".kt"
+        ]
+      },
+      {
+        "id": "cpp",
+        "extensions": [
+          ".cpp",
+          ".h"
+        ]
+      },
+      {
+        "id": "c",
+        "extensions": [
+          ".c",
+          ".h"
+        ]
+      },
+      {
+        "id": "json",
+        "extensions": [
+          ".json"
+        ]
+      },
+      {
+        "id": "yaml",
+        "extensions": [
+          ".yaml",
+          ".yml"
+        ]
+      },
+      {
+        "id": "javascript",
+        "extensions": [
+          ".js"
+        ]
+      },
+      {
+        "id": "typescript",
+        "extensions": [
+          ".ts"
+        ]
+      },
+      {
+        "id": "sql",
+        "extensions": [
+          ".sql"
+        ]
+      },
+      {
+        "id": "markdown",
+        "extensions": [
+          ".md"
+        ]
+      },
+      {
+        "id": "python",
+        "extensions": [
+          ".py",
+          ".rpy",
+          ".pyw",
+          ".cpy",
+          ".SConstruct",
+          ".Sconstruct",
+          ".sconstruct",
+          ".SConscript",
+          ".gyp",
+          ".gypi"
+        ]
+      }
+    ]
   },
   "scripts": {
     "vscode:prepublish": "npm run compile:prod",
