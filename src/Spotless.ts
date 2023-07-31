@@ -1,8 +1,8 @@
 import * as path from 'path';
 import * as util from 'util';
 import * as vscode from 'vscode';
-import { ExtensionApi as GradleApi, RunBuildOpts } from 'vscode-gradle';
-import type { Output } from 'vscode-gradle';
+import { ExtensionApi as GradleApi } from 'vscode-gradle';
+import type { Output, RunTaskOpts } from 'vscode-gradle';
 import { logger } from './logger';
 import { getWorkspaceFolder, sanitizePath } from './util';
 import {
@@ -61,16 +61,15 @@ export class Spotless {
     }
     const basename = path.basename(document.uri.fsPath);
     const sanitizedPath = sanitizePath(document.uri.fsPath);
+    const workspaceFolder = getWorkspaceFolder(document.uri);
+    const cancelledDeferred = new Deferred();
+
     const args = [
-      'spotlessApply',
       `-PspotlessIdeHook=${sanitizedPath}`,
       '-PspotlessIdeHookUseStdIn',
       '-PspotlessIdeHookUseStdOut',
-      '--no-configuration-cache',
       '--quiet',
     ];
-    const workspaceFolder = getWorkspaceFolder(document.uri);
-    const cancelledDeferred = new Deferred();
 
     cancellationToken?.onCancellationRequested(() =>
       cancelledDeferred.resolve(undefined)
@@ -79,7 +78,8 @@ export class Spotless {
     let stdOut = '';
     let stdErr = '';
 
-    const runBuildOpts: RunBuildOpts = {
+    const runBuildOpts: RunTaskOpts = {
+      taskName: 'spotlessApply',
       projectFolder: workspaceFolder.uri.fsPath,
       args,
       input: document.getText(),
@@ -101,7 +101,7 @@ export class Spotless {
 
     logger.info(`Running spotlessApply on ${basename}`);
 
-    const runBuild = this.gradleApi.runBuild(runBuildOpts);
+    const runBuild = this.gradleApi.runTask(runBuildOpts);
 
     await Promise.race([runBuild, cancelledDeferred.promise]);
 

@@ -2,7 +2,7 @@
   "name": "vscode-spotless-gradle",
   "displayName": "Spotless Gradle",
   "description": "Format your source files using Spotless via Gradle",
-  "version": "0.0.0",
+  "version": "1.3.1",
   "private": true,
   "publisher": "richardwillis",
   "readme": "README.md",
@@ -78,7 +78,96 @@
           "description": "Enable/disable diagnostics"
         }
       }
-    }
+    },
+    "languages": [
+      {
+        "id": "java",
+        "extensions": [
+          ".java"
+        ]
+      },
+      {
+        "id": "groovy",
+        "extensions": [
+          ".groovy",
+          ".gvy",
+          ".gy",
+          ".gsh"
+        ]
+      },
+      {
+        "id": "kotlin",
+        "extensions": [
+          ".kt"
+        ]
+      },
+      {
+        "id": "cpp",
+        "extensions": [
+          ".cpp",
+          ".h"
+        ]
+      },
+      {
+        "id": "c",
+        "extensions": [
+          ".c",
+          ".h"
+        ]
+      },
+      {
+        "id": "json",
+        "extensions": [
+          ".json"
+        ]
+      },
+      {
+        "id": "yaml",
+        "extensions": [
+          ".yaml",
+          ".yml"
+        ]
+      },
+      {
+        "id": "javascript",
+        "extensions": [
+          ".js"
+        ]
+      },
+      {
+        "id": "typescript",
+        "extensions": [
+          ".ts"
+        ]
+      },
+      {
+        "id": "sql",
+        "extensions": [
+          ".sql"
+        ]
+      },
+      {
+        "id": "markdown",
+        "extensions": [
+          ".md"
+        ]
+      },
+      {
+        "id": "python",
+        "extensions": [
+          ".py",
+          ".rpy",
+          ".pyw",
+          ".cpy",
+          ".SConstruct",
+          ".Sconstruct",
+          ".sconstruct",
+          ".SConscript",
+          ".gyp",
+          ".gypi"
+        ]
+      }
+    ]
   },
   "scripts": {
     "vscode:prepublish": "npm run compile:prod",
@@ -91,7 +180,7 @@
     "test": "node ./out/test/runTests.js",
     "install:ext": "code --install-extension vscode-spotless-gradle-0.0.0.vsix --force",
     "preinstall:ext": "npm run package",
-    "snyk-protect": "snyk protect",
+    "snyk-protect": "",
     "prepare": "npm run snyk-protect",
     "compile:dev": "webpack --mode development",
     "compile:prod": "webpack --mode production",
@@ -134,5 +223,5 @@
     "semver": "^7.3.5",
     "vscode-gradle": "^3.10.1"
   },
-  "snyk": true
+  "snyk": false
 }
